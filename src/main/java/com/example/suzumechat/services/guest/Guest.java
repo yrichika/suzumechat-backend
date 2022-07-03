@@ -1,8 +1,8 @@
 package com.example.suzumechat.services.guest;
 
-import java.sql.Blob;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,7 +13,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Type;
-import org.springframework.data.relational.core.mapping.Embedded.Nullable;
 
 @Entity
 @Table(name="guest")
@@ -36,7 +35,7 @@ public class Guest {
     private byte[] passphraseEnc; // ClientLoginRequests.passphraseEnc
 
     // true: authenticated, false: rejected, null: not authenticated nor rejected yet
-    @Nullable
+    @Column(nullable = true)
     private Boolean isAuthenticated; // ClientLoginRequest.isAuthenticated;
 
     // requestClientIdHash

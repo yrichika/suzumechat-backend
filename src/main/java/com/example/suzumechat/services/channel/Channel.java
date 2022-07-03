@@ -1,8 +1,8 @@
 package com.example.suzumechat.services.channel;
 
-import java.sql.Blob;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,7 +13,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Type;
-import org.springframework.data.relational.core.mapping.Embedded.Nullable;
+
 
 @Entity
 @Table(name = "channel")
@@ -39,8 +39,8 @@ public class Channel {
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
     private byte[] clientChannelTokenEnc;
-    
-    @Nullable
+
+    @Column(nullable = true)
     private String secretKeyEnc;
     
     @Temporal(TemporalType.TIMESTAMP)
