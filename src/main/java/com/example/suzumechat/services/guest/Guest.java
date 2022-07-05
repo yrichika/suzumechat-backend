@@ -41,7 +41,10 @@ public class Guest {
     // requestClientIdHash
     // visitor when just requested to join a chat channel
     private String visitorIdHashed; // ClientLoginRequests.requestClientIdHash
-    private String visitorIdEnc; // ClientLoginRequests.requestClientIdEnc
+    @Lob
+    @Type(type = "org.hibernate.type.BinaryType")
+    private byte[] visitorIdEnc; // ClientLoginRequests.requestClientIdEnc
+    
     private String channelId;
 
     @Temporal(TemporalType.TIMESTAMP)
