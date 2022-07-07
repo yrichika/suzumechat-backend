@@ -1,4 +1,4 @@
-package com.example.suzumechat.services.utility;
+package com.example.suzumechat.service.utility;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

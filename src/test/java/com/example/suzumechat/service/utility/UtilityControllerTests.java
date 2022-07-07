@@ -1,4 +1,4 @@
-package com.example.suzumechat.services.utility;
+package com.example.suzumechat.service.utility;
 
 
 import org.junit.jupiter.api.Test;
@@ -10,6 +10,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import com.example.suzumechat.config.SecurityConfig;
+import com.example.suzumechat.service.utility.UtilityController;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
