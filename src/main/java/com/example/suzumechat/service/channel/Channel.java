@@ -1,4 +1,4 @@
-package com.example.suzumechat.services.channel;
+package com.example.suzumechat.service.channel;
 
 import java.util.Date;
 
@@ -14,14 +14,21 @@ import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Type;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
 
 @Entity
+@Data
+@RequiredArgsConstructor
+@AllArgsConstructor
 @Table(name = "channel")
 public class Channel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
+    @Column(unique = true)
     private String channelId;
     private String hostIdHashed; // Host Id
 
