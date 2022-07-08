@@ -15,7 +15,10 @@ import com.example.suzumechat.testutil.stub.factory.ChannelFactory;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -44,7 +47,7 @@ public class ChannelRepositoryTests {
     }
 
     /*
-      These tests are not necessary, but I just wanted to experiment with spring data jpa.
+      Some tests are unnecessary, but I just wanted to experiment with spring data jpa.
      */
 
     @Test
@@ -71,6 +74,35 @@ public class ChannelRepositoryTests {
     }
 
     @Test
+    public void findAllByCreatedAtBefore_should_return_all_channels_before_specified_hour() {
+
+        // REFACTOR: This is a little confusing test.
+        val someHour = random.integer.nextInt(10);
+        val hoursAgo = LocalDateTime.now().minusHours(someHour);
+        val createdAt = Date.from(Timestamp.valueOf(hoursAgo).toInstant());
+
+        val howMany = (int) random.integer.nextInt(10);
+        for (int i = 0; i < howMany; i++) {
+            val channel = factory.make();
+            // at this point @CreationTimestamp takes effect
+            // and you cannot override createdAt timestamp
+            db.persist(channel);
+
+            // retrieve saved record
+            Optional<Channel> saved = repository.findById(channel.getId());
+            // and set createdAt
+            saved.orElseThrow().setCreatedAt(createdAt);
+            // then update the record
+            db.merge(saved.get());
+        }
+
+        val result = repository.findAllByCreatedAtBefore(createdAt);
+
+        assertThat(result.size()).isEqualTo(howMany);
+    }
+
+
+    @Test
     public void deleteByChannelIdIn_should_delete_channels_by_given_channel_ids() {
 
         val channelIds = new ArrayList<String>();
@@ -79,6 +111,7 @@ public class ChannelRepositoryTests {
             db.persist(channel);
             channelIds.add(channel.getChannelId());
         }
+
         // check if all channels exists
         channelIds.forEach(channelId -> {
             val before = repository.findByChannelId(channelId);
