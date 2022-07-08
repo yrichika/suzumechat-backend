@@ -1,31 +1,32 @@
-package com.example.suzumechat.services.guest;
+package com.example.suzumechat.service.guest;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import lombok.*;
 
 @Entity
+@Data
+@RequiredArgsConstructor
+@AllArgsConstructor
 @Table(name="guest")
 public class Guest {
     // もともと、AuthenticatedClientsとClientLoginRequestsに分かれていたフィールドを１つにまとめた。
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String guestIdHashed;
+
+    @Column(unique = true)
+    private String guestIdHashed; // AuthenticatedClientIdHashed
     
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
-    private byte[] guestIdEnc;
+    private byte[] guestIdEnc; // AuthenticatedClientIdEnc
 
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
@@ -40,6 +41,7 @@ public class Guest {
 
     // requestClientIdHash
     // visitor when just requested to join a chat channel
+    @Column(unique = true)
     private String visitorIdHashed; // ClientLoginRequests.requestClientIdHash
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
@@ -48,7 +50,10 @@ public class Guest {
     private String channelId;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @UpdateTimestamp
     private Date updatedAt;
+
     @Temporal(TemporalType.TIMESTAMP)
+    @CreationTimestamp
     private Date createdAt;
 }

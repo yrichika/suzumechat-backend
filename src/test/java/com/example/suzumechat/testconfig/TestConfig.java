@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.random.pattern.RandomString;
 import com.example.suzumechat.testutil.stub.factory.ChannelFactory;
+import com.example.suzumechat.testutil.stub.factory.GuestFactory;
 
 @TestConfiguration
 public class TestConfig {
@@ -16,7 +17,14 @@ public class TestConfig {
     }
 
     @Bean
+    public GuestFactory guestFactory() {
+        return new GuestFactory();
+    }
+
+    @Bean
     public TestRandom testRandom() {
         return new TestRandom();
     }
+
+
 }
