@@ -23,21 +23,23 @@ public class Channel {
 
     // for channel management
     private String channelTokenId;
-    private String channelNameEnc;
+    @Lob
+    @Type(type = "org.hibernate.type.BinaryType")
+    private byte[] channelNameEnc;
     private String hostChannelTokenHashed;
-    private String loginChannelTokenHashed;
 
+    private String loginChannelTokenHashed;
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
     private byte[] loginChannelTokenEnc;
-    private String clientChannelTokenHashed;
 
+    private String guestChannelTokenHashed; // clientChannelTokenHashed
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
-    private byte[] clientChannelTokenEnc;
+    private byte[] guestChannelTokenEnc; // clientChannelTokenEnc
 
     @Column(nullable = true)
-    private String secretKeyEnc;
+    private byte[] secretKeyEnc;
     
     @Temporal(TemporalType.TIMESTAMP)
     @UpdateTimestamp

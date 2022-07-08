@@ -8,10 +8,14 @@ public class RandomInteger {
    private Random random = new Random();
    
    public Integer nextInt() {
-       return between(0, 100000);
+       return nextInt(100000);
    }
 
-   public Integer between(int min, int max) {
+   public Integer nextInt(Integer max) {
+    return between(1, max);
+   }
+
+   public Integer between(Integer min, Integer max) {
         val range = max - min + 1;
         return random.nextInt(range) + min;
    }

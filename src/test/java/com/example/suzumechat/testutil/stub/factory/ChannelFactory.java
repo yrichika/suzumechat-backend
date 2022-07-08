@@ -24,13 +24,13 @@ public class ChannelFactory {
     private String channelId = null;
     private String hostIdHashed = null;
     private String channelTokenId = null;
-    private String channelNameEnc = null;
+    private byte[] channelNameEnc = null;
     private String hostChannelTokenHashed = null;
     private String loginChannelTokenHashed = null;
     private byte[] loginChannelTokenEnc = null;
-    private String clientChannelTokenHashed = null;
-    private byte[] clientChannelTokenEnc = null;
-    private String secretKeyEnc = null;
+    private String guestChannelTokenHashed = null;
+    private byte[] guestChannelTokenEnc = null;
+    private byte[] secretKeyEnc = null;
     private Date updatedAt = null;
     private Date createdAt = null;
 
@@ -46,7 +46,7 @@ public class ChannelFactory {
             this.channelTokenId, random.string.alphanumeric()
         );
         val channelNameEnc = TestHelper.getOrDefault(
-            this.channelNameEnc, random.string.alphanumeric()
+            this.channelNameEnc, random.string.alphanumeric().getBytes()
         );
         val hostChannelTokenHashed = TestHelper.getOrDefault(
             this.hostChannelTokenHashed, random.string.alphanumeric()
@@ -57,11 +57,11 @@ public class ChannelFactory {
         val loginChannelTokenEnc = TestHelper.getOrDefault(
             this.loginChannelTokenEnc, random.string.alphanumeric().getBytes()
         );
-        val clientChannelTokenHashed = TestHelper.getOrDefault(
-            this.clientChannelTokenHashed, random.string.alphanumeric()
+        val guestChannelTokenHashed = TestHelper.getOrDefault(
+            this.guestChannelTokenHashed, random.string.alphanumeric()
         );
-        val clientChannelTokenEnc = TestHelper.getOrDefault(
-            this.clientChannelTokenEnc, random.string.alphanumeric().getBytes()
+        val guestChannelTokenEnc = TestHelper.getOrDefault(
+            this.guestChannelTokenEnc, random.string.alphanumeric().getBytes()
         );
         val secretKeyEnc = TestHelper.getOrDefault(
             this.secretKeyEnc, null
@@ -78,8 +78,8 @@ public class ChannelFactory {
             hostChannelTokenHashed,
             loginChannelTokenHashed,
             loginChannelTokenEnc,
-            clientChannelTokenHashed,
-            clientChannelTokenEnc,
+            guestChannelTokenHashed,
+            guestChannelTokenEnc,
             secretKeyEnc,
             updatedAt,
             createdAt
@@ -97,8 +97,8 @@ public class ChannelFactory {
         hostChannelTokenHashed = null;
         loginChannelTokenHashed = null;
         loginChannelTokenEnc = null;
-        clientChannelTokenHashed = null;
-        clientChannelTokenEnc = null;
+        guestChannelTokenHashed = null;
+        guestChannelTokenEnc = null;
         secretKeyEnc = null;
         updatedAt = null;
         createdAt = null;
