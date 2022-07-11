@@ -2,10 +2,9 @@ package com.example.suzumechat.utility;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.Base64;
 
 import org.springframework.stereotype.Component;
-
-import lombok.val;
 
 
 @Component
@@ -19,6 +18,6 @@ public class Hash {
 
     public String digest(String text) {
         byte[] bytes = digest.digest(text.getBytes(StandardCharsets.UTF_8));
-        return new String(bytes, StandardCharsets.UTF_8);
+        return Base64.getEncoder().encodeToString(bytes);
     }
 }
