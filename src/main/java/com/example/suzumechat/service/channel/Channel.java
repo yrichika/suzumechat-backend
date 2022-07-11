@@ -10,7 +10,7 @@ import lombok.*;
 
 @Entity
 @Data
-@RequiredArgsConstructor
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder=true)
 @Table(name = "channel")

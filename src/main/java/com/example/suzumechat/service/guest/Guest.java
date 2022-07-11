@@ -12,7 +12,7 @@ import lombok.*;
 
 @Entity
 @Data
-@RequiredArgsConstructor
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder=true)
 @Table(name="guest")
@@ -22,9 +22,10 @@ public class Guest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = true)
     private String guestIdHashed; // AuthenticatedClientIdHashed
     
+    @Column(nullable = true)
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
     private byte[] guestIdEnc; // AuthenticatedClientIdEnc
