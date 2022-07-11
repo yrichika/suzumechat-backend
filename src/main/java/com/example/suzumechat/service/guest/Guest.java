@@ -14,6 +14,7 @@ import lombok.*;
 @Data
 @RequiredArgsConstructor
 @AllArgsConstructor
+@Builder(toBuilder=true)
 @Table(name="guest")
 public class Guest {
     // もともと、AuthenticatedClientsとClientLoginRequestsに分かれていたフィールドを１つにまとめた。

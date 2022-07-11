@@ -12,6 +12,7 @@ import lombok.*;
 @Data
 @RequiredArgsConstructor
 @AllArgsConstructor
+@Builder(toBuilder=true)
 @Table(name = "channel")
 public class Channel {
     @Id
