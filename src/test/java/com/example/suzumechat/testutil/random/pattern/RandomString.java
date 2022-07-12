@@ -5,6 +5,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * This class is only for testing. NOT SECURE random string.
  */
@@ -14,11 +16,13 @@ public class RandomString {
     public static final String lower = caps.toLowerCase(Locale.ROOT);
     public static final String digits = "0123456789";
     public static final String alphanumeric = caps + lower + digits;
+
     private final Random random;
 
-    public RandomString() {
-        random = new Random();
+    public RandomString(Random random) {
+        this.random = random;
     }
+
 
     public String alphanumeric() {
         return alphanumeric(5);
