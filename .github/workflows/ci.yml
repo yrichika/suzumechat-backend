@@ -54,8 +54,8 @@ jobs:
     - name: Build, tag, and push image to ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ secrets.AWS_ECR_URI_DEV }}
+        ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME_DEV }}
+        IMAGE_TAG: ${{ github.sha }}
       run: |
-        IMAGE_TAG=latest
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
