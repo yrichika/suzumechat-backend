@@ -28,6 +28,13 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
+
+    - name: Create encryption key for testing
+      uses: "finnp/create-file-action@master"
+      env:
+        FILE_NAME: "plain_keyset.json"
+        FILE_DATA: ${{ secrets.TINK_PLAIN_KEYSET }}
+
     - name: Build with Gradle
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:
