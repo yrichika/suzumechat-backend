@@ -40,9 +40,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
             .antMatchers("/").permitAll()
         );
-        http.csrf().disable();
-        // Cookie based CSRF token FIXME: not working
-        // http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+        // http.csrf().disable();
+        http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
         
 
         return http.build();
@@ -56,13 +55,13 @@ public class SecurityConfig {
 
         // Access-Control-Allow-Origin
         // config.addAllowedOrigin("http://localhost:3000");
-        config.addAllowedOrigin(CorsConfiguration.ALL);
+        // config.addAllowedOrigin(CorsConfiguration.ALL);
         // Access-Control-Allow-Methods
-        config.addAllowedMethod(CorsConfiguration.ALL);
+        // config.addAllowedMethod(CorsConfiguration.ALL);
         // Access-Control-Allow-Headers
-        config.addAllowedHeader(CorsConfiguration.ALL);
-        // 全部許可する設定にする
-        // config.applyPermitDefaultValues();
+        // config.addAllowedHeader(CorsConfiguration.ALL);
+        // Allow all
+        config.applyPermitDefaultValues();
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

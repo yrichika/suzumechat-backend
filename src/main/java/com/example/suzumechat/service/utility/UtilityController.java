@@ -12,9 +12,8 @@ public class UtilityController {
         return 1;
     }
 
-    // TODO:
-    // @GetMapping("/csrfToken")
-    // public CsrfToken csrfToken(CsrfToken token) {
-  	//     return token;
-    // }
+    @GetMapping("/csrfToken")
+    public CsrfToken csrfToken(CsrfToken token) {
+  	    return token;
+    }
 }
