@@ -18,11 +18,11 @@ public class RandomInteger {
        return nextInt(100000);
    }
 
-   public Integer nextInt(Integer max) {
+   public Integer nextInt(int max) {
         return between(1, max);
    }
 
-   public Integer between(Integer min, Integer max) {
+   public Integer between(int min, int max) {
         val range = max - min + 1;
         return random.nextInt(range) + min;
    }

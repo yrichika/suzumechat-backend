@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
+import com.example.suzumechat.service.channel.dto.HostChannel;
 import com.example.suzumechat.utility.Crypter;
 import com.example.suzumechat.utility.Hash;
 import com.example.suzumechat.utility.Random;
@@ -34,8 +35,10 @@ public class ChannelServiceImpl implements ChannelService {
     // 目的に合って動くかはまだ不明
     @Transactional
     @Override
-    public CreatedChannel create(String hostId, String channelName) throws Exception {
+    public CreatedChannel create(String channelName) throws Exception {
+        val hostId = UUID.randomUUID().toString();
         val hostIdHashed = hash.digest(hostId);
+
         val channelId = UUID.randomUUID().toString();
         val ad = channelId;
 
@@ -69,7 +72,9 @@ public class ChannelServiceImpl implements ChannelService {
         channel.setSecretKeyEnc(secretKeyEnc);
 
         repository.save(channel);
-        return new CreatedChannel(hostChannelToken, loginChannelToken, secretKey);
+
+        val hostChannel = new HostChannel(hostChannelToken, loginChannelToken, secretKey);
+        return new CreatedChannel(hostId, hostChannel);
     }
 
     @Override

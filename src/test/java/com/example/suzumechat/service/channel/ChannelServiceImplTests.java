@@ -43,21 +43,21 @@ public class ChannelServiceImplTests {
 
     @Test
     public void create_should_create_channel_and_save_to_db() throws Exception {
-        val hostId = testRandom.string.alphanumeric();
+
         val channelName = testRandom.string.alphanumeric();
         val testRandomValue = testRandom.string.alphanumeric();
         val testRandomValueSecretKey = testRandom.string.alphanumeric();
         
-        when(hash.digest(hostId)).thenReturn(testRandomValue);
         when(random.alphanumeric()).thenReturn(testRandomValue);
         when(random.alphanumeric(32)).thenReturn(testRandomValueSecretKey);
 
-        CreatedChannel result = service.create(hostId, channelName);
+        CreatedChannel result = service.create(channelName);
 
         verify(repository, times(1)).save(any(Channel.class));
-        assertThat(result.getHostChannelToken()).isEqualTo(testRandomValue);
-        assertThat(result.getLoginChannelToken()).isEqualTo(testRandomValue);
-        assertThat(result.getSecretKey()).isEqualTo(testRandomValueSecretKey);
+        
+        assertThat(result.getHostChannel().getHostChannelToken()).isEqualTo(testRandomValue);
+        assertThat(result.getHostChannel().getLoginChannelToken()).isEqualTo(testRandomValue);
+        assertThat(result.getHostChannel().getSecretKey()).isEqualTo(testRandomValueSecretKey);
     }
 
     @Test
