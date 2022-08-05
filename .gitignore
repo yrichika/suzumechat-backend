@@ -2,6 +2,7 @@ enc_keyset.json
 plain_keyset.json
 HELP.md
 MEMO.md
+RULES.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
