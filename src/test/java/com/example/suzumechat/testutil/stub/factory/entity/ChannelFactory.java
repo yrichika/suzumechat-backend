@@ -14,7 +14,6 @@ import lombok.val;
 import lombok.experimental.Accessors;
 
 @Accessors(fluent = true, chain = true)
-@Getter
 @Setter
 public class ChannelFactory {
 

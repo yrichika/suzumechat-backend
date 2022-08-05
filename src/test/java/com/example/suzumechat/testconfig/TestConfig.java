@@ -10,7 +10,6 @@ import com.example.suzumechat.testutil.stub.factory.dto.HostChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.entity.GuestFactory;
 import com.example.suzumechat.testutil.stub.factory.form.CreatingChannelFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @TestConfiguration
 public class TestConfig {
