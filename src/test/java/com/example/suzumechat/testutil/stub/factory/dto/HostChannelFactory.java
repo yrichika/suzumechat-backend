@@ -17,8 +17,6 @@ public class HostChannelFactory {
 
     @Autowired
     private TestRandom random;
-    @Autowired
-    private ChannelFactory channelFactory;
 
     private String hostChannelToken = null;
     private String loginChannelToken = null;

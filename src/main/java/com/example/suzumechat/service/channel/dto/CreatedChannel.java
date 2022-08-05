@@ -6,6 +6,6 @@ import lombok.*;
 @Builder(toBuilder=true)
 @AllArgsConstructor
 public class CreatedChannel {
-    private final String hostId;
-    private final HostChannel hostChannel;
+    private String hostId;
+    private HostChannel hostChannel;
 }
