@@ -1,4 +1,4 @@
-package com.example.suzumechat.testutil.stub.factory;
+package com.example.suzumechat.testutil.stub.factory.entity;
 
 import java.util.Date;
 

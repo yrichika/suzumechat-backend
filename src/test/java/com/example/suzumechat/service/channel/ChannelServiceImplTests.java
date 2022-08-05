@@ -16,7 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
-import com.example.suzumechat.testutil.stub.factory.ChannelFactory;
+import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
 import com.example.suzumechat.utility.*;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.*;

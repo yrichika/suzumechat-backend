@@ -8,7 +8,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import com.example.suzumechat.testconfig.TestConfig;
-import com.example.suzumechat.testutil.stub.factory.GuestFactory;
+import com.example.suzumechat.testutil.stub.factory.entity.GuestFactory;
+
 import static org.assertj.core.api.Assertions.*;
 
 import lombok.val;
