@@ -1,4 +1,4 @@
-package com.example.suzumechat.service.channel;
+package com.example.suzumechat.service.channel.controller;
 
 import javax.servlet.http.HttpSession;
 
@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.suzumechat.service.channel.ChannelService;
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
 import com.example.suzumechat.service.channel.dto.HostChannel;
 import com.example.suzumechat.service.channel.form.CreatingChannel;
@@ -22,13 +23,14 @@ public class ChannelController {
     private ModelMapper modelMapper;
     @Autowired
     private ChannelService service;
+    @Autowired
+    private HttpSession session;
 
     @PostMapping("/createChannel")
     public HostChannel create(
         @Validated(ValidationOrder.class)
         @RequestBody
-        final CreatingChannel form,
-        final HttpSession session
+        final CreatingChannel form
     ) throws Exception {
 
         final CreatedChannel channel = service.create(form.getChannelName());
@@ -37,5 +39,9 @@ public class ChannelController {
         session.setAttribute("secretKeyHost", channel.getHostChannel().getSecretKey());
         return channel.getHostChannel();
     }
+
+    // TODO: chat
+
+    // TODO: accepting guest request
 
 }

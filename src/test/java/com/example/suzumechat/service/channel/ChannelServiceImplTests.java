@@ -2,6 +2,7 @@ package com.example.suzumechat.service.channel;
 
 import static org.mockito.ArgumentMatchers.any;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -14,12 +15,18 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
+import com.example.suzumechat.service.channel.dto.VisitorsStatus;
+import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
+import com.example.suzumechat.service.guest.Guest;
+import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
+import com.example.suzumechat.testutil.stub.factory.entity.GuestFactory;
 import com.example.suzumechat.utility.*;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import lombok.val;
 
@@ -31,12 +38,15 @@ public class ChannelServiceImplTests {
     @MockBean Crypter crypter;
     @MockBean Random random;
     @MockBean ChannelRepository repository;
+    @MockBean GuestRepository guestRepository;
 
     @InjectMocks
     ChannelServiceImpl service;
 
     @Autowired
     ChannelFactory factory;
+    @Autowired
+    GuestFactory guestFactory;
 
     @Autowired
     TestRandom testRandom;
@@ -58,6 +68,60 @@ public class ChannelServiceImplTests {
         assertThat(result.getHostChannel().getHostChannelToken()).isEqualTo(testRandomValue);
         assertThat(result.getHostChannel().getLoginChannelToken()).isEqualTo(testRandomValue);
         assertThat(result.getHostChannel().getSecretKey()).isEqualTo(testRandomValueSecretKey);
+    }
+
+    @Test
+    public void getVisitorsStatus_should_return_all_visitors_status_belongs_to_the_channel() throws Exception {
+        val hostId = testRandom.string.alphanumeric();
+        final List<Guest> guests = new ArrayList<>();
+        int howMany = testRandom.integer.between(1, 5);
+        for (int i = 0; i < howMany; i++) {
+            val guest = guestFactory.make();
+            guests.add(guest);
+        }
+
+        final List<String> valuesToAssertSimply = setUpGetStatusVisitorMock(hostId, guests);
+
+        final List<VisitorsStatus> result = service.getVisitorsStatus(hostId);
+
+        for (int i = 0; i < guests.size(); i++) {
+            assertThat(result.get(i).getVisitorId()).isEqualTo(valuesToAssertSimply.get(i));
+            assertThat(result.get(i).getVisitorId()).isEqualTo(valuesToAssertSimply.get(i));
+            assertThat(result.get(i).getVisitorId()).isEqualTo(valuesToAssertSimply.get(i));
+            assertThat(result.get(i).getIsAuthenticated()).isEqualTo(guests.get(i).getIsAuthenticated());
+        }
+    }
+
+    @Test
+    public void getVisitorsStatus_should_throw_exception_if_channel_not_found() {
+        val hostId = testRandom.string.alphanumeric();
+        val hostIdHashed = testRandom.string.alphanumeric();
+        when(repository.findByHostIdHashed(hostIdHashed)).thenReturn(null);
+
+        assertThrows(HostUnauthorizedException.class, () -> {
+            service.getVisitorsStatus(hostId);
+        });
+    }
+
+    private List<String> setUpGetStatusVisitorMock(
+        final String hostId,
+        final List<Guest> guests
+    ) throws Exception {
+        val hostIdHashed = testRandom.string.alphanumeric();
+        val channel = factory.make();
+        when(hash.digest(hostId)).thenReturn(hostIdHashed);
+        when(repository.findByHostIdHashed(hostIdHashed)).thenReturn(channel);
+        when(guestRepository.findAllByChannelIdOrderByIdDesc(channel.getChannelId())).thenReturn(guests);
+
+        final List<String> valuesToAssertSimply = new ArrayList<>();
+        for (Guest guest: guests) {
+            val valueToAssertSimply = testRandom.string.alphanumeric();
+            when(crypter.decrypt(guest.getVisitorIdEnc(), channel.getChannelId())).thenReturn(valueToAssertSimply);
+            when(crypter.decrypt(guest.getCodenameEnc(), channel.getChannelId())).thenReturn(valueToAssertSimply);
+            when(crypter.decrypt(guest.getPassphraseEnc(), channel.getChannelId())).thenReturn(valueToAssertSimply);
+            valuesToAssertSimply.add(valueToAssertSimply);
+        }
+        return valuesToAssertSimply;
     }
 
     @Test

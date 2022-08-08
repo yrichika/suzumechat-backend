@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
 import com.example.suzumechat.service.channel.dto.HostChannel;
+import com.example.suzumechat.service.channel.dto.VisitorsStatus;
+import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
+import com.example.suzumechat.service.guest.Guest;
+import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.utility.Crypter;
 import com.example.suzumechat.utility.Hash;
 import com.example.suzumechat.utility.Random;
@@ -23,6 +28,8 @@ public class ChannelServiceImpl implements ChannelService {
     
     @Autowired
     private ChannelRepository repository;
+    @Autowired
+    private GuestRepository guestRepository;
 
     @Autowired
     private Hash hash;
@@ -35,7 +42,7 @@ public class ChannelServiceImpl implements ChannelService {
     // 目的に合って動くかはまだ不明
     @Transactional
     @Override
-    public CreatedChannel create(String channelName) throws Exception {
+    public CreatedChannel create(final String channelName) throws Exception {
         val hostId = UUID.randomUUID().toString();
         val hostIdHashed = hash.digest(hostId);
 
@@ -78,7 +85,35 @@ public class ChannelServiceImpl implements ChannelService {
     }
 
     @Override
-    public List<Channel> getItemsOrderThan(Integer hours) {
+    public List<VisitorsStatus> getVisitorsStatus(final String hostId) throws Exception {
+        val hostIdHashed = hash.digest(hostId);
+        val channel = repository.findByHostIdHashed(hostIdHashed);
+        if (channel == null) {
+            throw new HostUnauthorizedException();
+        }
+        val channelId = channel.getChannelId();
+        final List<Guest> guests = guestRepository.findAllByChannelIdOrderByIdDesc(channelId);
+        
+        return toVisitorsStatus(guests, channelId);
+    }
+
+    private List<VisitorsStatus> toVisitorsStatus(final List<Guest> guests, final String channelId) throws Exception {
+        return guests.stream().map(guest -> {
+            try {
+                val visitorId = crypter.decrypt(guest.getVisitorIdEnc(), channelId);
+                val codename = crypter.decrypt(guest.getCodenameEnc(), channelId);
+                val passphrase = crypter.decrypt(guest.getPassphraseEnc(), channelId);
+                val isAuthenticated = guest.getIsAuthenticated();
+                return new VisitorsStatus(visitorId, codename, passphrase, isAuthenticated);
+            } catch (Exception exception) {
+                throw new RuntimeException(exception);
+            }
+        }).collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<Channel> getItemsOrderThan(final Integer hours) {
         val hoursAgo = LocalDateTime.now().minusHours(hours);
         val hoursAgoTimestamp = Timestamp.valueOf(hoursAgo).toInstant();
         val date = Date.from(hoursAgoTimestamp);
@@ -87,7 +122,7 @@ public class ChannelServiceImpl implements ChannelService {
 
     @Transactional
     @Override
-    public void trashSecretKeyByHostChannelToken(String hostChannelToken) {
+    public void trashSecretKeyByHostChannelToken(final String hostChannelToken) {
         val hashed = hash.digest(hostChannelToken);
         val channel = repository.findByHostChannelTokenHashed(hashed);
         channel.setSecretKeyEnc(null);

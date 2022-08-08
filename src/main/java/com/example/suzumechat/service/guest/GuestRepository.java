@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface GuestRepository extends JpaRepository<Guest, Integer> {
     
-    public Guest findByChannelId(String channelId);
+    public List<Guest> findAllByChannelIdOrderByIdDesc(String channelId);
 
     public Guest findByGuestIdHashed(String guestIdHashed);
 

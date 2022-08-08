@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.dto.CreatedChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.dto.HostChannelFactory;
+import com.example.suzumechat.testutil.stub.factory.dto.VisitorsStatusFactory;
 import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.entity.GuestFactory;
 import com.example.suzumechat.testutil.stub.factory.form.CreatingChannelFactory;
@@ -42,6 +43,11 @@ public class TestConfig {
     @Bean
     public CreatedChannelFactory createdChannelFactory() {
         return new CreatedChannelFactory();
+    }
+
+    @Bean
+    public VisitorsStatusFactory visitorsStatusFactory() {
+        return new VisitorsStatusFactory();
     }
 
     // Security customizations for tests

@@ -1,4 +1,4 @@
-package com.example.suzumechat.service.channel;
+package com.example.suzumechat.service.channel.controller;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -16,6 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.mockito.Mockito.*;
 
 import com.example.suzumechat.config.SecurityConfig;
+import com.example.suzumechat.service.channel.ChannelService;
+import com.example.suzumechat.service.channel.controller.ChannelController;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.stub.factory.dto.CreatedChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.form.CreatingChannelFactory;
@@ -36,7 +38,7 @@ public class ChannelControllerTests {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    private ObjectMapper ObjectMapper;
+    private ObjectMapper objectMapper;
 
     @Autowired
     private CreatingChannelFactory formFactory;
@@ -48,11 +50,11 @@ public class ChannelControllerTests {
         val url = "/createChannel";
 
         val form = formFactory.make();
-        String json = ObjectMapper.writeValueAsString(form);
+        String json = objectMapper.writeValueAsString(form);
 
         val createdChannel = createdChannelFactory.make();
         when(service.create(form.getChannelName())).thenReturn(createdChannel);
-        val expectedHostChannel = ObjectMapper.writeValueAsString(createdChannel.getHostChannel());
+        val expectedHostChannel = objectMapper.writeValueAsString(createdChannel.getHostChannel());
 
         val request = post(url)
             .contentType(MediaType.APPLICATION_JSON)
