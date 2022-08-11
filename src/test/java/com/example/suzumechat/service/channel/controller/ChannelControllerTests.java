@@ -54,7 +54,7 @@ public class ChannelControllerTests {
 
         val createdChannel = createdChannelFactory.make();
         when(service.create(form.getChannelName())).thenReturn(createdChannel);
-        val expectedHostChannel = objectMapper.writeValueAsString(createdChannel.getHostChannel());
+        val expectedHostChannel = objectMapper.writeValueAsString(createdChannel.hostChannel());
 
         val request = post(url)
             .contentType(MediaType.APPLICATION_JSON)
@@ -63,8 +63,8 @@ public class ChannelControllerTests {
 
         mockMvc.perform(request)
             .andExpect(status().isOk())
-            .andExpect(request().sessionAttribute("hostId", createdChannel.getHostId()))
-            .andExpect(request().sessionAttribute("secretKeyHost", createdChannel.getHostChannel().getSecretKey()))
+            .andExpect(request().sessionAttribute("hostId", createdChannel.hostId()))
+            .andExpect(request().sessionAttribute("secretKeyHost", createdChannel.hostChannel().secretKey()))
             .andExpect(content().json(expectedHostChannel));
     }
 }

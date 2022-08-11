@@ -65,9 +65,9 @@ public class ChannelServiceImplTests {
 
         verify(repository, times(1)).save(any(Channel.class));
         
-        assertThat(result.getHostChannel().getHostChannelToken()).isEqualTo(testRandomValue);
-        assertThat(result.getHostChannel().getLoginChannelToken()).isEqualTo(testRandomValue);
-        assertThat(result.getHostChannel().getSecretKey()).isEqualTo(testRandomValueSecretKey);
+        assertThat(result.hostChannel().hostChannelToken()).isEqualTo(testRandomValue);
+        assertThat(result.hostChannel().loginChannelToken()).isEqualTo(testRandomValue);
+        assertThat(result.hostChannel().secretKey()).isEqualTo(testRandomValueSecretKey);
     }
 
     @Test
@@ -85,10 +85,10 @@ public class ChannelServiceImplTests {
         final List<VisitorsStatus> result = service.getVisitorsStatus(hostId);
 
         for (int i = 0; i < guests.size(); i++) {
-            assertThat(result.get(i).getVisitorId()).isEqualTo(valuesToAssertSimply.get(i));
-            assertThat(result.get(i).getVisitorId()).isEqualTo(valuesToAssertSimply.get(i));
-            assertThat(result.get(i).getVisitorId()).isEqualTo(valuesToAssertSimply.get(i));
-            assertThat(result.get(i).getIsAuthenticated()).isEqualTo(guests.get(i).getIsAuthenticated());
+            assertThat(result.get(i).visitorId()).isEqualTo(valuesToAssertSimply.get(i));
+            assertThat(result.get(i).visitorId()).isEqualTo(valuesToAssertSimply.get(i));
+            assertThat(result.get(i).visitorId()).isEqualTo(valuesToAssertSimply.get(i));
+            assertThat(result.get(i).isAuthenticated()).isEqualTo(guests.get(i).getIsAuthenticated());
         }
     }
 

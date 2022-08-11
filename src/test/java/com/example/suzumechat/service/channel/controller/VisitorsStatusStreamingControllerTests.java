@@ -114,10 +114,10 @@ public class VisitorsStatusStreamingControllerTests {
 
     private String resultStringPattern(final VisitorsStatus expected) {
         return "data:\\[\\{\\\"visitorId\\\":\\\""
-            + expected.getVisitorId() + "\\\","
-            + "\\\"codename\\\":" + "\\\"" + expected.getCodename() + "\\\","
-            + "\\\"passphrase\\\":" + "\\\"" + expected.getPassphrase() + "\\\","
-            + "\\\"isAuthenticated\\\":" + expected.getIsAuthenticated().toString()
+            + expected.visitorId() + "\\\","
+            + "\\\"codename\\\":" + "\\\"" + expected.codename() + "\\\","
+            + "\\\"passphrase\\\":" + "\\\"" + expected.passphrase() + "\\\","
+            + "\\\"isAuthenticated\\\":" + expected.isAuthenticated().toString()
             + ".*\\}\\]";
     }
 

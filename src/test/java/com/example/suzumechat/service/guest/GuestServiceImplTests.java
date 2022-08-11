@@ -44,9 +44,9 @@ public class GuestServiceImplTests {
         VisitorRequest result = service.createGuestAsVisitor(codename, passphrase, channelId);
 
         verify(repository, times(1)).save(any(Guest.class));
-        assertThat(result.getCodename()).isEqualTo(codename);
-        assertThat(result.getPassphrase()).isEqualTo(passphrase);
-        assertThat(result.getIsAuthenticated().isEmpty()).isTrue();
+        assertThat(result.codename()).isEqualTo(codename);
+        assertThat(result.passphrase()).isEqualTo(passphrase);
+        assertThat(result.isAuthenticated().isEmpty()).isTrue();
     }
 
     @Test

@@ -35,9 +35,9 @@ public class ChannelController {
 
         final CreatedChannel channel = service.create(form.getChannelName());
 
-        session.setAttribute("hostId", channel.getHostId());
-        session.setAttribute("secretKeyHost", channel.getHostChannel().getSecretKey());
-        return channel.getHostChannel();
+        session.setAttribute("hostId", channel.hostId());
+        session.setAttribute("secretKeyHost", channel.hostChannel().secretKey());
+        return channel.hostChannel();
     }
 
     // TODO: chat
