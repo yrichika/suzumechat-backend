@@ -6,11 +6,15 @@ import com.example.suzumechat.service.channel.dto.CreatedChannel;
 import com.example.suzumechat.service.channel.dto.VisitorsStatus;
 
 public interface ChannelService {
-   public CreatedChannel create(String channelName) throws Exception;
+   public CreatedChannel create(final String channelName) throws Exception;
 
-   public List<VisitorsStatus> getVisitorsStatus(String hostId) throws Exception;
+   public Channel getByHostChannelToken(final String hostChannelToken) throws Exception;
 
-   public List<Channel> getItemsOrderThan(Integer hour);
+   public List<VisitorsStatus> getVisitorsStatus(final String channelId) throws Exception;
 
-   public void trashSecretKeyByHostChannelToken(String hostChannelToken);
+   public String getGuestChannelToken(final String hostId, final String userSentHostChannelToken) throws Exception;
+
+   public List<Channel> getItemsOrderThan(final Integer hour);
+
+   public void trashSecretKeyByHostChannelToken(final String hostChannelToken);
 }

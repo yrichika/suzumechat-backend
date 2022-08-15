@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
@@ -37,6 +38,7 @@ import com.example.suzumechat.service.channel.dto.VisitorsStatus;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.dto.VisitorsStatusFactory;
+import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
 
 import lombok.*;
 
@@ -56,6 +58,9 @@ public class VisitorsStatusStreamingControllerTests {
     @Autowired
     VisitorsStatusFactory factory;
 
+    @Autowired
+    ChannelFactory channelFactory;
+
     final String urlPrefix = "/host/requestStatus/";
     private String hostChannelToken;
     private String url;
@@ -69,12 +74,13 @@ public class VisitorsStatusStreamingControllerTests {
     @Test
     public void fetch_should_return_SSE_of_visitorsStatus_list() throws Exception {
 
-        val hostId = random.string.alphanumeric();
+        val channel = channelFactory.make();
         val visitorStatus = factory.make();
         final List<VisitorsStatus> statuses = Arrays.asList(visitorStatus);
-        when(service.getVisitorsStatus(hostId)).thenReturn(statuses);
+        when(service.getByHostChannelToken(hostChannelToken)).thenReturn(channel);
+        when(service.getVisitorsStatus(channel.getChannelId())).thenReturn(statuses);
 
-        val request = get(url).sessionAttr("hostId", hostId);
+        val request = get(url);
 
         val preResult = mockMvc.perform(request)
             .andExpect(status().isOk())
@@ -119,15 +125,5 @@ public class VisitorsStatusStreamingControllerTests {
             + "\\\"passphrase\\\":" + "\\\"" + expected.passphrase() + "\\\","
             + "\\\"isAuthenticated\\\":" + expected.isAuthenticated().toString()
             + ".*\\}\\]";
-    }
-
-
-    @Test
-    public void fetch_should_return_401_if_hostId_session_value_does_not_exists() throws Exception {
-
-        val request = get(url);
-
-        mockMvc.perform(request)
-            .andExpect(status().isUnauthorized());
     }
 }

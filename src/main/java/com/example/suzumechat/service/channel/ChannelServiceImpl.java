@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,17 +86,23 @@ public class ChannelServiceImpl implements ChannelService {
     }
 
     @Override
-    public List<VisitorsStatus> getVisitorsStatus(final String hostId) throws Exception {
-        val hostIdHashed = hash.digest(hostId);
-        val channel = repository.findByHostIdHashed(hostIdHashed);
+    public Channel getByHostChannelToken(final String hostChannelToken) throws Exception {
+        val hostChannelTokenHashed = hash.digest(hostChannelToken);
+        val channel = repository.findByHostChannelTokenHashed(hostChannelTokenHashed);
         if (channel == null) {
             throw new HostUnauthorizedException();
         }
-        val channelId = channel.getChannelId();
+        return channel;
+    }
+
+
+    @Override
+    public List<VisitorsStatus> getVisitorsStatus(final String channelId) throws Exception {
         final List<Guest> guests = guestRepository.findAllByChannelIdOrderByIdDesc(channelId);
         
         return toVisitorsStatus(guests, channelId);
     }
+
 
     private List<VisitorsStatus> toVisitorsStatus(final List<Guest> guests, final String channelId) throws Exception {
         return guests.stream().map(guest -> {
@@ -113,12 +120,38 @@ public class ChannelServiceImpl implements ChannelService {
 
 
     @Override
+    @Cacheable(value = "guestChannelToken", key = "#hostId")
+    public String getGuestChannelToken(final String hostId, final String userSentHostChannelToken) throws Exception {
+        val channel = getChannelByHostId(hostId);
+    
+        val userSentHostChannelTokenHashed = hash.digest(userSentHostChannelToken);
+        if (userSentHostChannelTokenHashed != channel.getHostChannelTokenHashed()) {
+            throw new HostUnauthorizedException();
+        }
+
+        val guestChannelToken = crypter.decrypt(channel.getGuestChannelTokenEnc(), channel.getChannelId());
+        return guestChannelToken;
+    }
+
+
+    public Channel getChannelByHostId(final String hostId) throws HostUnauthorizedException {
+        val hostIdHashed = hash.digest(hostId);
+        val channel = repository.findByHostIdHashed(hostIdHashed);
+        if (channel == null) {
+            throw new HostUnauthorizedException();
+        }
+        return channel;
+    }
+
+
+    @Override
     public List<Channel> getItemsOrderThan(final Integer hours) {
         val hoursAgo = LocalDateTime.now().minusHours(hours);
         val hoursAgoTimestamp = Timestamp.valueOf(hoursAgo).toInstant();
         val date = Date.from(hoursAgoTimestamp);
         return repository.findAllByCreatedAtBefore(date);
     }
+
 
     @Transactional
     @Override

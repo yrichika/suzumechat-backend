@@ -17,6 +17,7 @@ import com.example.suzumechat.service.channel.dto.VisitorsStatus;
 import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
 
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 
 @RestController
@@ -32,18 +33,23 @@ public class VisitorsStatusStreamingController {
         @PathVariable("hostChannelToken")
         final String hostChannelToken
     ) throws Exception {
-        final String hostId = (String) session.getAttribute("hostId");
-        if (hostId == null) {
-            throw new HostUnauthorizedException();
-        }
- 
+
+        // WORKING: コメントちゃんとすること
+        // SSE uses different session because its URL is different from when created channel (it's direct URL access,
+        // not using `back` prefixed Next proxy).
+        // Because it's different session, you can't use `session.getAttribute("hostId");`
+        // That's why it's getting channel data from hostChannelToken in the URL.
+        final String channelId = service.getByHostChannelToken(hostChannelToken).getChannelId();
+
+        // FIXME: read interval seconds from settings.properties.
+        //        then change it when testing. Testing is too slow right now for this interval.
         return Flux.interval(Duration.ofSeconds(4))
             .map(sequence -> {
                 try {
                     return ServerSentEvent.<List<VisitorsStatus>> builder()
                     .id(String.valueOf(sequence))
                     .event("message")
-                    .data(service.getVisitorsStatus(hostId))
+                    .data(service.getVisitorsStatus(channelId))
                     .build();
                 } catch (Exception exception) {
                     throw new RuntimeException(exception);
