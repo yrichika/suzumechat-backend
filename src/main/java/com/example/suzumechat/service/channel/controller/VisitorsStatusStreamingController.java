@@ -34,7 +34,6 @@ public class VisitorsStatusStreamingController {
         final String hostChannelToken
     ) throws Exception {
 
-        // WORKING: コメントちゃんとすること
         // SSE uses different session because its URL is different from when created channel (it's direct URL access,
         // not using `back` prefixed Next proxy).
         // Because it's different session, you can't use `session.getAttribute("hostId");`
