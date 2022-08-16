@@ -1,26 +1,18 @@
 package com.example.suzumechat.service.channel.controller;
 
-import javax.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.suzumechat.service.channel.ChannelService;
 import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
 
 import lombok.*;
-import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@Slf4j
 public class ChatController {
 
     @Autowired
@@ -40,7 +32,7 @@ public class ChatController {
     public void receiveAndBroadcast(
         @DestinationVariable("hostChannelToken") final String hostChannelToken,
         @Payload final String messageEnc,
-        SimpMessageHeaderAccessor headerAccessor
+        final SimpMessageHeaderAccessor headerAccessor
     ) throws Exception {
         val hostId = headerAccessor.getSessionAttributes().get("hostId").toString();
 
