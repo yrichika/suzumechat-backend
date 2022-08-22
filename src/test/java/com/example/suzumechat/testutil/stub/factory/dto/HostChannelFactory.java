@@ -19,22 +19,22 @@ public class HostChannelFactory {
     private TestRandom random;
 
     private String hostChannelToken = null;
-    private String loginChannelToken = null;
+    private String joinChannelToken = null;
     private String secretKey = null;
 
     public HostChannel make() {
         val hostChannelToken = TestHelper.getOrDefault(this.hostChannelToken, random.string.alphanumeric(5));
-        val loginChannelToken = TestHelper.getOrDefault(this.loginChannelToken, random.string.alphanumeric(5));
+        val joinChannelToken = TestHelper.getOrDefault(this.joinChannelToken, random.string.alphanumeric(5));
         val secretKey = TestHelper.getOrDefault(this.secretKey, random.string.alphanumeric(5));
 
-        val hostChannel = new HostChannel(hostChannelToken, loginChannelToken, secretKey);
+        val hostChannel = new HostChannel(hostChannelToken, joinChannelToken, secretKey);
         reset();
         return hostChannel;
     }
 
     public void reset() {
         hostChannelToken = null;
-        loginChannelToken = null;
+        joinChannelToken = null;
         secretKey = null;
     }
 }

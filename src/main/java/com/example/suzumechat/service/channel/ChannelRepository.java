@@ -17,7 +17,7 @@ public interface ChannelRepository extends JpaRepository<Channel, Integer> {
 
     public Channel findByGuestChannelTokenHashed(String guestChannelTokenHashed);
 
-    public Channel findByLoginChannelTokenHashed(String loginChannelTokenHashed);
+    public Channel findByJoinChannelTokenHashed(String joinChannelTokenHashed);
 
     @Query("select channel from Channel channel where channel.createdAt <= :createdAt")
     public List<Channel> findAllByCreatedAtBefore(@Param("createdAt") Date createdAt);

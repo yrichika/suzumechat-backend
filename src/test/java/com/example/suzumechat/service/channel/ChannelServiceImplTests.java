@@ -66,7 +66,7 @@ public class ChannelServiceImplTests {
         verify(repository, times(1)).save(any(Channel.class));
         
         assertThat(result.hostChannel().hostChannelToken()).isEqualTo(testRandomValue);
-        assertThat(result.hostChannel().loginChannelToken()).isEqualTo(testRandomValue);
+        assertThat(result.hostChannel().joinChannelToken()).isEqualTo(testRandomValue);
         assertThat(result.hostChannel().secretKey()).isEqualTo(testRandomValueSecretKey);
     }
 

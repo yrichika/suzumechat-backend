@@ -56,9 +56,9 @@ public class ChannelServiceImpl implements ChannelService {
         val hostChannelToken = random.alphanumeric();
         val hostChannelTokenHashed = hash.digest(hostChannelToken);
 
-        val loginChannelToken = random.alphanumeric();
-        val loginChannelTokenHashed = hash.digest(loginChannelToken);
-        val loginChannelTokenEnc = crypter.encrypt(loginChannelToken, ad);
+        val joinChannelToken = random.alphanumeric();
+        val joinChannelTokenHashed = hash.digest(joinChannelToken);
+        val joinChannelTokenEnc = crypter.encrypt(joinChannelToken, ad);
 
         val guestChannelToken = random.alphanumeric();
         val guestChannelTokenHashed = hash.digest(guestChannelToken);
@@ -73,15 +73,15 @@ public class ChannelServiceImpl implements ChannelService {
         channel.setChannelTokenId(channelTokenId);
         channel.setChannelNameEnc(channelNameEnc);
         channel.setHostChannelTokenHashed(hostChannelTokenHashed);
-        channel.setLoginChannelTokenHashed(loginChannelTokenHashed);
-        channel.setLoginChannelTokenEnc(loginChannelTokenEnc);
+        channel.setJoinChannelTokenHashed(joinChannelTokenHashed);
+        channel.setJoinChannelTokenEnc(joinChannelTokenEnc);
         channel.setGuestChannelTokenHashed(guestChannelTokenHashed);
         channel.setGuestChannelTokenEnc(guestChannelTokenEnc);
         channel.setSecretKeyEnc(secretKeyEnc);
 
         repository.save(channel);
 
-        val hostChannel = new HostChannel(hostChannelToken, loginChannelToken, secretKey);
+        val hostChannel = new HostChannel(hostChannelToken, joinChannelToken, secretKey);
         return new CreatedChannel(hostId, hostChannel);
     }
 

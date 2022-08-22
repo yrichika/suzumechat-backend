@@ -25,8 +25,8 @@ public class ChannelFactory {
     private String channelTokenId = null;
     private byte[] channelNameEnc = null;
     private String hostChannelTokenHashed = null;
-    private String loginChannelTokenHashed = null;
-    private byte[] loginChannelTokenEnc = null;
+    private String joinChannelTokenHashed = null;
+    private byte[] joinChannelTokenEnc = null;
     private String guestChannelTokenHashed = null;
     private byte[] guestChannelTokenEnc = null;
     private byte[] secretKeyEnc = null;
@@ -50,11 +50,11 @@ public class ChannelFactory {
         val hostChannelTokenHashed = TestHelper.getOrDefault(
             this.hostChannelTokenHashed, random.string.alphanumeric()
         );
-        val loginChannelTokenHashed = TestHelper.getOrDefault(
-            this.loginChannelTokenHashed, random.string.alphanumeric()
+        val joinChannelTokenHashed = TestHelper.getOrDefault(
+            this.joinChannelTokenHashed, random.string.alphanumeric()
         );
-        val loginChannelTokenEnc = TestHelper.getOrDefault(
-            this.loginChannelTokenEnc, random.string.alphanumeric().getBytes()
+        val joinChannelTokenEnc = TestHelper.getOrDefault(
+            this.joinChannelTokenEnc, random.string.alphanumeric().getBytes()
         );
         val guestChannelTokenHashed = TestHelper.getOrDefault(
             this.guestChannelTokenHashed, random.string.alphanumeric()
@@ -75,8 +75,8 @@ public class ChannelFactory {
             channelTokenId,
             channelNameEnc,
             hostChannelTokenHashed,
-            loginChannelTokenHashed,
-            loginChannelTokenEnc,
+            joinChannelTokenHashed,
+            joinChannelTokenEnc,
             guestChannelTokenHashed,
             guestChannelTokenEnc,
             secretKeyEnc,
@@ -94,8 +94,8 @@ public class ChannelFactory {
         channelTokenId = null;
         channelNameEnc = null;
         hostChannelTokenHashed = null;
-        loginChannelTokenHashed = null;
-        loginChannelTokenEnc = null;
+        joinChannelTokenHashed = null;
+        joinChannelTokenEnc = null;
         guestChannelTokenHashed = null;
         guestChannelTokenEnc = null;
         secretKeyEnc = null;

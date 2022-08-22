@@ -29,10 +29,10 @@ public class Channel {
     private byte[] channelNameEnc;
     private String hostChannelTokenHashed;
 
-    private String loginChannelTokenHashed;
+    private String joinChannelTokenHashed;
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
-    private byte[] loginChannelTokenEnc;
+    private byte[] joinChannelTokenEnc;
 
     private String guestChannelTokenHashed; // clientChannelTokenHashed
     @Lob
