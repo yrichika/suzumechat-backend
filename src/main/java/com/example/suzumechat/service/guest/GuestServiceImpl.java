@@ -6,7 +6,11 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.suzumechat.service.guest.dto.VisitorRequest;
+import com.example.suzumechat.service.channel.Channel;
+import com.example.suzumechat.service.channel.ChannelRepository;
+import com.example.suzumechat.service.guest.dto.ChannelStatus;
+import com.example.suzumechat.service.guest.dto.VisitorsRequest;
+import com.example.suzumechat.service.guest.exception.JoinChannelTokenInvalidException;
 import com.example.suzumechat.utility.*;
 
 import lombok.val;
@@ -17,12 +21,34 @@ public class GuestServiceImpl implements GuestService {
     @Autowired
     private GuestRepository repository;
     @Autowired
+    private ChannelRepository channelRepository;
+    @Autowired
     private Hash hash;
     @Autowired
     private Crypter crypter;
 
+
     @Override
-    public VisitorRequest createGuestAsVisitor(String codename, String passphrase, String channelId) throws Exception {
+    public ChannelStatus getChannelNameByJoinChannelToken(String joinChannelToken) throws Exception {
+        val joinChannelTokenHashed = hash.digest(joinChannelToken);
+        final Channel channel = channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed);
+
+        if (channel == null) {
+            throw new JoinChannelTokenInvalidException();
+        }
+
+        val channelName = crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId());
+
+        if (channel.getSecretKeyEnc() == null) {
+            return new ChannelStatus(channelName, false);
+        }
+
+        return new ChannelStatus(channelName, true);
+    }
+
+
+    @Override
+    public VisitorsRequest createGuestAsVisitor(String codename, String passphrase, String channelId) throws Exception {
         val visitorId = UUID.randomUUID().toString();
         val visitorIdHashed = hash.digest(visitorId);
         val visitorIdEnc = crypter.encrypt(visitorId, channelId);
@@ -39,7 +65,7 @@ public class GuestServiceImpl implements GuestService {
 
         repository.save(visitor);
 
-        return new VisitorRequest(visitorId, codename, passphrase, Optional.ofNullable(null));
+        return new VisitorsRequest(visitorId, codename, passphrase, Optional.ofNullable(null));
     }
 
     @Override

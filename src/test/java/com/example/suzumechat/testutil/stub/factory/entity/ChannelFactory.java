@@ -62,6 +62,7 @@ public class ChannelFactory {
         val guestChannelTokenEnc = TestHelper.getOrDefault(
             this.guestChannelTokenEnc, random.string.alphanumeric().getBytes()
         );
+        // WARNING! null should be default. otherwise this nullable value can never be null
         val secretKeyEnc = TestHelper.getOrDefault(
             this.secretKeyEnc, null
         );
