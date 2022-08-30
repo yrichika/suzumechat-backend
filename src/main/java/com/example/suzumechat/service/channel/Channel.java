@@ -49,4 +49,12 @@ public class Channel {
     @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp
     private Date createdAt;
+
+
+    public boolean secretKeyEmpty() {
+        if (secretKeyEnc == null) {
+            return true;
+        }
+        return false;
+    }
 }

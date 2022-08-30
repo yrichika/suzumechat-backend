@@ -19,6 +19,9 @@ import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.entity.GuestFactory;
 import com.example.suzumechat.utility.*;
 import static org.mockito.Mockito.*;
+
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -83,32 +86,39 @@ public class GuestServiceImplTests {
         assertThat(channelStatus.isAccepting()).isFalse(); // This is the difference
     }
 
+
     @Test
-    public void getChannelNameByJoinChannelToken_should_throw_exception_if_channel_not_found() {
+    public void createGuestAsVisitor_should_save_guest_as_visitor_and_return_visitor_id() throws Exception {
         val joinChannelToken = testRandom.string.alphanumeric();
         val joinChannelTokenHashed = testRandom.string.alphanumeric();
-
-        when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
-        when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed)).thenReturn(null);
-
-        assertThrows(JoinChannelTokenInvalidException.class, () -> {
-            service.getChannelNameByJoinChannelToken(joinChannelToken);
-        });
-    }
-
-
-    @Test
-    public void createGuestAsVisitor_should_save_guest_as_visitor_and_return_visitor_request_info() throws Exception {
         val codename = testRandom.string.alphanumeric();
         val passphrase = testRandom.string.alphanumeric();
-        val channelId = testRandom.string.alphanumeric();
+        val channel = channelFactory
+            .secretKeyEnc(testRandom.string.alphanumeric().getBytes())
+            .make();
+        when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
+        when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed)).thenReturn(channel);
 
-        VisitorsRequest result = service.createGuestAsVisitor(codename, passphrase, channelId);
+        Optional<String> result = service.createGuestAsVisitor(joinChannelToken, codename, passphrase);
 
         verify(guestRepository, times(1)).save(any(Guest.class));
-        assertThat(result.codename()).isEqualTo(codename);
-        assertThat(result.passphrase()).isEqualTo(passphrase);
-        assertThat(result.isAuthenticated().isEmpty()).isTrue();
+        assertThat(result.get()).isNotEmpty();
+    }
+
+    @Test
+    public void createGuestAsVisitor_should_return_null_if_channel_not_found() throws Exception {
+        val joinChannelToken = testRandom.string.alphanumeric();
+        val joinChannelTokenHashed = testRandom.string.alphanumeric();
+        val codename = testRandom.string.alphanumeric();
+        val passphrase = testRandom.string.alphanumeric();
+        val channel = channelFactory.make(); // secretKeyEnc is null
+        when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
+        when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed)).thenReturn(channel);
+
+        Optional<String> result = service.createGuestAsVisitor(joinChannelToken, codename, passphrase);
+
+        verify(guestRepository, times(0)).save(any(Guest.class));
+        assertThat(result.isEmpty()).isTrue();
     }
 
     @Test
@@ -136,6 +146,20 @@ public class GuestServiceImplTests {
         service.updateStatus(visitorId, isAuthenticated);
 
         verify(guestRepository, times(1)).updateIsAuthenticatedByVisitorIdHashed(visitorIdHashed, isAuthenticated);
+    }
+
+
+    @Test
+    public void getChannelByJoinChannelToken_should_throw_exception_if_channel_not_found() throws Exception {
+        val joinChannelToken = testRandom.string.alphanumeric();
+        val joinChannelTokenHashed = testRandom.string.alphanumeric();
+
+        when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
+        when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed)).thenReturn(null);
+
+        assertThrows(JoinChannelTokenInvalidException.class, () -> {
+            service.getChannelByJoinChannelToken(joinChannelToken);
+        });
     }
 
 }

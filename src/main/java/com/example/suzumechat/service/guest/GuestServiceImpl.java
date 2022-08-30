@@ -30,12 +30,7 @@ public class GuestServiceImpl implements GuestService {
 
     @Override
     public ChannelStatus getChannelNameByJoinChannelToken(String joinChannelToken) throws Exception {
-        val joinChannelTokenHashed = hash.digest(joinChannelToken);
-        final Channel channel = channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed);
-
-        if (channel == null) {
-            throw new JoinChannelTokenInvalidException();
-        }
+        final Channel channel = getChannelByJoinChannelToken(joinChannelToken);
 
         val channelName = crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId());
 
@@ -46,17 +41,26 @@ public class GuestServiceImpl implements GuestService {
         return new ChannelStatus(channelName, true);
     }
 
-
     @Override
-    public VisitorsRequest createGuestAsVisitor(String codename, String passphrase, String channelId) throws Exception {
+    public Optional<String> createGuestAsVisitor(
+        final String joinChannelToken,
+        final String codename,
+        final String passphrase
+    ) throws Exception {
+        
+        final Channel channel = getChannelByJoinChannelToken(joinChannelToken);
+        if (channel.secretKeyEmpty()) {
+            return Optional.ofNullable(null);
+        }
+        
         val visitorId = UUID.randomUUID().toString();
         val visitorIdHashed = hash.digest(visitorId);
-        val visitorIdEnc = crypter.encrypt(visitorId, channelId);
-        val codenameEnc = crypter.encrypt(codename, channelId);
-        val passphraseEnc = crypter.encrypt(passphrase, channelId);
+        val visitorIdEnc = crypter.encrypt(visitorId, channel.getChannelId());
+        val codenameEnc = crypter.encrypt(codename, channel.getChannelId());
+        val passphraseEnc = crypter.encrypt(passphrase, channel.getChannelId());
 
         Guest visitor = new Guest();
-        visitor.setChannelId(channelId);
+        visitor.setChannelId(channel.getChannelId());
         visitor.setVisitorIdEnc(visitorIdEnc);
         visitor.setVisitorIdHashed(visitorIdHashed);
         visitor.setCodenameEnc(codenameEnc);
@@ -65,7 +69,7 @@ public class GuestServiceImpl implements GuestService {
 
         repository.save(visitor);
 
-        return new VisitorsRequest(visitorId, codename, passphrase, Optional.ofNullable(null));
+        return Optional.of(visitorId);
     }
 
     @Override
@@ -89,5 +93,16 @@ public class GuestServiceImpl implements GuestService {
     public void updateStatus(String visitorId, Boolean isAuthenticated) {
         val visitorIdHashed = hash.digest(visitorId);
         repository.updateIsAuthenticatedByVisitorIdHashed(visitorIdHashed, isAuthenticated);
+    }
+
+
+    public Channel getChannelByJoinChannelToken(final String joinChannelToken) throws Exception {
+        val joinChannelTokenHashed = hash.digest(joinChannelToken);
+        final Channel channel = channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed);
+
+        if (channel == null) {
+            throw new JoinChannelTokenInvalidException();
+        }
+        return channel;
     }
 }

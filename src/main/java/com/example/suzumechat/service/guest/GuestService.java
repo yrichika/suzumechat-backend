@@ -1,15 +1,17 @@
 package com.example.suzumechat.service.guest;
 
+import java.util.Optional;
+
 import com.example.suzumechat.service.guest.dto.ChannelStatus;
 import com.example.suzumechat.service.guest.dto.VisitorsRequest;
+import com.example.suzumechat.service.guest.form.JoinRequest;
 
 public interface GuestService {
     
     public ChannelStatus getChannelNameByJoinChannelToken(String joinChannelToken) throws Exception;
 
     // originally ClientLoginRequests.create()
-    // 使うときは、JoinRequestのフォームの値をここに渡すこと
-    public VisitorsRequest createGuestAsVisitor(String codename, String passphrase, String channelId) throws Exception;
+    public Optional<String> createGuestAsVisitor(String joinChannelToken, String codename, String passphrase) throws Exception;
 
     // originally AuthenticatedClients.create()
     public void promoteToGuest(String channelId, String visitorId) throws Exception;
