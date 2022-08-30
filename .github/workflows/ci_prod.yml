@@ -1,0 +1,70 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Create encryption key for testing
+      uses: "finnp/create-file-action@master"
+      env:
+        FILE_NAME: "plain_keyset.json"
+        FILE_DATA: ${{ secrets.TINK_PLAIN_KEYSET }}
+      # TODO: change it to below: DON'T USE finn/create-file-action
+      # TODO: create secret TINK_ENC_KEYSET
+      # env:
+      #   ENV_FILE_NAME: "enc_keyset.json"
+      #   ENV_FILE_DATA: ${{ secrets.TINK_ENC_KEYSET }}
+      # run: |
+      #   echo "$ENV_FILE_DATA" > "${ENV_FILE_NAME}"
+
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+      with:
+        arguments: build
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-1
+        role-to-assume: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
+        role-duration-seconds: 1800 # 1800sec == 30min
+    
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    
+    - name: Build, tag, and push image to ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ secrets.PROD_ECR_REPO_NAME }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
