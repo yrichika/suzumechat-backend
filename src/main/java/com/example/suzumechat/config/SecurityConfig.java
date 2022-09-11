@@ -1,12 +1,12 @@
 package com.example.suzumechat.config;
 
 import org.springframework.web.filter.CorsFilter;
-import org.apache.http.client.methods.HttpOptions;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.http.HttpMethod;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -14,14 +14,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
-    
+
+    @Autowired
+    Environment env;
+
     // originally `Password` object
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -30,19 +32,26 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
-            .antMatchers("/h2-console/**")
-            .antMatchers("/healthcheck");
+        // Spring Security does not apply
+        // TODO: envによって、本番環境と切り替える方法は?
+        // 本番では h2-consoleはoff
+        return (web) -> web.ignoring().antMatchers("/h2-console/**");
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth
-            .antMatchers("/").permitAll()
+        http.authorizeHttpRequests(auth -> auth.antMatchers("/csrfToken").permitAll()
+                .antMatchers("/createChannel").permitAll()
+                .antMatchers("/healthcheck").permitAll()
+        // .anyRequest().authenticated()
         );
-        // http.csrf().disable();
-        http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-        
+
+        // http.csrf().disable(); // commented code for quick debugging
+        String webSocketEntryPoint = env.getProperty("ws.entry-point");
+        http.csrf()
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .ignoringAntMatchers(webSocketEntryPoint + "/**");
+        http.headers().frameOptions().sameOrigin();
 
         return http.build();
     }
@@ -51,22 +60,24 @@ public class SecurityConfig {
     public FilterRegistrationBean<CorsFilter> corsFilter() {
 
         CorsConfiguration config = new CorsConfiguration();
-        // config.setAllowCredentials(true);
+
 
         // Access-Control-Allow-Origin
-        // config.addAllowedOrigin("http://localhost:3000");
+        config.addAllowedOrigin(env.getProperty("front.url"));
         // config.addAllowedOrigin(CorsConfiguration.ALL);
         // Access-Control-Allow-Methods
-        // config.addAllowedMethod(CorsConfiguration.ALL);
+        config.addAllowedMethod(CorsConfiguration.ALL);
         // Access-Control-Allow-Headers
-        // config.addAllowedHeader(CorsConfiguration.ALL);
-        // Allow all
-        config.applyPermitDefaultValues();
+        config.addAllowedHeader(CorsConfiguration.ALL);
+        // cookieをcross domainで共有するため?
+        config.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
-        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<CorsFilter>(new CorsFilter(source));
+        FilterRegistrationBean<CorsFilter> bean =
+                new FilterRegistrationBean<CorsFilter>(new CorsFilter(source));
         bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return bean;
     }

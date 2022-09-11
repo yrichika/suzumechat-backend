@@ -9,6 +9,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
+import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.entity.GuestFactory;
 
 import static org.assertj.core.api.Assertions.*;
@@ -26,14 +27,19 @@ public class GuestRepositoryTests {
     private GuestRepository repository;
 
     @Autowired
-    private GuestFactory factory;
+    private GuestFactory guestFactory;
+
+    @Autowired
+    private ChannelFactory channelFactory;
 
     @Autowired
     private TestRandom random;
 
     @Test
     public void test_updateStatusByVisitorId_should_update_visitors_authentication_status() {
-        val guest = factory.isAuthenticated(false).make();
+        val channel = channelFactory.make();
+        val guest = guestFactory.isAuthenticated(false).channel(channel).make();
+        db.persist(channel);
         db.persist(guest);
 
         repository.updateIsAuthenticatedByVisitorIdHashed(guest.getVisitorIdHashed(), true);
@@ -48,15 +54,16 @@ public class GuestRepositoryTests {
     public void test_findAllByChannelIdOrderByIdDesc_should_return_list_of_VisitorsStatus() {
         val channelId = random.string.alphanumeric(5);
         for (int i = 0; i < 2; i++) {
-            val guest = factory.make();
+            val channel = channelFactory.make();
+            val guest = guestFactory.channel(channel).make();
+            db.persist(channel);
             db.persist(guest);
         }
 
         val result = repository.findAllByChannelIdOrderByIdDesc(channelId);
 
         result.forEach(resultItem -> {
-            assertThat(resultItem.getChannelId())
-                .isEqualTo(channelId);
+            assertThat(resultItem.getChannelId()).isEqualTo(channelId);
         });
     }
 

@@ -27,6 +27,7 @@ import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.dto.ChannelStatusFactory;
 import com.example.suzumechat.testutil.stub.factory.form.JoinRequestFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.suzumechat.service.guest.dto.ReceptionStatus;
 
 import lombok.val;
 
@@ -84,13 +85,12 @@ public class VisitorControllerTests {
             .contentType(MediaType.APPLICATION_JSON)
             .content(form)
             .with(SecurityMockMvcRequestPostProcessors.csrf());
-        
+
+        val expected = objectMapper.writeValueAsString(new ReceptionStatus(true, visitorId));
         mockMvc.perform(request)
             .andExpect(status().isOk())
             .andExpect(request().sessionAttribute("visitorId", visitorId))
-            .andExpect(content().string(
-                not(containsString(VisitorController.CLOSED_STATUS_STRING)))
-            );
+            .andExpect(content().json(expected));
     }
 
     @Test
@@ -104,16 +104,18 @@ public class VisitorControllerTests {
             joinChannelToken,
             joinRequest.getCodename(),
             joinRequest.getPassphrase()
-        )).thenReturn(Optional.ofNullable(null));
+        )).thenReturn(Optional.empty());
 
         val request = post(url)
             .contentType(MediaType.APPLICATION_JSON)
             .content(form)
             .with(SecurityMockMvcRequestPostProcessors.csrf());
         
+
+        val expected = objectMapper.writeValueAsString(new ReceptionStatus(false, null));
         mockMvc.perform(request)
             .andExpect(status().isOk())
             .andExpect(request().sessionAttribute("visitorId", nullValue()))
-            .andExpect(content().string(containsString(VisitorController.CLOSED_STATUS_STRING)));
+            .andExpect(content().json(expected));
     }
 }

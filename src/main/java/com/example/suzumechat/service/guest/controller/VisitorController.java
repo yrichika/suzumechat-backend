@@ -16,11 +16,14 @@ import com.example.suzumechat.service.channel.ChannelRepository;
 import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.service.guest.GuestService;
 import com.example.suzumechat.service.guest.dto.ChannelStatus;
+import com.example.suzumechat.service.guest.dto.ReceptionStatus;
 import com.example.suzumechat.service.guest.form.JoinRequest;
 import com.example.suzumechat.utility.form.ValidationOrder;
 
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 public class VisitorController {
     
@@ -30,8 +33,6 @@ public class VisitorController {
     @Autowired
     private HttpSession session;
 
-    public final static String CLOSED_STATUS_STRING = "__closed__";
-
     @GetMapping("/visitor/channelName/{joinChannelToken:.+}")
     public ChannelStatus channelName(@PathVariable("joinChannelToken") String joinChannelToken) throws Exception {
         final ChannelStatus channelStatus = service.getChannelNameByJoinChannelToken(joinChannelToken);
@@ -39,7 +40,7 @@ public class VisitorController {
     }
 
     @PostMapping("/visitor/joinRequest/{joinChannelToken:.+}")
-    public String joinRequest(
+    public ReceptionStatus joinRequest(
         @PathVariable("joinChannelToken") String joinChannelToken,
         @Validated(ValidationOrder.class)
         @RequestBody
@@ -48,12 +49,13 @@ public class VisitorController {
         final Optional<String> visitorId = service.createGuestAsVisitor(joinChannelToken, form.getCodename(), form.getPassphrase());
 
         if (visitorId.isEmpty()) {
-            return CLOSED_STATUS_STRING;
+            return new ReceptionStatus(false, null);
         }
 
         session.setAttribute("visitorId", visitorId.get());
 
-        return "created";
+        // FIXME: change response code to 201(CREATED)
+        return new ReceptionStatus(true, visitorId.get());
     }
 
 }

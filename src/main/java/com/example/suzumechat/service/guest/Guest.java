@@ -1,5 +1,6 @@
 package com.example.suzumechat.service.guest;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.*;
@@ -7,16 +8,16 @@ import javax.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
-
+import com.example.suzumechat.service.channel.Channel;
 import lombok.*;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder(toBuilder=true)
-@Table(name="guest")
-public class Guest {
+@Builder(toBuilder = true)
+@Table(name = "guest")
+public class Guest implements Serializable {
     // もともと、AuthenticatedClientsとClientLoginRequestsに分かれていたフィールドを１つにまとめた。
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +25,7 @@ public class Guest {
 
     @Column(unique = true, nullable = true)
     private String guestIdHashed; // AuthenticatedClientIdHashed
-    
+
     @Column(nullable = true)
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
@@ -37,7 +38,10 @@ public class Guest {
     @Type(type = "org.hibernate.type.BinaryType")
     private byte[] passphraseEnc; // ClientLoginRequests.passphraseEnc
 
-    // true: authenticated, false: rejected, null: not authenticated nor rejected yet
+    // true: authenticated
+    // false: rejected
+    // null: not authenticated nor rejected yet
+    // Not using Optional because this is using null as one of the states
     @Column(nullable = true)
     private Boolean isAuthenticated; // ClientLoginRequest.isAuthenticated;
 
@@ -48,8 +52,13 @@ public class Guest {
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
     private byte[] visitorIdEnc; // ClientLoginRequests.requestClientIdEnc
-    
+
     private String channelId;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "channelId", referencedColumnName = "channelId",
+            insertable = false, updatable = false)
+    private Channel channel;
 
     @Temporal(TemporalType.TIMESTAMP)
     @UpdateTimestamp
