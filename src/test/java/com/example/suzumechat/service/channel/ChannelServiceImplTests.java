@@ -34,11 +34,16 @@ import lombok.val;
 @Import(TestConfig.class)
 @MockitoSettings
 public class ChannelServiceImplTests {
-    @MockBean Hash hash;
-    @MockBean Crypter crypter;
-    @MockBean Random random;
-    @MockBean ChannelRepository repository;
-    @MockBean GuestRepository guestRepository;
+    @MockBean
+    Hash hash;
+    @MockBean
+    Crypter crypter;
+    @MockBean
+    Random random;
+    @MockBean
+    ChannelRepository repository;
+    @MockBean
+    GuestRepository guestRepository;
 
     @InjectMocks
     ChannelServiceImpl service;
@@ -57,50 +62,82 @@ public class ChannelServiceImplTests {
         val channelName = testRandom.string.alphanumeric();
         val testRandomValue = testRandom.string.alphanumeric();
         val testRandomValueSecretKey = testRandom.string.alphanumeric();
-        
+
         when(random.alphanumeric()).thenReturn(testRandomValue);
         when(random.alphanumeric(32)).thenReturn(testRandomValueSecretKey);
 
         CreatedChannel result = service.create(channelName);
 
         verify(repository, times(1)).save(any(Channel.class));
-        
-        assertThat(result.hostChannel().hostChannelToken()).isEqualTo(testRandomValue);
-        assertThat(result.hostChannel().joinChannelToken()).isEqualTo(testRandomValue);
-        assertThat(result.hostChannel().secretKey()).isEqualTo(testRandomValueSecretKey);
+
+        assertThat(result.hostChannel().hostChannelToken())
+                .isEqualTo(testRandomValue);
+        assertThat(result.hostChannel().joinChannelToken())
+                .isEqualTo(testRandomValue);
+        assertThat(result.hostChannel().secretKey())
+                .isEqualTo(testRandomValueSecretKey);
     }
 
     @Test
-    public void getByHostChannelToken_should_return_channel_by_host_channel_token() throws Exception {
+    public void getByHostChannelToken_should_return_channel_by_host_channel_token()
+            throws Exception {
 
+        val hostId = testRandom.string.alphanumeric();
+        val hostIdHashed = testRandom.string.alphanumeric();
         val hostChannelToken = testRandom.string.alphanumeric();
         val hostChannelTokenHashed = testRandom.string.alphanumeric();
-        val channel = channelFactory.hostChannelTokenHashed(hostChannelTokenHashed).make();
+        val channel = channelFactory.hostIdHashed(hostIdHashed)
+                .hostChannelTokenHashed(hostChannelTokenHashed).make();
 
+        when(hash.digest(hostId)).thenReturn(hostIdHashed);
         when(hash.digest(hostChannelToken)).thenReturn(hostChannelTokenHashed);
-        when(repository.findByHostChannelTokenHashed(hostChannelTokenHashed)).thenReturn(channel);
-        
-        val result = service.getByHostChannelToken(hostChannelToken);
+        when(repository.findByHostIdHashed(hostIdHashed)).thenReturn(channel);
+
+        val result = service.getByHostChannelToken(hostId, hostChannelToken);
 
         assertThat(result).isEqualTo(channel);
     }
 
     @Test
-    public void getByHostChannelToken_should_throw_exception_if_channel_not_found() throws Exception {
+    public void getByHostChannelToken_should_throw_exception_if_channel_not_found()
+            throws Exception {
 
+        val hostId = testRandom.string.alphanumeric();
+        val hostIdHashed = testRandom.string.alphanumeric();
         val hostChannelToken = testRandom.string.alphanumeric();
-        val hostChannelTokenHashed = testRandom.string.alphanumeric();
 
-        when(hash.digest(hostChannelToken)).thenReturn(hostChannelTokenHashed);
-        when(repository.findByHostChannelTokenHashed(hostChannelTokenHashed)).thenReturn(null);
-        
+        when(hash.digest(hostId)).thenReturn(hostIdHashed);
+        when(repository.findByHostIdHashed(hostIdHashed)).thenReturn(null);
+
         assertThrows(HostUnauthorizedException.class, () -> {
-            service.getByHostChannelToken(hostChannelToken);
+            service.getByHostChannelToken(hostId, hostChannelToken);
         });
     }
 
     @Test
-    public void getVisitorsStatus_should_return_all_visitors_status_belongs_to_the_channel() throws Exception {
+    public void getByHostChannelToken_should_throw_exception_if_hostChannelToken_does_not_match_with_token_in_db()
+            throws Exception {
+
+        val hostId = testRandom.string.alphanumeric();
+        val hostIdHashed = testRandom.string.alphanumeric();
+        val hostChannelToken = testRandom.string.alphanumeric();
+        val hostChannelTokenHashed = testRandom.string.alphanumeric();
+        // NOT setting the hostChannelTokenHashed
+        val channel = channelFactory.hostIdHashed(hostIdHashed).make();
+
+        when(hash.digest(hostId)).thenReturn(hostIdHashed);
+        when(hash.digest(hostChannelToken)).thenReturn(hostChannelTokenHashed);
+        when(repository.findByHostIdHashed(hostIdHashed)).thenReturn(channel);
+
+        assertThrows(HostUnauthorizedException.class, () -> {
+            service.getByHostChannelToken(hostId, hostChannelToken);
+        });
+    }
+
+
+    @Test
+    public void getVisitorsStatus_should_return_all_visitors_status_belongs_to_the_channel()
+            throws Exception {
         val channel = channelFactory.make();
         final List<Guest> guests = new ArrayList<>();
         int howMany = testRandom.integer.between(1, 5);
@@ -109,32 +146,40 @@ public class ChannelServiceImplTests {
             guests.add(guest);
         }
 
-        final List<String> valuesToAssertSimply = setUpGetStatusVisitorMock(channel, guests);
+        final List<String> valuesToAssertSimply =
+                setUpGetStatusVisitorMock(channel, guests);
 
-        final List<VisitorsStatus> result = service.getVisitorsStatus(channel.getChannelId());
+        final List<VisitorsStatus> result =
+                service.getVisitorsStatus(channel.getChannelId());
 
         for (int i = 0; i < guests.size(); i++) {
-            assertThat(result.get(i).visitorId()).isEqualTo(valuesToAssertSimply.get(i));
-            assertThat(result.get(i).visitorId()).isEqualTo(valuesToAssertSimply.get(i));
-            assertThat(result.get(i).visitorId()).isEqualTo(valuesToAssertSimply.get(i));
-            assertThat(result.get(i).isAuthenticated()).isEqualTo(guests.get(i).getIsAuthenticated());
+            assertThat(result.get(i).visitorId())
+                    .isEqualTo(valuesToAssertSimply.get(i));
+            assertThat(result.get(i).visitorId())
+                    .isEqualTo(valuesToAssertSimply.get(i));
+            assertThat(result.get(i).visitorId())
+                    .isEqualTo(valuesToAssertSimply.get(i));
+            assertThat(result.get(i).isAuthenticated())
+                    .isEqualTo(guests.get(i).getIsAuthenticated());
         }
     }
 
 
-    private List<String> setUpGetStatusVisitorMock(
-        final Channel channel,
-        final List<Guest> guests
-    ) throws Exception {
+    private List<String> setUpGetStatusVisitorMock(final Channel channel,
+            final List<Guest> guests) throws Exception {
 
-        when(guestRepository.findAllByChannelIdOrderByIdDesc(channel.getChannelId())).thenReturn(guests);
+        when(guestRepository.findAllByChannelIdOrderByIdDesc(channel.getChannelId()))
+                .thenReturn(guests);
 
         final List<String> valuesToAssertSimply = new ArrayList<>();
-        for (Guest guest: guests) {
+        for (Guest guest : guests) {
             val valueToAssertSimply = testRandom.string.alphanumeric();
-            when(crypter.decrypt(guest.getVisitorIdEnc(), channel.getChannelId())).thenReturn(valueToAssertSimply);
-            when(crypter.decrypt(guest.getCodenameEnc(), channel.getChannelId())).thenReturn(valueToAssertSimply);
-            when(crypter.decrypt(guest.getPassphraseEnc(), channel.getChannelId())).thenReturn(valueToAssertSimply);
+            when(crypter.decrypt(guest.getVisitorIdEnc(), channel.getChannelId()))
+                    .thenReturn(valueToAssertSimply);
+            when(crypter.decrypt(guest.getCodenameEnc(), channel.getChannelId()))
+                    .thenReturn(valueToAssertSimply);
+            when(crypter.decrypt(guest.getPassphraseEnc(), channel.getChannelId()))
+                    .thenReturn(valueToAssertSimply);
             valuesToAssertSimply.add(valueToAssertSimply);
         }
         return valuesToAssertSimply;
@@ -142,21 +187,22 @@ public class ChannelServiceImplTests {
 
 
     @Test
-    public void getGuestChannelToken_should_return_gestChannelToken() throws Exception {
+    public void getGuestChannelToken_should_return_gestChannelToken()
+            throws Exception {
         val hostId = testRandom.string.alphanumeric();
         val userSentHostChannelToken = testRandom.string.alphanumeric();
         val dbStoredHostChannelToken = testRandom.string.alphanumeric();
         val hostIdHashed = testRandom.string.alphanumeric();
-        val channel = channelFactory
-            .hostChannelTokenHashed(dbStoredHostChannelToken)
-            .make();
+        val channel = channelFactory.hostChannelTokenHashed(dbStoredHostChannelToken)
+                .make();
         val guestChannelToken = testRandom.string.alphanumeric();
 
         when(hash.digest(hostId)).thenReturn(hostIdHashed);
         when(repository.findByHostIdHashed(hostIdHashed)).thenReturn(channel);
-        when(hash.digest(userSentHostChannelToken)).thenReturn(dbStoredHostChannelToken);
-        when(crypter.decrypt(channel.getGuestChannelTokenEnc(), channel.getChannelId()))
-            .thenReturn(guestChannelToken);
+        when(hash.digest(userSentHostChannelToken))
+                .thenReturn(dbStoredHostChannelToken);
+        when(crypter.decrypt(channel.getGuestChannelTokenEnc(),
+                channel.getChannelId())).thenReturn(guestChannelToken);
 
         val result = service.getGuestChannelToken(hostId, userSentHostChannelToken);
 
@@ -170,14 +216,15 @@ public class ChannelServiceImplTests {
 
         val dbStoredHostChannelToken = testRandom.string.alphanumeric();
         val hostIdHashed = testRandom.string.alphanumeric();
-        val channel = channelFactory
-            .hostChannelTokenHashed(dbStoredHostChannelToken)
-            .make();
+        val channel = channelFactory.hostChannelTokenHashed(dbStoredHostChannelToken)
+                .make();
 
         when(hash.digest(hostId)).thenReturn(hostIdHashed);
         when(repository.findByHostIdHashed(hostIdHashed)).thenReturn(channel);
-        val differentValueFromDbStoredHostChannelToken = testRandom.string.alphanumeric();
-        when(hash.digest(userSentHostChannelToken)).thenReturn(differentValueFromDbStoredHostChannelToken);
+        val differentValueFromDbStoredHostChannelToken =
+                testRandom.string.alphanumeric();
+        when(hash.digest(userSentHostChannelToken))
+                .thenReturn(differentValueFromDbStoredHostChannelToken);
 
         assertThrows(HostUnauthorizedException.class, () -> {
             service.getGuestChannelToken(hostId, userSentHostChannelToken);
@@ -213,7 +260,7 @@ public class ChannelServiceImplTests {
 
     @Test
     public void getItemsOrderThan_should_return_list_of_channel_before_specified_time() {
-        
+
         val hours = testRandom.integer.nextInt(10);
         // val hoursAgo = LocalDateTime.now().minusHours(hours);
         // val hoursAgoTimestamp = Timestamp.valueOf(hoursAgo).toInstant();
@@ -230,15 +277,17 @@ public class ChannelServiceImplTests {
 
         val hostChannelToken = testRandom.string.alphanumeric();
         val digestValue = testRandom.string.alphanumeric();
-        val channel = channelFactory.secretKeyEnc(
-            testRandom.string.alphanumeric().getBytes()
-        ).make();
-        // Clone of the channel with different. It's not necessary because `channel.secretKeyEnc`
-        // will be nulled in the tested method. But it's just to clarify what's saved in the method.
+        val channel = channelFactory
+                .secretKeyEnc(testRandom.string.alphanumeric().getBytes()).make();
+        // Clone of the channel with different. It's not necessary because
+        // `channel.secretKeyEnc`
+        // will be nulled in the tested method. But it's just to clarify what's saved
+        // in the method.
         val savedChannel = channel.toBuilder().secretKeyEnc(null).build();
 
         when(hash.digest(hostChannelToken)).thenReturn(digestValue);
-        when(repository.findByHostChannelTokenHashed(digestValue)).thenReturn(channel);
+        when(repository.findByHostChannelTokenHashed(digestValue))
+                .thenReturn(channel);
 
         service.trashSecretKeyByHostChannelToken(hostChannelToken);
 

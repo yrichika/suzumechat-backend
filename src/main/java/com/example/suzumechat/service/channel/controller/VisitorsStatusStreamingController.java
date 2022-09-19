@@ -28,33 +28,33 @@ public class VisitorsStatusStreamingController {
     @Autowired
     HttpSession session;
 
-    @GetMapping(path = "/host/requestStatus/{hostChannelToken:.+}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(path = "/host/requestStatus/{hostChannelToken:.+}",
+            produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<List<VisitorsStatus>>> fetch(
-        @PathVariable("hostChannelToken")
-        final String hostChannelToken
-    ) throws Exception {
+            @PathVariable("hostChannelToken") final String hostChannelToken)
+            throws Exception {
 
-        // SSE uses different session because its URL is different from when created channel (it's direct URL access,
-        // not using `back` prefixed Next proxy).
-        // Because it's different session, you can't use `session.getAttribute("hostId");`
-        // That's why it's getting channel data from hostChannelToken in the URL.
-        final String channelId = service.getByHostChannelToken(hostChannelToken).getChannelId();
+        val hostId = (String) session.getAttribute("hostId");
+        if (hostId == null) {
+            throw new HostUnauthorizedException();
+        }
+        final String channelId = service
+                .getByHostChannelToken(hostId, hostChannelToken).getChannelId();
+
 
         // FIXME: read interval seconds from settings.properties.
-        //        then change it when testing. Testing is too slow right now for this interval.
-        return Flux.interval(Duration.ofSeconds(4))
-            .map(sequence -> {
-                try {
-                    return ServerSentEvent.<List<VisitorsStatus>> builder()
-                    .id(String.valueOf(sequence))
-                    .event("message")
-                    .data(service.getVisitorsStatus(channelId))
-                    .build();
-                } catch (Exception exception) {
-                    throw new RuntimeException(exception);
-                }
+        // then change it when testing. Testing is too slow right now for this
+        // interval.
+        return Flux.interval(Duration.ofSeconds(4)).map(sequence -> {
+            try {
+                return ServerSentEvent.<List<VisitorsStatus>>builder()
+                        .id(String.valueOf(sequence)).event("message")
+                        .data(service.getVisitorsStatus(channelId)).build();
+            } catch (Exception exception) {
+                throw new RuntimeException(exception);
+            }
 
-            });
+        });
 
     }
 }

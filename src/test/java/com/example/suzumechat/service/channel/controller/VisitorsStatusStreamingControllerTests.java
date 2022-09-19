@@ -2,11 +2,17 @@ package com.example.suzumechat.service.channel.controller;
 
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.mock.web.MockAsyncContext;
+import org.springframework.test.web.reactive.server.FluxExchangeResult;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -21,7 +27,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.AsyncListener;
-
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -41,25 +47,35 @@ import com.example.suzumechat.testutil.stub.factory.dto.VisitorsStatusFactory;
 import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
 
 import lombok.*;
+import reactor.test.StepVerifier;
 
+// TODO: WebFluxTestの方が簡単にかけるのか試してみたい
+// https://spring.pleiades.io/spring-boot/docs/2.0.2.RELEASE/reference/html/boot-features-testing.html#boot-features-testing-spring-boot-applications-testing-autoconfigured-webflux-tests
 @Import({TestConfig.class, SecurityConfig.class})
-@WebMvcTest(VisitorsStatusStreamingController.class)
+@WebFluxTest(controllers = VisitorsStatusStreamingController.class,
+        excludeAutoConfiguration = {ReactiveSecurityAutoConfiguration.class})
 @MockitoSettings
 public class VisitorsStatusStreamingControllerTests {
-    
+
     @Autowired
-    MockMvc mockMvc;
+    private WebTestClient webClient;
 
     @MockBean
     private ChannelService service;
+    @MockBean
+    private HttpSession httpSession;
 
     @Autowired
-    TestRandom random;
+    private TestRandom random;
     @Autowired
-    VisitorsStatusFactory factory;
+    private VisitorsStatusFactory visitorStatusFactory;
 
     @Autowired
-    ChannelFactory channelFactory;
+    private ChannelFactory channelFactory;
+
+    private static final ParameterizedTypeReference<ServerSentEvent<List<VisitorsStatus>>> typeRef =
+            new ParameterizedTypeReference<>() {};
+
 
     final String urlPrefix = "/host/requestStatus/";
     private String hostChannelToken;
@@ -73,57 +89,30 @@ public class VisitorsStatusStreamingControllerTests {
 
     @Test
     public void fetch_should_return_SSE_of_visitorsStatus_list() throws Exception {
-
+        val hostId = random.string.alphanumeric();
         val channel = channelFactory.make();
-        val visitorStatus = factory.make();
+        val visitorStatus = visitorStatusFactory.make();
         final List<VisitorsStatus> statuses = Arrays.asList(visitorStatus);
-        when(service.getByHostChannelToken(hostChannelToken)).thenReturn(channel);
+
+        when(httpSession.getAttribute("hostId")).thenReturn(hostId);
+        when(service.getByHostChannelToken(hostId, hostChannelToken))
+                .thenReturn(channel);
         when(service.getVisitorsStatus(channel.getChannelId())).thenReturn(statuses);
 
-        val request = get(url);
-
-        val preResult = mockMvc.perform(request)
-            .andExpect(status().isOk())
-            .andExpect(request().asyncStarted())
-            .andReturn();
-        val asyncResultTimeLimited = limitMvcResultTimeForAsync(preResult, 4500L);
-        val assertableStringResult = mockMvc
-            .perform(asyncDispatch(asyncResultTimeLimited))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.TEXT_EVENT_STREAM_VALUE))
-            .andReturn()
-            .getResponse()
-            .getContentAsString();
-        
-        val expectedPattern = resultStringPattern(visitorStatus);
-        assertThat(assertableStringResult).containsPattern(expectedPattern);
+        final FluxExchangeResult<ServerSentEvent<List<VisitorsStatus>>> result =
+                webClient.get().uri(url).accept(MediaType.ALL).exchange()
+                        .expectStatus().isOk().returnResult(typeRef);
+        StepVerifier.create(result.getResponseBody()).expectSubscription()
+                .assertNext(sse -> {
+                    assertThat(sse.data()).isEqualTo(statuses);
+                }).thenCancel().verify();
     }
 
+    @Test
+    public void it_should_return_unauthorized_if_host_id_null() throws Exception {
+        when(httpSession.getAttribute("hostId")).thenReturn(null);
 
-    private MvcResult limitMvcResultTimeForAsync(final MvcResult result, final long timeoutInMillisec) {
-        
-        MockAsyncContext asyncContext = (MockAsyncContext) result.getRequest().getAsyncContext();
-        ScheduledExecutorService scheduledExec = Executors.newScheduledThreadPool(1);
-        scheduledExec.schedule(() -> {
-            for (AsyncListener listener: asyncContext.getListeners()) {
-                try {
-                    listener.onTimeout(null);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, timeoutInMillisec, TimeUnit.MILLISECONDS);
-        result.getAsyncResult();
-
-        return result;
-    }
-
-    private String resultStringPattern(final VisitorsStatus expected) {
-        return "data:\\[\\{\\\"visitorId\\\":\\\""
-            + expected.visitorId() + "\\\","
-            + "\\\"codename\\\":" + "\\\"" + expected.codename() + "\\\","
-            + "\\\"passphrase\\\":" + "\\\"" + expected.passphrase() + "\\\","
-            + "\\\"isAuthenticated\\\":" + expected.isAuthenticated().toString()
-            + ".*\\}\\]";
+        webClient.get().uri(url).accept(MediaType.ALL).exchange().expectStatus()
+                .isUnauthorized();
     }
 }

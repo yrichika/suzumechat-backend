@@ -26,7 +26,7 @@ import lombok.*;
 
 @Service
 public class ChannelServiceImpl implements ChannelService {
-    
+
     @Autowired
     private ChannelRepository repository;
     @Autowired
@@ -81,37 +81,51 @@ public class ChannelServiceImpl implements ChannelService {
 
         repository.save(channel);
 
-        val hostChannel = new HostChannel(hostChannelToken, joinChannelToken, secretKey);
+        val hostChannel =
+                new HostChannel(hostChannelToken, joinChannelToken, secretKey);
         return new CreatedChannel(hostId, hostChannel);
     }
 
     @Override
-    public Channel getByHostChannelToken(final String hostChannelToken) throws Exception {
-        val hostChannelTokenHashed = hash.digest(hostChannelToken);
-        val channel = repository.findByHostChannelTokenHashed(hostChannelTokenHashed);
+    public Channel getByHostChannelToken(final String hostId,
+            final String hostChannelToken) throws Exception {
+        val hostIdHashed = hash.digest(hostId);
+        val channel = repository.findByHostIdHashed(hostIdHashed);
+
         if (channel == null) {
             throw new HostUnauthorizedException();
         }
+
+        val hostChannelTokenHashed = hash.digest(hostChannelToken);
+        if (channel.getHostChannelTokenHashed() != hostChannelTokenHashed) {
+            throw new HostUnauthorizedException();
+        }
+
         return channel;
     }
 
 
     @Override
-    public List<VisitorsStatus> getVisitorsStatus(final String channelId) throws Exception {
-        final List<Guest> guests = guestRepository.findAllByChannelIdOrderByIdDesc(channelId);
-        
+    public List<VisitorsStatus> getVisitorsStatus(final String channelId)
+            throws Exception {
+        final List<Guest> guests =
+                guestRepository.findAllByChannelIdOrderByIdDesc(channelId);
+
         return toVisitorsStatus(guests, channelId);
     }
 
 
-    private List<VisitorsStatus> toVisitorsStatus(final List<Guest> guests, final String channelId) throws Exception {
+    private List<VisitorsStatus> toVisitorsStatus(final List<Guest> guests,
+            final String channelId) throws Exception {
         return guests.stream().map(guest -> {
             try {
                 val visitorId = crypter.decrypt(guest.getVisitorIdEnc(), channelId);
                 val codename = crypter.decrypt(guest.getCodenameEnc(), channelId);
-                val passphrase = crypter.decrypt(guest.getPassphraseEnc(), channelId);
+                val passphrase =
+                        crypter.decrypt(guest.getPassphraseEnc(), channelId);
                 val isAuthenticated = guest.getIsAuthenticated();
-                return new VisitorsStatus(visitorId, codename, passphrase, isAuthenticated);
+                return new VisitorsStatus(visitorId, codename, passphrase,
+                        isAuthenticated);
             } catch (Exception exception) {
                 throw new RuntimeException(exception);
             }
@@ -121,20 +135,24 @@ public class ChannelServiceImpl implements ChannelService {
 
     @Override
     @Cacheable(value = "guestChannelToken", key = "#hostId")
-    public String getGuestChannelToken(final String hostId, final String userSentHostChannelToken) throws Exception {
+    public String getGuestChannelToken(final String hostId,
+            final String userSentHostChannelToken) throws Exception {
         val channel = getChannelByHostId(hostId);
-    
+
         val userSentHostChannelTokenHashed = hash.digest(userSentHostChannelToken);
-        if (!userSentHostChannelTokenHashed.equals(channel.getHostChannelTokenHashed())) {
+        if (!userSentHostChannelTokenHashed
+                .equals(channel.getHostChannelTokenHashed())) {
             throw new HostUnauthorizedException();
         }
 
-        val guestChannelToken = crypter.decrypt(channel.getGuestChannelTokenEnc(), channel.getChannelId());
+        val guestChannelToken = crypter.decrypt(channel.getGuestChannelTokenEnc(),
+                channel.getChannelId());
         return guestChannelToken;
     }
 
 
-    public Channel getChannelByHostId(final String hostId) throws HostUnauthorizedException {
+    public Channel getChannelByHostId(final String hostId)
+            throws HostUnauthorizedException {
         val hostIdHashed = hash.digest(hostId);
         val channel = repository.findByHostIdHashed(hostIdHashed);
         if (channel == null) {
