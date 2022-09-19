@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 public class VisitorController {
-    
+
     @Autowired
     GuestService service;
 
@@ -34,28 +34,30 @@ public class VisitorController {
     private HttpSession session;
 
     @GetMapping("/visitor/channelName/{joinChannelToken:.+}")
-    public ChannelStatus channelName(@PathVariable("joinChannelToken") String joinChannelToken) throws Exception {
-        final ChannelStatus channelStatus = service.getChannelNameByJoinChannelToken(joinChannelToken);
+    public ChannelStatus channelName(
+            @PathVariable("joinChannelToken") String joinChannelToken)
+            throws Exception {
+        final ChannelStatus channelStatus =
+                service.getChannelNameByJoinChannelToken(joinChannelToken);
         return channelStatus;
     }
 
     @PostMapping("/visitor/joinRequest/{joinChannelToken:.+}")
     public ReceptionStatus joinRequest(
-        @PathVariable("joinChannelToken") String joinChannelToken,
-        @Validated(ValidationOrder.class)
-        @RequestBody
-        final JoinRequest form
-    ) throws Exception {
-        final Optional<String> visitorId = service.createGuestAsVisitor(joinChannelToken, form.getCodename(), form.getPassphrase());
+            @PathVariable("joinChannelToken") String joinChannelToken,
+            @Validated(ValidationOrder.class) @RequestBody final JoinRequest form)
+            throws Exception {
+        final Optional<String> visitorId = service.createGuestAsVisitor(
+                joinChannelToken, form.getCodename(), form.getPassphrase());
 
         if (visitorId.isEmpty()) {
-            return new ReceptionStatus(false, null);
+            return new ReceptionStatus(false);
         }
 
         session.setAttribute("visitorId", visitorId.get());
 
         // FIXME: change response code to 201(CREATED)
-        return new ReceptionStatus(true, visitorId.get());
+        return new ReceptionStatus(true);
     }
 
 }
