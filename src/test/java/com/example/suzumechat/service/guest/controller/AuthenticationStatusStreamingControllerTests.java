@@ -4,6 +4,7 @@ import static org.mockito.Mockito.when;
 import java.time.Duration;
 import javax.servlet.http.HttpSession;
 import org.apache.catalina.Server;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,38 +48,46 @@ public class AuthenticationStatusStreamingControllerTests {
     @Autowired
     private AuthenticationStatusFactory factory;
 
-    private final String urlPrefix = "/visitor/joinStatus/";
-
     private static final ParameterizedTypeReference<ServerSentEvent<AuthenticationStatus>> typeRef =
             new ParameterizedTypeReference<>() {};
 
+    private final String urlPrefix = "/visitor/joinStatus/";
+    private String joinChannelToken;
+    private String url;
+
+    @BeforeEach
+    private void setUp() {
+        joinChannelToken = random.string.alphanumeric();
+        url = urlPrefix + joinChannelToken;
+    }
 
     @Test
-    public void test_it_should_return_sse_of_authentication_status() throws Exception {
-        val joinChannelToken = random.string.alphanumeric();
+    public void test_it_should_return_sse_of_authentication_status()
+            throws Exception {
         val visitorId = random.string.alphanumeric();
         final AuthenticationStatus expected = factory.make();
         when(httpSession.getAttribute("visitorId")).thenReturn(visitorId);
         when(guestService.getAuthenticationStatus(joinChannelToken, visitorId))
                 .thenReturn(expected);
 
-        val url = urlPrefix + joinChannelToken;
-        FluxExchangeResult<ServerSentEvent<AuthenticationStatus>> result = webClient.get().uri(url)
-                .accept(MediaType.ALL).exchange().expectStatus().isOk().returnResult(typeRef);
+        FluxExchangeResult<ServerSentEvent<AuthenticationStatus>> result =
+                webClient.get().uri(url).accept(MediaType.ALL).exchange()
+                        .expectStatus().isOk().returnResult(typeRef);
 
-        StepVerifier.create(result.getResponseBody()).expectSubscription().assertNext(sse -> {
-            assertThat(sse.data()).isEqualTo(expected);
-        }).thenCancel().verify();
+        StepVerifier.create(result.getResponseBody()).expectSubscription()
+                .assertNext(sse -> {
+                    assertThat(sse.data()).isEqualTo(expected);
+                }).thenCancel().verify();
     }
 
 
     @Test
-    public void test_it_should_return_unauthorized_if_session_visitorId_is_null() throws Exception {
-        val joinChannelToken = random.string.alphanumeric();
+    public void test_it_should_return_unauthorized_if_session_visitorId_is_null()
+            throws Exception {
         when(httpSession.getAttribute("visitorId")).thenReturn(null);
 
-        val url = urlPrefix + joinChannelToken;
-        webClient.get().uri(url).accept(MediaType.ALL).exchange().expectStatus().isUnauthorized();
+        webClient.get().uri(url).accept(MediaType.ALL).exchange().expectStatus()
+                .isUnauthorized();
 
     }
 
