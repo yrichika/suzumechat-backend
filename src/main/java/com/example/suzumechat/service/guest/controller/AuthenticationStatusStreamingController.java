@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,8 @@ public class AuthenticationStatusStreamingController {
 
     @Autowired
     private HttpSession session;
+    @Autowired
+    Environment env;
 
     @GetMapping(path = "/visitor/joinStatus/{joinChannelToken:.+}",
             produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -37,8 +40,11 @@ public class AuthenticationStatusStreamingController {
         if (visitorId == null) {
             throw new VisitorInvalidException();
         }
-        // FIXME: get interval time from config file.
-        return Flux.interval(Duration.ofSeconds(4)).map(sequence -> {
+
+        val intervalString = env.getProperty(
+                "authentication-status-streaming-interval-in-millisecond");
+        val interval = Long.parseLong(intervalString);
+        return Flux.interval(Duration.ofMillis(interval)).map(sequence -> {
             try {
                 return ServerSentEvent.<AuthenticationStatus>builder()
                         .id(String.valueOf(sequence)).event("message")

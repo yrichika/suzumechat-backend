@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +28,8 @@ public class VisitorsStatusStreamingController {
     ChannelService service;
     @Autowired
     HttpSession session;
+    @Autowired
+    Environment env;
 
     @GetMapping(path = "/host/requestStatus/{hostChannelToken:.+}",
             produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -41,11 +44,10 @@ public class VisitorsStatusStreamingController {
         final String channelId = service
                 .getByHostChannelToken(hostId, hostChannelToken).getChannelId();
 
-
-        // FIXME: read interval seconds from settings.properties.
-        // then change it when testing. Testing is too slow right now for this
-        // interval.
-        return Flux.interval(Duration.ofSeconds(4)).map(sequence -> {
+        val intervalString =
+                env.getProperty("visitor-status-streaming-interval-in-millisecond");
+        val interval = Long.parseLong(intervalString);
+        return Flux.interval(Duration.ofMillis(interval)).map(sequence -> {
             try {
                 return ServerSentEvent.<List<VisitorsStatus>>builder()
                         .id(String.valueOf(sequence)).event("message")
