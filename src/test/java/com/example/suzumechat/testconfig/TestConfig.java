@@ -3,14 +3,16 @@ package com.example.suzumechat.testconfig;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-
 import com.example.suzumechat.testutil.random.TestRandom;
+import com.example.suzumechat.testutil.stub.factory.dto.AuthenticationStatusFactory;
+import com.example.suzumechat.testutil.stub.factory.dto.ChannelStatusFactory;
 import com.example.suzumechat.testutil.stub.factory.dto.CreatedChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.dto.HostChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.dto.VisitorsStatusFactory;
 import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.entity.GuestFactory;
 import com.example.suzumechat.testutil.stub.factory.form.CreatingChannelFactory;
+import com.example.suzumechat.testutil.stub.factory.form.JoinRequestFactory;
 
 @TestConfiguration
 public class TestConfig {
@@ -50,6 +52,20 @@ public class TestConfig {
         return new VisitorsStatusFactory();
     }
 
+    @Bean
+    public ChannelStatusFactory channelStatusFactory() {
+        return new ChannelStatusFactory();
+    }
+
+    @Bean
+    public JoinRequestFactory joinRequestFactory() {
+        return new JoinRequestFactory();
+    }
+
+    @Bean
+    public AuthenticationStatusFactory authenticationStatusFactory() {
+        return new AuthenticationStatusFactory();
+    }
     // Security customizations for tests
     // @Bean
     // public WebSecurityCustomizer webSecurityCustomizer() {

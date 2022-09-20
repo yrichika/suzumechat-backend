@@ -61,6 +61,7 @@ import com.example.suzumechat.testutil.random.TestRandom;
 
 import lombok.*;
 
+@Disabled
 @Import({TestConfig.class})
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @MockitoSettings
