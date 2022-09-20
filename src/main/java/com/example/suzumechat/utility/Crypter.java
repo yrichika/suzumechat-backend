@@ -41,14 +41,12 @@ public class Crypter {
 
     private KeysetHandle keysetHandle() throws Exception {
         if (Objects.isNull(masterKeyUrl)) {
-            return CleartextKeysetHandle.read(
-                JsonKeysetReader.withFile(new File(plainKeysetFilename))
-            );
+            return CleartextKeysetHandle
+                    .read(JsonKeysetReader.withFile(new File(plainKeysetFilename)));
         }
 
-        return KeysetHandle.read(
-            JsonKeysetReader.withFile(new File(encKeysetFilePath)),
-            new AwsKmsClient().getAead(masterKeyUrl) // FIXME:
+        return KeysetHandle.read(JsonKeysetReader.withFile(new File(encKeysetFilePath)),
+                new AwsKmsClient().getAead(masterKeyUrl) // FIXME:
         );
     }
 }
