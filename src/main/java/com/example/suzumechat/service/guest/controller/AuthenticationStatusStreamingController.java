@@ -28,7 +28,7 @@ public class AuthenticationStatusStreamingController {
     @Autowired
     private HttpSession session;
     @Autowired
-    Environment env;
+    private Environment env;
 
     @GetMapping(path = "/visitor/joinStatus/{joinChannelToken:.+}",
             produces = MediaType.TEXT_EVENT_STREAM_VALUE)

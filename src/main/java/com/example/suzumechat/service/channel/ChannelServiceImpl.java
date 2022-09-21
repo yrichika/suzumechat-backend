@@ -97,7 +97,7 @@ public class ChannelServiceImpl implements ChannelService {
         }
 
         val hostChannelTokenHashed = hash.digest(hostChannelToken);
-        if (channel.getHostChannelTokenHashed() != hostChannelTokenHashed) {
+        if (!channel.getHostChannelTokenHashed().equals(hostChannelTokenHashed)) {
             throw new HostUnauthorizedException();
         }
 

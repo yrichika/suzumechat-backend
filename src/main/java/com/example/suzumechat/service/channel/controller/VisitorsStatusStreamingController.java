@@ -25,11 +25,11 @@ import reactor.core.publisher.Flux;
 public class VisitorsStatusStreamingController {
 
     @Autowired
-    ChannelService service;
+    private ChannelService service;
     @Autowired
-    HttpSession session;
+    private HttpSession session;
     @Autowired
-    Environment env;
+    private Environment env;
 
     @GetMapping(path = "/host/requestStatus/{hostChannelToken:.+}",
             produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -43,7 +43,6 @@ public class VisitorsStatusStreamingController {
         }
         final String channelId = service
                 .getByHostChannelToken(hostId, hostChannelToken).getChannelId();
-
         val intervalString =
                 env.getProperty("visitor-status-streaming-interval-in-millisecond");
         val interval = Long.parseLong(intervalString);
