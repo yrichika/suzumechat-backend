@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -90,11 +91,10 @@ public class ChannelServiceImpl implements ChannelService {
     public Channel getByHostChannelToken(final String hostId,
             final String hostChannelToken) throws Exception {
         val hostIdHashed = hash.digest(hostId);
-        val channel = repository.findByHostIdHashed(hostIdHashed);
+        final Optional<Channel> channelOpt =
+                repository.findByHostIdHashed(hostIdHashed);
 
-        if (channel == null) {
-            throw new HostUnauthorizedException();
-        }
+        val channel = channelOpt.orElseThrow(HostUnauthorizedException::new);
 
         val hostChannelTokenHashed = hash.digest(hostChannelToken);
         if (!channel.getHostChannelTokenHashed().equals(hostChannelTokenHashed)) {
@@ -154,10 +154,10 @@ public class ChannelServiceImpl implements ChannelService {
     public Channel getChannelByHostId(final String hostId)
             throws HostUnauthorizedException {
         val hostIdHashed = hash.digest(hostId);
-        val channel = repository.findByHostIdHashed(hostIdHashed);
-        if (channel == null) {
-            throw new HostUnauthorizedException();
-        }
+        final Optional<Channel> channelOpt =
+                repository.findByHostIdHashed(hostIdHashed);
+        val channel = channelOpt.orElseThrow(HostUnauthorizedException::new);
+
         return channel;
     }
 
@@ -173,9 +173,13 @@ public class ChannelServiceImpl implements ChannelService {
 
     @Transactional
     @Override
-    public void trashSecretKeyByHostChannelToken(final String hostChannelToken) {
+    public void trashSecretKeyByHostChannelToken(final String hostChannelToken)
+            throws Exception {
         val hashed = hash.digest(hostChannelToken);
-        val channel = repository.findByHostChannelTokenHashed(hashed);
+        final Optional<Channel> channelOpt =
+                repository.findByHostChannelTokenHashed(hashed);
+        // TODO: create right Exception class
+        val channel = channelOpt.orElseThrow(RuntimeException::new);
         channel.setSecretKeyEnc(null);
         repository.save(channel);
     }

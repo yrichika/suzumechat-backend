@@ -19,5 +19,6 @@ public interface ChannelService {
 
     public List<Channel> getItemsOrderThan(final Integer hour);
 
-    public void trashSecretKeyByHostChannelToken(final String hostChannelToken);
+    public void trashSecretKeyByHostChannelToken(final String hostChannelToken)
+            throws Exception;
 }

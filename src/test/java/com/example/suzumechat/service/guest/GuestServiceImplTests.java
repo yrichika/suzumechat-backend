@@ -55,17 +55,18 @@ public class GuestServiceImplTests {
 
     @Test
     @DisplayName("ChannelStatus isAccepting should also be true")
-    public void getChannelNameByJoinChannelToken_should_return_ChannelStatus() throws Exception {
+    public void getChannelNameByJoinChannelToken_should_return_ChannelStatus()
+            throws Exception {
 
         val joinChannelToken = testRandom.string.alphanumeric();
         val joinChannelTokenHashed = testRandom.string.alphanumeric();
-        val channel =
-                channelFactory.secretKeyEnc(testRandom.string.alphanumeric().getBytes()).make();
+        val channel = channelFactory
+                .secretKeyEnc(testRandom.string.alphanumeric().getBytes()).make();
         val channelName = testRandom.string.alphanumeric();
 
         when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
         when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed))
-                .thenReturn(channel);
+                .thenReturn(Optional.of(channel));
         when(crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId()))
                 .thenReturn(channelName);
 
@@ -86,7 +87,7 @@ public class GuestServiceImplTests {
 
         when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
         when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed))
-                .thenReturn(channel);
+                .thenReturn(Optional.of(channel));
         when(crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId()))
                 .thenReturn(channelName);
 
@@ -105,11 +106,11 @@ public class GuestServiceImplTests {
         val joinChannelTokenHashed = testRandom.string.alphanumeric();
         val codename = testRandom.string.alphanumeric();
         val passphrase = testRandom.string.alphanumeric();
-        val channel =
-                channelFactory.secretKeyEnc(testRandom.string.alphanumeric().getBytes()).make();
+        val channel = channelFactory
+                .secretKeyEnc(testRandom.string.alphanumeric().getBytes()).make();
         when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
         when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed))
-                .thenReturn(channel);
+                .thenReturn(Optional.of(channel));
 
         Optional<String> result =
                 service.createGuestAsVisitor(joinChannelToken, codename, passphrase);
@@ -119,7 +120,8 @@ public class GuestServiceImplTests {
     }
 
     @Test
-    public void createGuestAsVisitor_should_return_null_if_channel_not_found() throws Exception {
+    public void createGuestAsVisitor_should_return_null_if_channel_not_found()
+            throws Exception {
         val joinChannelToken = testRandom.string.alphanumeric();
         val joinChannelTokenHashed = testRandom.string.alphanumeric();
         val codename = testRandom.string.alphanumeric();
@@ -127,7 +129,7 @@ public class GuestServiceImplTests {
         val channel = channelFactory.make(); // secretKeyEnc is null
         when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
         when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed))
-                .thenReturn(channel);
+                .thenReturn(Optional.of(channel));
 
         Optional<String> result =
                 service.createGuestAsVisitor(joinChannelToken, codename, passphrase);
@@ -145,14 +147,16 @@ public class GuestServiceImplTests {
         final GetAuthenticationTestDto testDto =
                 prepareForGetAuthenticationTest(secretKeyEnc, true, null);
         when(crypter.decrypt(testDto.channel().getGuestChannelTokenEnc(),
-                testDto.channel().getChannelId())).thenReturn(testDto.guestChannelToken());
+                testDto.channel().getChannelId()))
+                        .thenReturn(testDto.guestChannelToken());
 
-        val result =
-                service.getAuthenticationStatus(testDto.joinChannelToken(), testDto.visitorId());
+        val result = service.getAuthenticationStatus(testDto.joinChannelToken(),
+                testDto.visitorId());
 
         assertThat(result.isClosed()).isFalse();
         assertThat(result.isAuthenticated()).isTrue();
-        assertThat(result.guestChannelToken()).isEqualTo(testDto.guestChannelToken());
+        assertThat(result.guestChannelToken())
+                .isEqualTo(testDto.guestChannelToken());
     }
 
 
@@ -161,21 +165,23 @@ public class GuestServiceImplTests {
             throws Exception {
         val secretKeyEnc = testRandom.string.alphanumeric().getBytes();
         val unmatchedJoinChannelToken = testRandom.string.alphanumeric();
-        final GetAuthenticationTestDto testDto =
-                prepareForGetAuthenticationTest(secretKeyEnc, false, unmatchedJoinChannelToken);
+        final GetAuthenticationTestDto testDto = prepareForGetAuthenticationTest(
+                secretKeyEnc, false, unmatchedJoinChannelToken);
 
         assertThrows(VisitorInvalidException.class, () -> {
-            service.getAuthenticationStatus(testDto.joinChannelToken(), testDto.visitorId());
+            service.getAuthenticationStatus(testDto.joinChannelToken(),
+                    testDto.visitorId());
         });
     }
 
     @Test
     public void getAuthenticationStatus_should_retun_isClosed_true_if_channel_closed()
             throws Exception {
-        final GetAuthenticationTestDto testDto = prepareForGetAuthenticationTest(null, false, null);
+        final GetAuthenticationTestDto testDto =
+                prepareForGetAuthenticationTest(null, false, null);
 
-        val result =
-                service.getAuthenticationStatus(testDto.joinChannelToken(), testDto.visitorId());
+        val result = service.getAuthenticationStatus(testDto.joinChannelToken(),
+                testDto.visitorId());
 
         assertThat(result.isClosed()).isTrue();
         assertThat(result.isAuthenticated()).isNull();
@@ -190,8 +196,8 @@ public class GuestServiceImplTests {
         final GetAuthenticationTestDto testDto =
                 prepareForGetAuthenticationTest(secretKeyEnc, null, null);
 
-        val result =
-                service.getAuthenticationStatus(testDto.joinChannelToken(), testDto.visitorId());
+        val result = service.getAuthenticationStatus(testDto.joinChannelToken(),
+                testDto.visitorId());
 
         assertThat(result.isClosed()).isFalse();
         assertThat(result.isAuthenticated()).isNull();
@@ -205,10 +211,11 @@ public class GuestServiceImplTests {
         final GetAuthenticationTestDto testDto =
                 prepareForGetAuthenticationTest(secretKeyEnc, false, null);
         when(crypter.decrypt(testDto.channel().getGuestChannelTokenEnc(),
-                testDto.channel().getChannelId())).thenReturn(testDto.guestChannelToken());
+                testDto.channel().getChannelId()))
+                        .thenReturn(testDto.guestChannelToken());
 
-        val result =
-                service.getAuthenticationStatus(testDto.joinChannelToken(), testDto.visitorId());
+        val result = service.getAuthenticationStatus(testDto.joinChannelToken(),
+                testDto.visitorId());
 
         assertThat(result.isClosed()).isFalse();
         assertThat(result.isAuthenticated()).isFalse();
@@ -216,8 +223,9 @@ public class GuestServiceImplTests {
     }
 
 
-    public GetAuthenticationTestDto prepareForGetAuthenticationTest(byte[] secretKeyEnc,
-            Boolean isAuthenticated, String unmatchedJoinChannelToken) {
+    public GetAuthenticationTestDto prepareForGetAuthenticationTest(
+            byte[] secretKeyEnc, Boolean isAuthenticated,
+            String unmatchedJoinChannelToken) {
         val visitorId = testRandom.string.alphanumeric();
         val visitorIdHashed = testRandom.string.alphanumeric();
         val joinChannelToken = testRandom.string.alphanumeric();
@@ -239,10 +247,11 @@ public class GuestServiceImplTests {
                 .isAuthenticated(isAuthenticated).make();
 
 
-        when(guestRepository.findByVisitorIdHashed(visitorIdHashed)).thenReturn(guest);
+        when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
+                .thenReturn(guest);
 
-        return new GetAuthenticationTestDto(visitorId, joinChannelToken, guestChannelToken,
-                channel);
+        return new GetAuthenticationTestDto(visitorId, joinChannelToken,
+                guestChannelToken, channel);
     }
 
     @Test
@@ -253,7 +262,8 @@ public class GuestServiceImplTests {
         val visitorIdHashed = testRandom.string.alphanumeric();
         Guest guest = spy(new Guest());
         when(hash.digest(visitorId)).thenReturn(visitorIdHashed);
-        when(guestRepository.findByVisitorIdHashed(visitorIdHashed)).thenReturn(guest);
+        when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
+                .thenReturn(guest);
 
         service.promoteToGuest(channelId, visitorId);
 
@@ -262,7 +272,8 @@ public class GuestServiceImplTests {
     }
 
     @Test
-    public void updateStatus_should_set_isAuthenticated_to_specified_value() throws Exception {
+    public void updateStatus_should_set_isAuthenticated_to_specified_value()
+            throws Exception {
         val visitorId = testRandom.string.alphanumeric();
         val isAuthenticated = testRandom.bool.nextBoolean();
         val visitorIdHashed = testRandom.string.alphanumeric();
@@ -270,8 +281,8 @@ public class GuestServiceImplTests {
 
         service.updateStatus(visitorId, isAuthenticated);
 
-        verify(guestRepository, times(1)).updateIsAuthenticatedByVisitorIdHashed(visitorIdHashed,
-                isAuthenticated);
+        verify(guestRepository, times(1)).updateIsAuthenticatedByVisitorIdHashed(
+                visitorIdHashed, isAuthenticated);
     }
 
 
@@ -283,7 +294,7 @@ public class GuestServiceImplTests {
 
         when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
         when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed))
-                .thenReturn(null);
+                .thenReturn(Optional.empty());
 
         assertThrows(JoinChannelTokenInvalidException.class, () -> {
             service.getChannelByJoinChannelToken(joinChannelToken);

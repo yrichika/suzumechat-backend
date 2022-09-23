@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -91,7 +91,8 @@ public class ChannelServiceImplTests {
 
         when(hash.digest(hostId)).thenReturn(hostIdHashed);
         when(hash.digest(hostChannelToken)).thenReturn(hostChannelTokenHashed);
-        when(repository.findByHostIdHashed(hostIdHashed)).thenReturn(channel);
+        when(repository.findByHostIdHashed(hostIdHashed))
+                .thenReturn(Optional.of(channel));
 
         val result = service.getByHostChannelToken(hostId, hostChannelToken);
 
@@ -107,7 +108,8 @@ public class ChannelServiceImplTests {
         val hostChannelToken = testRandom.string.alphanumeric();
 
         when(hash.digest(hostId)).thenReturn(hostIdHashed);
-        when(repository.findByHostIdHashed(hostIdHashed)).thenReturn(null);
+        when(repository.findByHostIdHashed(hostIdHashed))
+                .thenReturn(Optional.empty());
 
         assertThrows(HostUnauthorizedException.class, () -> {
             service.getByHostChannelToken(hostId, hostChannelToken);
@@ -127,7 +129,8 @@ public class ChannelServiceImplTests {
 
         when(hash.digest(hostId)).thenReturn(hostIdHashed);
         when(hash.digest(hostChannelToken)).thenReturn(hostChannelTokenHashed);
-        when(repository.findByHostIdHashed(hostIdHashed)).thenReturn(channel);
+        when(repository.findByHostIdHashed(hostIdHashed))
+                .thenReturn(Optional.of(channel));
 
         assertThrows(HostUnauthorizedException.class, () -> {
             service.getByHostChannelToken(hostId, hostChannelToken);
@@ -198,7 +201,8 @@ public class ChannelServiceImplTests {
         val guestChannelToken = testRandom.string.alphanumeric();
 
         when(hash.digest(hostId)).thenReturn(hostIdHashed);
-        when(repository.findByHostIdHashed(hostIdHashed)).thenReturn(channel);
+        when(repository.findByHostIdHashed(hostIdHashed))
+                .thenReturn(Optional.of(channel));
         when(hash.digest(userSentHostChannelToken))
                 .thenReturn(dbStoredHostChannelToken);
         when(crypter.decrypt(channel.getGuestChannelTokenEnc(),
@@ -220,7 +224,8 @@ public class ChannelServiceImplTests {
                 .make();
 
         when(hash.digest(hostId)).thenReturn(hostIdHashed);
-        when(repository.findByHostIdHashed(hostIdHashed)).thenReturn(channel);
+        when(repository.findByHostIdHashed(hostIdHashed))
+                .thenReturn(Optional.of(channel));
         val differentValueFromDbStoredHostChannelToken =
                 testRandom.string.alphanumeric();
         when(hash.digest(userSentHostChannelToken))
@@ -237,7 +242,8 @@ public class ChannelServiceImplTests {
         val hostIdHashed = testRandom.string.alphanumeric();
         val channel = channelFactory.make();
         when(hash.digest(hostId)).thenReturn(hostIdHashed);
-        when(repository.findByHostIdHashed(hostIdHashed)).thenReturn(channel);
+        when(repository.findByHostIdHashed(hostIdHashed))
+                .thenReturn(Optional.of(channel));
 
         val result = service.getChannelByHostId(hostId);
 
@@ -250,7 +256,8 @@ public class ChannelServiceImplTests {
         val hostId = testRandom.string.alphanumeric();
         val hostIdHashed = testRandom.string.alphanumeric();
         when(hash.digest(hostId)).thenReturn(hostIdHashed);
-        when(repository.findByHostIdHashed(hostIdHashed)).thenReturn(null);
+        when(repository.findByHostIdHashed(hostIdHashed))
+                .thenReturn(Optional.empty());
 
         assertThrows(HostUnauthorizedException.class, () -> {
             service.getChannelByHostId(hostId);
@@ -273,7 +280,8 @@ public class ChannelServiceImplTests {
     }
 
     @Test
-    public void trashSecretKeyByHostChannelToken_should_delete_secret_key_specified_by_host_channel_token() {
+    public void trashSecretKeyByHostChannelToken_should_delete_secret_key_specified_by_host_channel_token()
+            throws Exception {
 
         val hostChannelToken = testRandom.string.alphanumeric();
         val digestValue = testRandom.string.alphanumeric();
@@ -287,7 +295,7 @@ public class ChannelServiceImplTests {
 
         when(hash.digest(hostChannelToken)).thenReturn(digestValue);
         when(repository.findByHostChannelTokenHashed(digestValue))
-                .thenReturn(channel);
+                .thenReturn(Optional.of(channel));
 
         service.trashSecretKeyByHostChannelToken(hostChannelToken);
 

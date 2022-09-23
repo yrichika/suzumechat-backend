@@ -47,30 +47,31 @@ public class ChannelRepositoryTests {
     }
 
     /*
-      Some tests are unnecessary, but I just wanted to experiment with spring data jpa.
+     * Some tests are unnecessary, but I just wanted to experiment with spring data
+     * jpa.
      */
 
     @Test
     public void findByChannelId_should_return_channel_by_channel_id() {
         val result = repository.findByChannelId(testChannel.getChannelId());
 
-        assertThat(result.getHostIdHashed())
-            .isEqualTo(testChannel.getHostIdHashed());
+        assertThat(result.get().getHostIdHashed())
+                .isEqualTo(testChannel.getHostIdHashed());
     }
 
     @Test
     public void findByChannelId_should_return_null_if_not_found() {
         val result = repository.findByChannelId(random.string.alphanumeric(10));
 
-        assertThat(Objects.isNull(result)).isTrue();
+        assertThat(result.isEmpty()).isTrue();
     }
 
     @Test
     public void findByHostId_should_return_channel_by_host_id() {
         val result = repository.findByHostIdHashed(testChannel.getHostIdHashed());
 
-        assertThat(result.getChannelId())
-            .isEqualTo(testChannel.getChannelId());
+        assertThat(result.get().getChannelId())
+                .isEqualTo(testChannel.getChannelId());
     }
 
     @Test
@@ -115,7 +116,7 @@ public class ChannelRepositoryTests {
         // check if all channels exists
         channelIds.forEach(channelId -> {
             val before = repository.findByChannelId(channelId);
-            assertThat(Objects.nonNull(before)).isTrue();
+            assertThat(before.isPresent()).isTrue();
         });
 
         repository.deleteByChannelIdIn(channelIds);
@@ -123,7 +124,7 @@ public class ChannelRepositoryTests {
         // assert all chennels deleted
         channelIds.forEach(channelId -> {
             val after = repository.findByChannelId(channelId);
-            assertThat(Objects.isNull(after)).isTrue();
+            assertThat(after.isEmpty()).isTrue();
         });
     }
 }

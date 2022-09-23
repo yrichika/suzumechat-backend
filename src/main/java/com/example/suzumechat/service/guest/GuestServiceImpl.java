@@ -35,7 +35,8 @@ public class GuestServiceImpl implements GuestService {
             throws Exception {
         final Channel channel = getChannelByJoinChannelToken(joinChannelToken);
 
-        val channelName = crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId());
+        val channelName =
+                crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId());
 
         if (channel.getSecretKeyEnc() == null) {
             return new ChannelStatus(channelName, false);
@@ -74,10 +75,11 @@ public class GuestServiceImpl implements GuestService {
 
 
     @Override
-    public AuthenticationStatus getAuthenticationStatus(final String joinChannelToken,
-            final String visitorId) throws Exception {
+    public AuthenticationStatus getAuthenticationStatus(
+            final String joinChannelToken, final String visitorId) throws Exception {
         val visitorIdHashed = hash.digest(visitorId);
-        final Guest guestAsVisitor = repository.findByVisitorIdHashed(visitorIdHashed);
+        final Guest guestAsVisitor =
+                repository.findByVisitorIdHashed(visitorIdHashed);
         final Channel channel = guestAsVisitor.getChannel();
         val joinChannelTokenHashed = hash.digest(joinChannelToken);
 
@@ -97,8 +99,8 @@ public class GuestServiceImpl implements GuestService {
             return new AuthenticationStatus(false, false, "");
         }
 
-        val guestChannelToken =
-                crypter.decrypt(channel.getGuestChannelTokenEnc(), channel.getChannelId());
+        val guestChannelToken = crypter.decrypt(channel.getGuestChannelTokenEnc(),
+                channel.getChannelId());
         return new AuthenticationStatus(false, true, guestChannelToken);
 
 
@@ -124,18 +126,18 @@ public class GuestServiceImpl implements GuestService {
     @Override
     public void updateStatus(String visitorId, Boolean isAuthenticated) {
         val visitorIdHashed = hash.digest(visitorId);
-        repository.updateIsAuthenticatedByVisitorIdHashed(visitorIdHashed, isAuthenticated);
+        repository.updateIsAuthenticatedByVisitorIdHashed(visitorIdHashed,
+                isAuthenticated);
     }
 
 
-    public Channel getChannelByJoinChannelToken(final String joinChannelToken) throws Exception {
+    public Channel getChannelByJoinChannelToken(final String joinChannelToken)
+            throws Exception {
         val joinChannelTokenHashed = hash.digest(joinChannelToken);
-        final Channel channel =
-                channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed);
+        final Optional<Channel> channelOpt = channelRepository
+                .findByJoinChannelTokenHashed(joinChannelTokenHashed);
+        val channel = channelOpt.orElseThrow(JoinChannelTokenInvalidException::new);
 
-        if (channel == null) {
-            throw new JoinChannelTokenInvalidException();
-        }
         return channel;
     }
 }
