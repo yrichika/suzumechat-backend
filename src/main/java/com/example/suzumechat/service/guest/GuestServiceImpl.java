@@ -78,8 +78,10 @@ public class GuestServiceImpl implements GuestService {
     public AuthenticationStatus getAuthenticationStatus(
             final String joinChannelToken, final String visitorId) throws Exception {
         val visitorIdHashed = hash.digest(visitorId);
-        final Guest guestAsVisitor =
+        final Optional<Guest> guestAsVisitorOpt =
                 repository.findByVisitorIdHashed(visitorIdHashed);
+        val guestAsVisitor =
+                guestAsVisitorOpt.orElseThrow(VisitorInvalidException::new);
         final Channel channel = guestAsVisitor.getChannel();
         val joinChannelTokenHashed = hash.digest(joinChannelToken);
 
@@ -114,7 +116,10 @@ public class GuestServiceImpl implements GuestService {
         val guestIdEnc = crypter.encrypt(guestId, channelId);
 
         val visitorIdHashed = hash.digest(visitorId);
-        val guest = repository.findByVisitorIdHashed(visitorIdHashed);
+        final Optional<Guest> guestOpt =
+                repository.findByVisitorIdHashed(visitorIdHashed);
+        // TODO: create and change RuntimeException to an appropriate Exception class
+        val guest = guestOpt.orElseThrow(RuntimeException::new);
 
         guest.setGuestIdHashed(guestIdHashed);
         guest.setGuestIdEnc(guestIdEnc);

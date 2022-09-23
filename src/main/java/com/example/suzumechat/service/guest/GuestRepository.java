@@ -1,26 +1,25 @@
 package com.example.suzumechat.service.guest;
 
 import java.util.List;
-
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface GuestRepository extends JpaRepository<Guest, Integer> {
-    
+
     public List<Guest> findAllByChannelIdOrderByIdDesc(String channelId);
 
-    public Guest findByGuestIdHashed(String guestIdHashed);
+    public Optional<Guest> findByGuestIdHashed(String guestIdHashed);
 
-    public Guest findByVisitorIdHashed(String visitorIdHashed);
+    public Optional<Guest> findByVisitorIdHashed(String visitorIdHashed);
 
     public void deleteByChannelIdIn(List<String> channelIds);
 
     @Modifying
     @Query("update Guest guest set guest.isAuthenticated = :isAuthenticated where guest.visitorIdHashed = :visitorIdHashed")
     public int updateIsAuthenticatedByVisitorIdHashed(
-        @Param("visitorIdHashed") String visitorIdHashed,
-        @Param("isAuthenticated") Boolean isAuthenticated
-    );
+            @Param("visitorIdHashed") String visitorIdHashed,
+            @Param("isAuthenticated") Boolean isAuthenticated);
 }

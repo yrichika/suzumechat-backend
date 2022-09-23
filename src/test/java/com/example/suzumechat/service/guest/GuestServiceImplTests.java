@@ -161,6 +161,24 @@ public class GuestServiceImplTests {
 
 
     @Test
+    public void getAuthenticationStatus_should_throw_exception_if_guest_channel_not_found()
+            throws Exception {
+        // not using prepareForGetAuthenticationTest(), because this test is very
+        // simple.
+        val visitorId = testRandom.string.alphanumeric();
+        val visitorIdHashed = testRandom.string.alphanumeric();
+        val joinChannelToken = testRandom.string.alphanumeric();
+        when(hash.digest(visitorId)).thenReturn(visitorIdHashed);
+        when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
+                .thenReturn(Optional.empty());
+
+        assertThrows(VisitorInvalidException.class, () -> {
+            service.getAuthenticationStatus(joinChannelToken, visitorId);
+        });
+    }
+
+
+    @Test
     public void getAuthenticationStatus_should_throw_exception_if_joinChannelToken_does_not_match_with_db_stored_value()
             throws Exception {
         val secretKeyEnc = testRandom.string.alphanumeric().getBytes();
@@ -248,7 +266,7 @@ public class GuestServiceImplTests {
 
 
         when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
-                .thenReturn(guest);
+                .thenReturn(Optional.of(guest));
 
         return new GetAuthenticationTestDto(visitorId, joinChannelToken,
                 guestChannelToken, channel);
@@ -263,12 +281,29 @@ public class GuestServiceImplTests {
         Guest guest = spy(new Guest());
         when(hash.digest(visitorId)).thenReturn(visitorIdHashed);
         when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
-                .thenReturn(guest);
+                .thenReturn(Optional.of(guest));
+
 
         service.promoteToGuest(channelId, visitorId);
 
         verify(guest, times(1)).setIsAuthenticated(true);
         verify(guestRepository, times(1)).save(any(Guest.class));
+    }
+
+    @Test
+    public void promoteToGuest_should_throw_exception_if_guest_not_found()
+            throws Exception {
+        val channelId = testRandom.string.alphanumeric();
+        val visitorId = testRandom.string.alphanumeric();
+        val visitorIdHashed = testRandom.string.alphanumeric();
+        when(hash.digest(visitorId)).thenReturn(visitorIdHashed);
+        when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
+                .thenReturn(Optional.empty());
+
+        // TODO: change RuntimeException to an appropriate Exception class
+        assertThrows(RuntimeException.class, () -> {
+            service.promoteToGuest(channelId, visitorId);
+        });
     }
 
     @Test

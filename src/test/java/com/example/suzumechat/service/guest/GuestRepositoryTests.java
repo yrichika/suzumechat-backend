@@ -42,11 +42,12 @@ public class GuestRepositoryTests {
         db.persist(channel);
         db.persist(guest);
 
-        repository.updateIsAuthenticatedByVisitorIdHashed(guest.getVisitorIdHashed(), true);
+        repository.updateIsAuthenticatedByVisitorIdHashed(guest.getVisitorIdHashed(),
+                true);
         db.clear(); // reflect changed to TestEntityManager
 
         val updated = repository.findByGuestIdHashed(guest.getGuestIdHashed());
-        assertThat(updated.getIsAuthenticated()).isTrue();
+        assertThat(updated.get().getIsAuthenticated()).isTrue();
     }
 
     // This test is unnecessary, but just checking how Spring JPA works.
