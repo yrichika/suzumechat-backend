@@ -109,26 +109,6 @@ public class GuestServiceImpl implements GuestService {
     }
 
     @Override
-    public void promoteToGuest(String channelId, String visitorId) throws Exception {
-
-        val guestId = UUID.randomUUID().toString();
-        val guestIdHashed = hash.digest(guestId);
-        val guestIdEnc = crypter.encrypt(guestId, channelId);
-
-        val visitorIdHashed = hash.digest(visitorId);
-        final Optional<Guest> guestOpt =
-                repository.findByVisitorIdHashed(visitorIdHashed);
-        // TODO: create and change RuntimeException to an appropriate Exception class
-        val guest = guestOpt.orElseThrow(RuntimeException::new);
-
-        guest.setGuestIdHashed(guestIdHashed);
-        guest.setGuestIdEnc(guestIdEnc);
-        guest.setIsAuthenticated(true);
-
-        repository.save(guest);
-    }
-
-    @Override
     public void updateStatus(String visitorId, Boolean isAuthenticated) {
         val visitorIdHashed = hash.digest(visitorId);
         repository.updateIsAuthenticatedByVisitorIdHashed(visitorIdHashed,

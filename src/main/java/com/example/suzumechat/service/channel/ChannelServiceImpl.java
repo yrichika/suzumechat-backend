@@ -170,6 +170,25 @@ public class ChannelServiceImpl implements ChannelService {
         return repository.findAllByCreatedAtBefore(date);
     }
 
+    @Override
+    public void promoteToGuest(String channelId, String visitorId) throws Exception {
+
+        val guestId = UUID.randomUUID().toString();
+        val guestIdHashed = hash.digest(guestId);
+        val guestIdEnc = crypter.encrypt(guestId, channelId);
+
+        val visitorIdHashed = hash.digest(visitorId);
+        final Optional<Guest> guestOpt =
+                guestRepository.findByVisitorIdHashed(visitorIdHashed);
+        // TODO: create and change RuntimeException to an appropriate Exception class
+        val guest = guestOpt.orElseThrow(RuntimeException::new);
+
+        guest.setGuestIdHashed(guestIdHashed);
+        guest.setGuestIdEnc(guestIdEnc);
+        guest.setIsAuthenticated(true);
+
+        guestRepository.save(guest);
+    }
 
     @Transactional
     @Override

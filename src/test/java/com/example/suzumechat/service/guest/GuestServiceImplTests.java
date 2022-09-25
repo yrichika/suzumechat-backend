@@ -273,40 +273,6 @@ public class GuestServiceImplTests {
     }
 
     @Test
-    public void promoteToGuest_should_set_and_save_guest_id_and_isAuthenticated_true()
-            throws Exception {
-        val channelId = testRandom.string.alphanumeric();
-        val visitorId = testRandom.string.alphanumeric();
-        val visitorIdHashed = testRandom.string.alphanumeric();
-        Guest guest = spy(new Guest());
-        when(hash.digest(visitorId)).thenReturn(visitorIdHashed);
-        when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
-                .thenReturn(Optional.of(guest));
-
-
-        service.promoteToGuest(channelId, visitorId);
-
-        verify(guest, times(1)).setIsAuthenticated(true);
-        verify(guestRepository, times(1)).save(any(Guest.class));
-    }
-
-    @Test
-    public void promoteToGuest_should_throw_exception_if_guest_not_found()
-            throws Exception {
-        val channelId = testRandom.string.alphanumeric();
-        val visitorId = testRandom.string.alphanumeric();
-        val visitorIdHashed = testRandom.string.alphanumeric();
-        when(hash.digest(visitorId)).thenReturn(visitorIdHashed);
-        when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
-                .thenReturn(Optional.empty());
-
-        // TODO: change RuntimeException to an appropriate Exception class
-        assertThrows(RuntimeException.class, () -> {
-            service.promoteToGuest(channelId, visitorId);
-        });
-    }
-
-    @Test
     public void updateStatus_should_set_isAuthenticated_to_specified_value()
             throws Exception {
         val visitorId = testRandom.string.alphanumeric();

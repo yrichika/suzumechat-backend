@@ -19,6 +19,9 @@ public interface ChannelService {
 
     public List<Channel> getItemsOrderThan(final Integer hour);
 
+    // originally AuthenticatedClients.create()
+    public void promoteToGuest(String channelId, String visitorId) throws Exception;
+
     public void trashSecretKeyByHostChannelToken(final String hostChannelToken)
             throws Exception;
 }
