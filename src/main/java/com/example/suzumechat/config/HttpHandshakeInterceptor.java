@@ -12,31 +12,25 @@ import org.springframework.web.socket.WebSocketHandler;
 
 // REF: https://www.devglan.com/spring-boot/spring-session-stomp-websocket
 // This is to maintain HttpSession during WebSocket connection.
-public class HttpHandshakeInterceptor implements HandshakeInterceptor{
-	@Override
-	public boolean beforeHandshake(
-        ServerHttpRequest request,
-        ServerHttpResponse response,
-        WebSocketHandler wsHandler,
-		Map attributes
-    ) throws Exception {
-		if (request instanceof ServletServerHttpRequest) {
-			ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
-			HttpSession session = servletRequest.getServletRequest().getSession();
-			attributes.put("sessionId", session.getId());
-			attributes.put("hostId", session.getAttribute("hostId"));
-			attributes.put("secretKeyHost", session.getAttribute("secretKeyHost"));
-		}
-		return true;
-	}
+public class HttpHandshakeInterceptor implements HandshakeInterceptor {
+    @Override
+    public boolean beforeHandshake(ServerHttpRequest request,
+            ServerHttpResponse response, WebSocketHandler wsHandler,
+            Map<String, Object> attributes) throws Exception {
+        if (request instanceof ServletServerHttpRequest) {
+            ServletServerHttpRequest servletRequest =
+                    (ServletServerHttpRequest) request;
+            HttpSession session = servletRequest.getServletRequest().getSession();
+            attributes.put("sessionId", session.getId());
+            attributes.put("hostId", session.getAttribute("hostId"));
+            attributes.put("secretKeyHost", session.getAttribute("secretKeyHost"));
+        }
+        return true;
+    }
 
-	public void afterHandshake(
-        ServerHttpRequest request,
-        ServerHttpResponse response,
-        WebSocketHandler wsHandler,
-		Exception ex
-    ) {
+    public void afterHandshake(ServerHttpRequest request,
+            ServerHttpResponse response, WebSocketHandler wsHandler, Exception ex) {
         //
-	}
+    }
 
 }
