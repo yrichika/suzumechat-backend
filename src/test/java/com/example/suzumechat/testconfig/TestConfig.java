@@ -13,10 +13,11 @@ import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.entity.GuestFactory;
 import com.example.suzumechat.testutil.stub.factory.form.CreatingChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.form.JoinRequestFactory;
+import com.example.suzumechat.testutil.stub.factory.form.VisitorsAuthStatusFactory;
 
 @TestConfiguration
 public class TestConfig {
-    
+
     @Bean
     public ChannelFactory channelFactory() {
         return new ChannelFactory();
@@ -63,13 +64,18 @@ public class TestConfig {
     }
 
     @Bean
+    public VisitorsAuthStatusFactory visitorsAuthStatusFactory() {
+        return new VisitorsAuthStatusFactory();
+    }
+
+    @Bean
     public AuthenticationStatusFactory authenticationStatusFactory() {
         return new AuthenticationStatusFactory();
     }
     // Security customizations for tests
     // @Bean
     // public WebSecurityCustomizer webSecurityCustomizer() {
-    //     return (web) -> web.ignoring()
-    //         .antMatchers("/test");
+    // return (web) -> web.ignoring()
+    // .antMatchers("/test");
     // }
 }

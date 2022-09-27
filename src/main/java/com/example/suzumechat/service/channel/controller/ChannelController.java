@@ -42,6 +42,5 @@ public class ChannelController {
         return channel.hostChannel();
     }
 
-    // TODO: accepting guest request
 
 }

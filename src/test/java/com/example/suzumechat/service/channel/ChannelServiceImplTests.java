@@ -17,6 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
 import com.example.suzumechat.service.channel.dto.VisitorsStatus;
 import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
+import com.example.suzumechat.service.channel.exception.VisitorNotFoundException;
 import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.testconfig.TestConfig;
@@ -279,37 +280,70 @@ public class ChannelServiceImplTests {
         verify(repository, times(1)).findAllByCreatedAtBefore(any(Date.class));
     }
 
+
     @Test
-    public void promoteToGuest_should_set_and_save_guest_id_and_isAuthenticated_true()
+    public void approveVisitor_should_set_guest_id_and_isAuthenticated_if_isAuthenticated_true()
             throws Exception {
-        val channelId = testRandom.string.alphanumeric();
+
+        val isAuthenticated = true; // DIFFERENCE!
         val visitorId = testRandom.string.alphanumeric();
         val visitorIdHashed = testRandom.string.alphanumeric();
+
         Guest guest = spy(new Guest());
         when(hash.digest(visitorId)).thenReturn(visitorIdHashed);
         when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
                 .thenReturn(Optional.of(guest));
 
+        service.approveVisitor(visitorId, isAuthenticated);
 
-        service.promoteToGuest(channelId, visitorId);
-
-        verify(guest, times(1)).setIsAuthenticated(true);
+        // the parameter is set to null because unable to mock guestIdHashed.
+        // the parameter should be like `anyString()`
+        // verify(guest, times(1)).setGuestIdHashed(anyString());
+        verify(guest, times(1)).setGuestIdHashed(null);
+        // same here. want the parameter to be `any(byte[].class)`
+        // verify(guest, times(1)).setGuestIdEnc(any(byte[].class));
+        verify(guest, times(1)).setGuestIdEnc(null);
+        verify(guest, times(1)).setIsAuthenticated(isAuthenticated);
         verify(guestRepository, times(1)).save(any(Guest.class));
     }
 
+
     @Test
-    public void promoteToGuest_should_throw_exception_if_guest_not_found()
+    public void approveVisitor_should_only_set_isAuthenticated_if_isAuthenticated_false()
             throws Exception {
-        val channelId = testRandom.string.alphanumeric();
+
+        val isAuthenticated = false; // DIFFERENCE!
         val visitorId = testRandom.string.alphanumeric();
         val visitorIdHashed = testRandom.string.alphanumeric();
+
+        Guest guest = spy(new Guest());
+        when(hash.digest(visitorId)).thenReturn(visitorIdHashed);
+        when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
+                .thenReturn(Optional.of(guest));
+
+        service.approveVisitor(visitorId, isAuthenticated);
+
+        verify(guest, never()).setGuestIdHashed(null);
+        verify(guest, never()).setGuestIdEnc(null);
+        verify(guest, times(1)).setIsAuthenticated(isAuthenticated);
+        verify(guestRepository, times(1)).save(any(Guest.class));
+    }
+
+
+    @Test
+    public void approveVisitor_should_throw_exception_if_guest_not_found()
+            throws Exception {
+
+        val visitorId = testRandom.string.alphanumeric();
+        val visitorIdHashed = testRandom.string.alphanumeric();
+        val isAuthenticated = testRandom.bool.nextBoolean();
+
         when(hash.digest(visitorId)).thenReturn(visitorIdHashed);
         when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
                 .thenReturn(Optional.empty());
 
-        // TODO: change RuntimeException to an appropriate Exception class
-        assertThrows(RuntimeException.class, () -> {
-            service.promoteToGuest(channelId, visitorId);
+        assertThrows(VisitorNotFoundException.class, () -> {
+            service.approveVisitor(visitorId, isAuthenticated);
         });
     }
 

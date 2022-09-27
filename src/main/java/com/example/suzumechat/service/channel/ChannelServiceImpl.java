@@ -17,6 +17,7 @@ import com.example.suzumechat.service.channel.dto.CreatedChannel;
 import com.example.suzumechat.service.channel.dto.HostChannel;
 import com.example.suzumechat.service.channel.dto.VisitorsStatus;
 import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
+import com.example.suzumechat.service.channel.exception.VisitorNotFoundException;
 import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.utility.Crypter;
@@ -170,18 +171,24 @@ public class ChannelServiceImpl implements ChannelService {
         return repository.findAllByCreatedAtBefore(date);
     }
 
+
     @Override
-    public void promoteToGuest(String channelId, String visitorId) throws Exception {
-
-        val guestId = UUID.randomUUID().toString();
-        val guestIdHashed = hash.digest(guestId);
-        val guestIdEnc = crypter.encrypt(guestId, channelId);
-
+    public void approveVisitor(String visitorId, boolean isAuthenticated)
+            throws Exception {
         val visitorIdHashed = hash.digest(visitorId);
         final Optional<Guest> guestOpt =
                 guestRepository.findByVisitorIdHashed(visitorIdHashed);
-        // TODO: create and change RuntimeException to an appropriate Exception class
-        val guest = guestOpt.orElseThrow(RuntimeException::new);
+        val guest = guestOpt.orElseThrow(VisitorNotFoundException::new);
+
+        if (!isAuthenticated) {
+            guest.setIsAuthenticated(false);
+            guestRepository.save(guest);
+            return;
+        }
+
+        val guestId = UUID.randomUUID().toString();
+        val guestIdHashed = hash.digest(guestId);
+        val guestIdEnc = crypter.encrypt(guestId, guest.getChannelId());
 
         guest.setGuestIdHashed(guestIdHashed);
         guest.setGuestIdEnc(guestIdEnc);
