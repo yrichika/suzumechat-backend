@@ -1,0 +1,14 @@
+version: '3'
+services:
+  db:
+    image: postgres:14
+    ports: 
+      - 5432:5432
+    restart: always
+    environment:
+      PGPASSWORD: secret
+      POSTGRES_DB: testdb
+      POSTGRES_USER: suzumechat
+      POSTGRES_PASSWORD: secret
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+
