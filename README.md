@@ -12,24 +12,13 @@ docker run -p 8080:8080 suzumechat-backend
 
 ## Environment Variable
 
-If you are using Visual Studio Code, go to \[add\]\[Add Configuration\] to open `.vscode/launch.json` file.
+To use Local environment variable for development, write them in `.env`.
 
-In the `lanch.json`, add something like this:
+Example:
 
-```json
-"configurations": [
-    {
-        "type": "java",
-        "name": "Launch Current File",
-        "request": "launch",
-        "mainClass": "${file}",
-        // ADD environment variables HERE!
-        "env": {
-            "SOME_ENV": "secret value"
-        }
-    },
-    {
-      // ....
-    }
-]
 ```
+ENVIRONMENT=dev
+FRONT_URL=http://localhost:3000
+```
+
+this file is not used in production. This should be valid only for local development.
