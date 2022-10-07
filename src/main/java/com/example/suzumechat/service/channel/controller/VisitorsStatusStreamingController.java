@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.suzumechat.service.channel.ChannelService;
 import com.example.suzumechat.service.channel.dto.VisitorsStatus;
+import com.example.suzumechat.service.channel.exception.HostIdMissingInSessionException;
 import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
 
 import lombok.val;
@@ -37,9 +38,10 @@ public class VisitorsStatusStreamingController {
             @PathVariable("hostChannelToken") final String hostChannelToken)
             throws Exception {
 
+        // FIXME: SSE connection fails on load sometimes
         val hostId = (String) session.getAttribute("hostId");
         if (hostId == null) {
-            throw new HostUnauthorizedException();
+            throw new HostIdMissingInSessionException();
         }
         final String channelId = service
                 .getByHostChannelToken(hostId, hostChannelToken).getChannelId();

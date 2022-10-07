@@ -8,6 +8,7 @@ import com.example.suzumechat.service.channel.dto.VisitorsStatus;
 public interface ChannelService {
     public CreatedChannel create(final String channelName) throws Exception;
 
+    // FIXME: change method name to another appropriate one
     public Channel getByHostChannelToken(final String hostId,
             final String hostChannelToken) throws Exception;
 
@@ -23,6 +24,6 @@ public interface ChannelService {
     public void approveVisitor(String visitorId, boolean isAuthenticated)
             throws Exception;
 
-    public void trashSecretKeyByHostChannelToken(final String hostChannelToken)
-            throws Exception;
+    public void trashSecretKeyByHostChannelToken(final String hostId,
+            final String hostChannelToken) throws Exception;
 }

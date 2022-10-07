@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
 import com.example.suzumechat.service.channel.dto.HostChannel;
 import com.example.suzumechat.service.channel.dto.VisitorsStatus;
+import com.example.suzumechat.service.channel.exception.ChannelNotFoundByHostIdException;
+import com.example.suzumechat.service.channel.exception.HostChannelTokensMismatchException;
 import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
 import com.example.suzumechat.service.channel.exception.VisitorNotFoundException;
 import com.example.suzumechat.service.guest.Guest;
@@ -95,11 +97,11 @@ public class ChannelServiceImpl implements ChannelService {
         final Optional<Channel> channelOpt =
                 repository.findByHostIdHashed(hostIdHashed);
 
-        val channel = channelOpt.orElseThrow(HostUnauthorizedException::new);
+        val channel = channelOpt.orElseThrow(ChannelNotFoundByHostIdException::new);
 
         val hostChannelTokenHashed = hash.digest(hostChannelToken);
         if (!channel.getHostChannelTokenHashed().equals(hostChannelTokenHashed)) {
-            throw new HostUnauthorizedException();
+            throw new HostChannelTokensMismatchException();
         }
 
         return channel;
@@ -197,15 +199,13 @@ public class ChannelServiceImpl implements ChannelService {
         guestRepository.save(guest);
     }
 
+
     @Transactional
     @Override
-    public void trashSecretKeyByHostChannelToken(final String hostChannelToken)
-            throws Exception {
-        val hashed = hash.digest(hostChannelToken);
-        final Optional<Channel> channelOpt =
-                repository.findByHostChannelTokenHashed(hashed);
-        // TODO: create right Exception class
-        val channel = channelOpt.orElseThrow(RuntimeException::new);
+    public void trashSecretKeyByHostChannelToken(final String hostId,
+            final String hostChannelToken) throws Exception {
+        val channel = getByHostChannelToken(hostId, hostChannelToken);
+
         channel.setSecretKeyEnc(null);
         repository.save(channel);
     }

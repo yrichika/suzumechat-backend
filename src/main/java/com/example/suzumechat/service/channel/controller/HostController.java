@@ -21,6 +21,9 @@ public class HostController {
     @Autowired
     private ChannelService service;
 
+    @Autowired
+    private HttpSession session;
+
     @PostMapping("/host/approveRequest/{hostChannelToken:.+}")
     public ResponseEntity<String> approveRequest(
             @PathVariable("hostChannelToken") final String hostChannelToken,
@@ -32,6 +35,18 @@ public class HostController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @PostMapping("/host/endChannel/{hostChannelToken:.+}")
+    public ResponseEntity<String> endChannel(
+            @PathVariable("hostChannelToken") final String hostChannelToken)
+            throws Exception {
+
+        val hostId = (String) session.getAttribute("hostId");
+
+        service.trashSecretKeyByHostChannelToken(hostId, hostChannelToken);
+
+        session.invalidate();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
     // TODO: close visitor requests: delete secret key
-    // TODO: logout functionality
 }

@@ -16,6 +16,8 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
 import com.example.suzumechat.service.channel.dto.VisitorsStatus;
+import com.example.suzumechat.service.channel.exception.ChannelNotFoundByHostIdException;
+import com.example.suzumechat.service.channel.exception.HostChannelTokensMismatchException;
 import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
 import com.example.suzumechat.service.channel.exception.VisitorNotFoundException;
 import com.example.suzumechat.service.guest.Guest;
@@ -112,7 +114,7 @@ public class ChannelServiceImplTests {
         when(repository.findByHostIdHashed(hostIdHashed))
                 .thenReturn(Optional.empty());
 
-        assertThrows(HostUnauthorizedException.class, () -> {
+        assertThrows(ChannelNotFoundByHostIdException.class, () -> {
             service.getByHostChannelToken(hostId, hostChannelToken);
         });
     }
@@ -133,7 +135,7 @@ public class ChannelServiceImplTests {
         when(repository.findByHostIdHashed(hostIdHashed))
                 .thenReturn(Optional.of(channel));
 
-        assertThrows(HostUnauthorizedException.class, () -> {
+        assertThrows(HostChannelTokensMismatchException.class, () -> {
             service.getByHostChannelToken(hostId, hostChannelToken);
         });
     }
@@ -352,23 +354,24 @@ public class ChannelServiceImplTests {
     public void trashSecretKeyByHostChannelToken_should_delete_secret_key_specified_by_host_channel_token()
             throws Exception {
 
+        val hostId = testRandom.string.alphanumeric();
+        val hostIdHashed = testRandom.string.alphanumeric();
         val hostChannelToken = testRandom.string.alphanumeric();
-        val digestValue = testRandom.string.alphanumeric();
-        val channel = channelFactory
-                .secretKeyEnc(testRandom.string.alphanumeric().getBytes()).make();
-        // Clone of the channel with different. It's not necessary because
-        // `channel.secretKeyEnc`
-        // will be nulled in the tested method. But it's just to clarify what's saved
-        // in the method.
-        val savedChannel = channel.toBuilder().secretKeyEnc(null).build();
+        val hostChannelTokenHashed = testRandom.string.alphanumeric();
 
-        when(hash.digest(hostChannelToken)).thenReturn(digestValue);
-        when(repository.findByHostChannelTokenHashed(digestValue))
+        val channel = channelFactory.hostChannelTokenHashed(hostChannelTokenHashed)
+                .secretKeyEnc(testRandom.string.alphanumeric().getBytes()).make();
+
+        when(hash.digest(hostId)).thenReturn(hostIdHashed);
+        when(hash.digest(hostChannelToken)).thenReturn(hostChannelTokenHashed);
+        when(repository.findByHostIdHashed(hostIdHashed))
                 .thenReturn(Optional.of(channel));
 
-        service.trashSecretKeyByHostChannelToken(hostChannelToken);
 
-        verify(repository, times(1)).findByHostChannelTokenHashed(digestValue);
-        verify(repository, times(1)).save(savedChannel);
+        service.trashSecretKeyByHostChannelToken(hostId, hostChannelToken);
+
+        // secretKeyEnc should be nulled
+        val expectedChannel = channel.toBuilder().secretKeyEnc(null).build();
+        verify(repository, times(1)).save(expectedChannel);
     }
 }
