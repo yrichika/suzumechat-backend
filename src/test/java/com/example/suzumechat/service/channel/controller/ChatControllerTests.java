@@ -79,25 +79,32 @@ public class ChatControllerTests {
 
     private CompletableFuture<String> completableFuture;
 
-    // REF: https://medium.com/@MelvinBlokhuijzen/spring-websocket-endpoints-integration-testing-180357b4f24c
-    @Disabled // TODO: This test is incomplete. I have no idea how to test WebSocket functionalities.
+    // REF:
+    // https://medium.com/@MelvinBlokhuijzen/spring-websocket-endpoints-integration-testing-180357b4f24c
+    @Disabled // TODO: This test is incomplete. I have no idea how to test WebSocket
+              // functionalities.
     @Test
-    public void receiveAndBroadcast_should_receive_message_and_broadcast_to_host_and_guests() throws Exception {
+    public void receiveAndBroadcast_should_receive_message_and_broadcast_to_host_and_guests()
+            throws Exception {
 
 
-        WebSocketStompClient client = new WebSocketStompClient(new SockJsClient(createTransportClient()));
+        WebSocketStompClient client =
+                new WebSocketStompClient(new SockJsClient(createTransportClient()));
         client.setMessageConverter(new MappingJackson2MessageConverter());
-        val url = "ws://localhost:" + port + env.getProperty("ws.entry-point");
+        val url = "ws://localhost:" + port + env.getProperty("ws.chat-endpoint");
 
-        // StompSession session = client.connect(url, new StompSessionHandlerAdapter() {})
-        //     .get(1, TimeUnit.SECONDS);
+        // StompSession session = client.connect(url, new
+        // StompSessionHandlerAdapter() {})
+        // .get(1, TimeUnit.SECONDS);
 
         // val hostChannelToken = random.string.alphanumeric();
         // val guestChannelToken = random.string.alphanumeric();
 
-        // session.subscribe("/receive/host/" + hostChannelToken, new CreateStompFrameHandler());
-    
-        // // session.subscribe("/receive/guest/" + guestChannelToken, new CreateStompFrameHandler());
+        // session.subscribe("/receive/host/" + hostChannelToken, new
+        // CreateStompFrameHandler());
+
+        // // session.subscribe("/receive/guest/" + guestChannelToken, new
+        // CreateStompFrameHandler());
 
         // session.send("/send/host/" + hostChannelToken, "some message");
 

@@ -20,21 +20,22 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
         // messages are broadcasted to destination begins with /topic, and so on.
         config.enableSimpleBroker(env.getProperty("ws.broadcast-prefix"));
-            
-        // destination header begins with this route will be routed to 
+
+        // destination header begins with this route will be routed to
         // @MessageMapping
-        config.setApplicationDestinationPrefixes(env.getProperty("ws.send-prefix"));
+        config.setApplicationDestinationPrefixes(
+                env.getProperty("ws.chat-send-prefix"));
 
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // WebSocket handshake entry point
-        registry.addEndpoint(env.getProperty("ws.entry-point"))
-            // to use HttpSession from WebSocket
-            .addInterceptors(new HttpHandshakeInterceptor())
-            .setAllowedOrigins(env.getProperty("front.url"))
-            .withSockJS();
+        registry.addEndpoint(env.getProperty("ws.chat-endpoint"),
+                env.getProperty("ws.join-requests-endpoint"))
+                // to use HttpSession from WebSocket
+                .addInterceptors(new HttpHandshakeInterceptor())
+                .setAllowedOrigins(env.getProperty("front.url")).withSockJS();
     }
 
 }

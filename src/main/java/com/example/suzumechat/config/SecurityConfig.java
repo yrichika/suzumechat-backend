@@ -1,6 +1,7 @@
 package com.example.suzumechat.config;
 
 import org.springframework.web.filter.CorsFilter;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -47,10 +48,13 @@ public class SecurityConfig {
         );
 
         // http.csrf().disable(); // commented code for quick debugging
-        String webSocketEntryPoint = env.getProperty("ws.entry-point");
+        val webSocketChatEndPoint = env.getProperty("ws.chat-endpoint");
+        val webSocketJoinRequestsEndPoint =
+                env.getProperty("ws.join-requests-endpoint");
         http.csrf()
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringAntMatchers(webSocketEntryPoint + "/**");
+                .ignoringAntMatchers(webSocketChatEndPoint + "/**")
+                .ignoringAntMatchers(webSocketJoinRequestsEndPoint + "/**");
         http.headers().frameOptions().sameOrigin();
 
         return http.build();
