@@ -1,4 +1,4 @@
-package com.example.suzumechat.service.guest;
+package com.example.suzumechat.service.guest.service;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 
 import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.service.channel.ChannelRepository;
-import com.example.suzumechat.service.guest.dto.AuthenticationStatus;
+import com.example.suzumechat.service.guest.Guest;
+import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.service.guest.dto.ChannelStatus;
-import com.example.suzumechat.service.guest.dto.VisitorsRequest;
+import com.example.suzumechat.service.guest.dto.message.AuthenticationStatus;
+import com.example.suzumechat.service.guest.dto.message.VisitorsRequest;
 import com.example.suzumechat.service.guest.exception.JoinChannelTokenInvalidException;
 import com.example.suzumechat.service.guest.exception.VisitorInvalidException;
 import com.example.suzumechat.utility.*;
@@ -47,14 +49,14 @@ public class GuestServiceImpl implements GuestService {
 
     @Override
     public Optional<String> createGuestAsVisitor(final String joinChannelToken,
-            final String codename, final String passphrase) throws Exception {
+            final String visitorId, final String codename, final String passphrase)
+            throws Exception {
 
         final Channel channel = getChannelByJoinChannelToken(joinChannelToken);
         if (channel.secretKeyEmpty()) {
             return Optional.empty();
         }
 
-        val visitorId = UUID.randomUUID().toString();
         val visitorIdHashed = hash.digest(visitorId);
         val visitorIdEnc = crypter.encrypt(visitorId, channel.getChannelId());
         val codenameEnc = crypter.encrypt(codename, channel.getChannelId());
@@ -73,7 +75,7 @@ public class GuestServiceImpl implements GuestService {
         return Optional.of(visitorId);
     }
 
-
+    // DELETE:
     @Override
     public AuthenticationStatus getAuthenticationStatus(
             final String joinChannelToken, final String visitorId) throws Exception {

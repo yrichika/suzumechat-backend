@@ -27,6 +27,7 @@ public class ChannelFactory {
     private String channelTokenId = null;
     private byte[] channelNameEnc = null;
     private String hostChannelTokenHashed = null;
+    private byte[] hostChannelTokenEnc = null;
     private String joinChannelTokenHashed = null;
     private byte[] joinChannelTokenEnc = null;
     private String guestChannelTokenHashed = null;
@@ -38,33 +39,40 @@ public class ChannelFactory {
 
     public Channel make() {
 
-        val channelId = TestHelper.getOrDefault(this.channelId, random.string.alphanumeric());
-        val hostIdHashed = TestHelper.getOrDefault(this.hostIdHashed, random.string.alphanumeric());
-        val channelTokenId =
-                TestHelper.getOrDefault(this.channelTokenId, random.string.alphanumeric());
+        val channelId = TestHelper.getOrDefault(this.channelId,
+                random.string.alphanumeric());
+        val hostIdHashed = TestHelper.getOrDefault(this.hostIdHashed,
+                random.string.alphanumeric());
+        val channelTokenId = TestHelper.getOrDefault(this.channelTokenId,
+                random.string.alphanumeric());
         val channelNameEnc = TestHelper.getOrDefault(this.channelNameEnc,
                 random.string.alphanumeric().getBytes());
-        val hostChannelTokenHashed =
-                TestHelper.getOrDefault(this.hostChannelTokenHashed, random.string.alphanumeric());
-        val joinChannelTokenHashed =
-                TestHelper.getOrDefault(this.joinChannelTokenHashed, random.string.alphanumeric());
+        val hostChannelTokenHashed = TestHelper.getOrDefault(
+                this.hostChannelTokenHashed, random.string.alphanumeric());
+        val hostChannelTokenEnc = TestHelper.getOrDefault(this.hostChannelTokenEnc,
+                random.string.alphanumeric().getBytes());
+        val joinChannelTokenHashed = TestHelper.getOrDefault(
+                this.joinChannelTokenHashed, random.string.alphanumeric());
         val joinChannelTokenEnc = TestHelper.getOrDefault(this.joinChannelTokenEnc,
                 random.string.alphanumeric().getBytes());
-        val guestChannelTokenHashed =
-                TestHelper.getOrDefault(this.guestChannelTokenHashed, random.string.alphanumeric());
+        val guestChannelTokenHashed = TestHelper.getOrDefault(
+                this.guestChannelTokenHashed, random.string.alphanumeric());
         val guestChannelTokenEnc = TestHelper.getOrDefault(this.guestChannelTokenEnc,
                 random.string.alphanumeric().getBytes());
-        // WARNING! null should be default. otherwise this nullable value can never be null
+        // WARNING! null should be default. otherwise this nullable value can never
+        // be null
         val secretKeyEnc = TestHelper.getOrDefault(this.secretKeyEnc, null);
         val guests = this.guests; // WARNING! not sync with channelId by default
         val updatedAt = TestHelper.getOrDefault(this.updatedAt, new Date());
         val createdAt = TestHelper.getOrDefault(this.createdAt, new Date());
 
-        val channel = new Channel(null, // primary key should always be null for testing, for
+        val channel = new Channel(null, // primary key should always be null for
+                                        // testing, for
                                         // TestEntityManager `persist` method
-                channelId, hostIdHashed, channelTokenId, channelNameEnc, hostChannelTokenHashed,
-                joinChannelTokenHashed, joinChannelTokenEnc, guestChannelTokenHashed,
-                guestChannelTokenEnc, secretKeyEnc, guests, updatedAt, createdAt);
+                channelId, hostIdHashed, channelTokenId, channelNameEnc,
+                hostChannelTokenHashed, hostChannelTokenEnc, joinChannelTokenHashed,
+                joinChannelTokenEnc, guestChannelTokenHashed, guestChannelTokenEnc,
+                secretKeyEnc, guests, updatedAt, createdAt);
 
         reset();
         return channel;
@@ -76,6 +84,7 @@ public class ChannelFactory {
         channelTokenId = null;
         channelNameEnc = null;
         hostChannelTokenHashed = null;
+        hostChannelTokenEnc = null;
         joinChannelTokenHashed = null;
         joinChannelTokenEnc = null;
         guestChannelTokenHashed = null;

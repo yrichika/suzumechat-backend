@@ -8,11 +8,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.example.suzumechat.service.channel.ChannelService;
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
 import com.example.suzumechat.service.channel.dto.HostChannel;
 import com.example.suzumechat.service.channel.form.CreatingChannel;
+import com.example.suzumechat.service.channel.service.ChannelService;
 import com.example.suzumechat.utility.form.ValidationOrder;
 
 import lombok.*;

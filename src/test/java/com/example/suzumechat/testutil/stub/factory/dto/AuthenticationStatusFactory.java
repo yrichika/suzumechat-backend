@@ -1,7 +1,7 @@
 package com.example.suzumechat.testutil.stub.factory.dto;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import com.example.suzumechat.service.guest.dto.AuthenticationStatus;
+import com.example.suzumechat.service.guest.dto.message.AuthenticationStatus;
 import com.example.suzumechat.testutil.TestHelper;
 import com.example.suzumechat.testutil.random.TestRandom;
 import lombok.Setter;

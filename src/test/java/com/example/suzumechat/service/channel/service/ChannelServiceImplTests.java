@@ -1,4 +1,4 @@
-package com.example.suzumechat.service.channel;
+package com.example.suzumechat.service.channel.service;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -13,13 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-
+import com.example.suzumechat.service.channel.Channel;
+import com.example.suzumechat.service.channel.ChannelRepository;
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
-import com.example.suzumechat.service.channel.dto.VisitorsStatus;
+import com.example.suzumechat.service.channel.dto.message.VisitorsStatus;
 import com.example.suzumechat.service.channel.exception.ChannelNotFoundByHostIdException;
 import com.example.suzumechat.service.channel.exception.HostChannelTokensMismatchException;
 import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
 import com.example.suzumechat.service.channel.exception.VisitorNotFoundException;
+import com.example.suzumechat.service.channel.service.ChannelServiceImpl;
 import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.testconfig.TestConfig;

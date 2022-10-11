@@ -1,4 +1,4 @@
-package com.example.suzumechat.service.guest;
+package com.example.suzumechat.service.guest.service;
 
 import org.hibernate.jdbc.Expectations;
 import org.junit.jupiter.api.DisplayName;
@@ -11,10 +11,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.service.channel.ChannelRepository;
+import com.example.suzumechat.service.guest.Guest;
+import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.service.guest.dto.ChannelStatus;
-import com.example.suzumechat.service.guest.dto.VisitorsRequest;
+import com.example.suzumechat.service.guest.dto.message.VisitorsRequest;
 import com.example.suzumechat.service.guest.exception.JoinChannelTokenInvalidException;
 import com.example.suzumechat.service.guest.exception.VisitorInvalidException;
+import com.example.suzumechat.service.guest.service.GuestServiceImpl;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
@@ -104,6 +107,7 @@ public class GuestServiceImplTests {
             throws Exception {
         val joinChannelToken = testRandom.string.alphanumeric();
         val joinChannelTokenHashed = testRandom.string.alphanumeric();
+        val visitorId = testRandom.string.alphanumeric();
         val codename = testRandom.string.alphanumeric();
         val passphrase = testRandom.string.alphanumeric();
         val channel = channelFactory
@@ -112,8 +116,8 @@ public class GuestServiceImplTests {
         when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed))
                 .thenReturn(Optional.of(channel));
 
-        Optional<String> result =
-                service.createGuestAsVisitor(joinChannelToken, codename, passphrase);
+        Optional<String> result = service.createGuestAsVisitor(joinChannelToken,
+                visitorId, codename, passphrase);
 
         verify(guestRepository, times(1)).save(any(Guest.class));
         assertThat(result.get()).isNotEmpty();
@@ -124,6 +128,7 @@ public class GuestServiceImplTests {
             throws Exception {
         val joinChannelToken = testRandom.string.alphanumeric();
         val joinChannelTokenHashed = testRandom.string.alphanumeric();
+        val visitorId = testRandom.string.alphanumeric();
         val codename = testRandom.string.alphanumeric();
         val passphrase = testRandom.string.alphanumeric();
         val channel = channelFactory.make(); // secretKeyEnc is null
@@ -131,14 +136,14 @@ public class GuestServiceImplTests {
         when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed))
                 .thenReturn(Optional.of(channel));
 
-        Optional<String> result =
-                service.createGuestAsVisitor(joinChannelToken, codename, passphrase);
+        Optional<String> result = service.createGuestAsVisitor(joinChannelToken,
+                visitorId, codename, passphrase);
 
         verify(guestRepository, times(0)).save(any(Guest.class));
         assertThat(result.isEmpty()).isTrue();
     }
 
-
+    // DELETE:
     @Test
     public void getAuthenticationStatus_should_return_authenticated_status_if_authenticated()
             throws Exception {
@@ -159,7 +164,7 @@ public class GuestServiceImplTests {
                 .isEqualTo(testDto.guestChannelToken());
     }
 
-
+    // DELETE:
     @Test
     public void getAuthenticationStatus_should_throw_exception_if_guest_channel_not_found()
             throws Exception {
@@ -177,7 +182,7 @@ public class GuestServiceImplTests {
         });
     }
 
-
+    // DELETE:
     @Test
     public void getAuthenticationStatus_should_throw_exception_if_joinChannelToken_does_not_match_with_db_stored_value()
             throws Exception {
@@ -192,6 +197,7 @@ public class GuestServiceImplTests {
         });
     }
 
+    // DELETE:
     @Test
     public void getAuthenticationStatus_should_retun_isClosed_true_if_channel_closed()
             throws Exception {
@@ -206,7 +212,7 @@ public class GuestServiceImplTests {
         assertThat(result.guestChannelToken()).isEqualTo("");
     }
 
-
+    // DELETE:
     @Test
     public void getAuthenticationStatus_should_return_isAuthenticated_null_if_not_authenticated_yet()
             throws Exception {
@@ -222,6 +228,7 @@ public class GuestServiceImplTests {
         assertThat(result.guestChannelToken()).isEqualTo("");
     }
 
+    // DELETE:
     @Test
     public void getAuthenticationStatus_should_return_is_authenticated_false_if_rejected()
             throws Exception {
@@ -240,7 +247,7 @@ public class GuestServiceImplTests {
         assertThat(result.guestChannelToken()).isEqualTo("");
     }
 
-
+    // DELETE:
     public GetAuthenticationTestDto prepareForGetAuthenticationTest(
             byte[] secretKeyEnc, Boolean isAuthenticated,
             String unmatchedJoinChannelToken) {
@@ -302,6 +309,7 @@ public class GuestServiceImplTests {
         });
     }
 
+    // DELETE:
     @Accessors(fluent = true)
     @Getter
     @AllArgsConstructor

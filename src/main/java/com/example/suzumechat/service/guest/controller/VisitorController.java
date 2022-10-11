@@ -1,7 +1,7 @@
 package com.example.suzumechat.service.guest.controller;
 
 import java.util.Optional;
-
+import java.util.UUID;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.suzumechat.service.channel.ChannelRepository;
 import com.example.suzumechat.service.guest.GuestRepository;
-import com.example.suzumechat.service.guest.GuestService;
 import com.example.suzumechat.service.guest.dto.ChannelStatus;
 import com.example.suzumechat.service.guest.dto.ReceptionStatus;
 import com.example.suzumechat.service.guest.form.JoinRequest;
+import com.example.suzumechat.service.guest.service.GuestService;
 import com.example.suzumechat.utility.form.ValidationOrder;
 
 import lombok.val;
@@ -42,13 +42,17 @@ public class VisitorController {
         return channelStatus;
     }
 
+
+    // DELETE:
     @PostMapping("/visitor/joinRequest/{joinChannelToken:.+}")
     public ReceptionStatus joinRequest(
             @PathVariable("joinChannelToken") String joinChannelToken,
             @Validated(ValidationOrder.class) @RequestBody final JoinRequest form)
             throws Exception {
-        final Optional<String> visitorId = service.createGuestAsVisitor(
-                joinChannelToken, form.getCodename(), form.getPassphrase());
+        val fakeVisitorId = UUID.randomUUID().toString();
+        final Optional<String> visitorId =
+                service.createGuestAsVisitor(fakeVisitorId, joinChannelToken,
+                        form.getCodename(), form.getPassphrase());
 
         if (visitorId.isEmpty()) {
             return new ReceptionStatus(false);
@@ -56,7 +60,6 @@ public class VisitorController {
 
         session.setAttribute("visitorId", visitorId.get());
 
-        // FIXME: change response code to 201(CREATED)
         return new ReceptionStatus(true);
     }
 

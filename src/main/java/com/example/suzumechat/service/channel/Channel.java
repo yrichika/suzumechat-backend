@@ -37,7 +37,12 @@ public class Channel implements Serializable {
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
     private byte[] channelNameEnc;
+
     private String hostChannelTokenHashed;
+    @Lob
+    @Type(type = "org.hibernate.type.BinaryType")
+    private byte[] hostChannelTokenEnc;
+
 
     private String joinChannelTokenHashed;
     @Lob
@@ -53,8 +58,8 @@ public class Channel implements Serializable {
     private byte[] secretKeyEnc;
 
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "channelId", referencedColumnName = "channelId", insertable = false,
-            updatable = true)
+    @JoinColumn(name = "channelId", referencedColumnName = "channelId",
+            insertable = false, updatable = true)
     private Set<Guest> guests;
 
     @Temporal(TemporalType.TIMESTAMP)

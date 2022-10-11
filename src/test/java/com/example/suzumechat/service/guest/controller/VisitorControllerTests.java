@@ -19,9 +19,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.mockito.Mockito.*;
 
 import com.example.suzumechat.config.SecurityConfig;
-import com.example.suzumechat.service.guest.GuestService;
 import com.example.suzumechat.service.guest.dto.ChannelStatus;
 import com.example.suzumechat.service.guest.form.JoinRequest;
+import com.example.suzumechat.service.guest.service.GuestService;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.dto.ChannelStatusFactory;
@@ -76,7 +76,7 @@ public class VisitorControllerTests {
         final String form = objectMapper.writeValueAsString(joinRequest);
         val visitorId = "fakeVisitorId";
 
-        when(service.createGuestAsVisitor(joinChannelToken,
+        when(service.createGuestAsVisitor(joinChannelToken, visitorId,
                 joinRequest.getCodename(), joinRequest.getPassphrase()))
                         .thenReturn(Optional.of(visitorId));
 
@@ -96,8 +96,9 @@ public class VisitorControllerTests {
         val url = "/visitor/joinRequest/" + joinChannelToken;
         final JoinRequest joinRequest = joinRequestFactory.make();
         final String form = objectMapper.writeValueAsString(joinRequest);
+        val visitorId = testRandom.string.alphanumeric();
 
-        when(service.createGuestAsVisitor(joinChannelToken,
+        when(service.createGuestAsVisitor(joinChannelToken, visitorId,
                 joinRequest.getCodename(), joinRequest.getPassphrase()))
                         .thenReturn(Optional.empty());
 

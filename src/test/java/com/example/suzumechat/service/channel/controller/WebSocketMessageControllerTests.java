@@ -55,7 +55,7 @@ import static org.assertj.core.api.Assertions.*;
 import com.example.suzumechat.SuzumechatApplication;
 import com.example.suzumechat.config.SecurityConfig;
 import com.example.suzumechat.config.WebSocketConfig;
-import com.example.suzumechat.service.channel.ChannelService;
+import com.example.suzumechat.service.channel.service.ChannelService;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 
@@ -65,7 +65,7 @@ import lombok.*;
 @Import({TestConfig.class})
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @MockitoSettings
-public class ChatControllerTests {
+public class WebSocketMessageControllerTests {
 
     @Autowired
     private Environment env;
@@ -91,7 +91,7 @@ public class ChatControllerTests {
         WebSocketStompClient client =
                 new WebSocketStompClient(new SockJsClient(createTransportClient()));
         client.setMessageConverter(new MappingJackson2MessageConverter());
-        val url = "ws://localhost:" + port + env.getProperty("ws.chat-endpoint");
+        val url = "ws://localhost:" + port + env.getProperty("ws.endpoint");
 
         // StompSession session = client.connect(url, new
         // StompSessionHandlerAdapter() {})

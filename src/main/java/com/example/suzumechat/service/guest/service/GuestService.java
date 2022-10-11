@@ -1,9 +1,9 @@
-package com.example.suzumechat.service.guest;
+package com.example.suzumechat.service.guest.service;
 
 import java.util.Optional;
-import com.example.suzumechat.service.guest.dto.AuthenticationStatus;
 import com.example.suzumechat.service.guest.dto.ChannelStatus;
-import com.example.suzumechat.service.guest.dto.VisitorsRequest;
+import com.example.suzumechat.service.guest.dto.message.AuthenticationStatus;
+import com.example.suzumechat.service.guest.dto.message.VisitorsRequest;
 import com.example.suzumechat.service.guest.form.JoinRequest;
 
 public interface GuestService {
@@ -13,7 +13,7 @@ public interface GuestService {
 
     // originally ClientLoginRequests.create()
     public Optional<String> createGuestAsVisitor(String joinChannelToken,
-            String codename, String passphrase) throws Exception;
+            String visitorId, String codename, String passphrase) throws Exception;
 
     public AuthenticationStatus getAuthenticationStatus(String joinChannelToken,
             String visitorId) throws Exception;

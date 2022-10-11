@@ -1,6 +1,7 @@
 package com.example.suzumechat.config;
 
 import org.springframework.web.socket.server.HandshakeInterceptor;
+import lombok.val;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
@@ -21,9 +22,25 @@ public class HttpHandshakeInterceptor implements HandshakeInterceptor {
             ServletServerHttpRequest servletRequest =
                     (ServletServerHttpRequest) request;
             HttpSession session = servletRequest.getServletRequest().getSession();
+
+            // WARNING! this process is done in all websocket connection
+            // host/guest/visitor all websocket connections go through this process
+            // you don't wanna put unrelated values to different
+            // actors(host/guest/visitor). if you do, it will throw exception
+            // that's why all these values are checked before put into the
+            // `attribute`
+
             attributes.put("sessionId", session.getId());
-            attributes.put("hostId", session.getAttribute("hostId"));
-            attributes.put("secretKeyHost", session.getAttribute("secretKeyHost"));
+
+            val hostId = session.getAttribute("hostId");
+            if (hostId != null) {
+                attributes.put("hostId", hostId);
+            }
+
+            val secretKeyHost = session.getAttribute("secretKeyHost");
+            if (secretKeyHost != null) {
+                attributes.put("secretKeyHost", secretKeyHost);
+            }
         }
         return true;
     }

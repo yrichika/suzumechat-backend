@@ -48,13 +48,10 @@ public class SecurityConfig {
         );
 
         // http.csrf().disable(); // commented code for quick debugging
-        val webSocketChatEndPoint = env.getProperty("ws.chat-endpoint");
-        val webSocketJoinRequestsEndPoint =
-                env.getProperty("ws.join-requests-endpoint");
+        val webSocketChatEndPoint = env.getProperty("ws.endpoint");
         http.csrf()
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringAntMatchers(webSocketChatEndPoint + "/**")
-                .ignoringAntMatchers(webSocketJoinRequestsEndPoint + "/**");
+                .ignoringAntMatchers(webSocketChatEndPoint + "/**");
         http.headers().frameOptions().sameOrigin();
 
         return http.build();

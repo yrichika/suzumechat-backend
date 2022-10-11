@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.suzumechat.service.channel.ChannelService;
 import com.example.suzumechat.service.channel.form.VisitorsAuthStatus;
+import com.example.suzumechat.service.channel.service.ChannelService;
 import com.example.suzumechat.utility.form.ValidationOrder;
 import lombok.val;
 

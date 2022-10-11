@@ -16,8 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.mockito.Mockito.*;
 
 import com.example.suzumechat.config.SecurityConfig;
-import com.example.suzumechat.service.channel.ChannelService;
 import com.example.suzumechat.service.channel.controller.ChannelController;
+import com.example.suzumechat.service.channel.service.ChannelService;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.stub.factory.dto.CreatedChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.form.CreatingChannelFactory;
@@ -46,7 +46,8 @@ public class ChannelControllerTests {
     private CreatedChannelFactory createdChannelFactory;
 
     @Test
-    public void create_should_set_session_data_and_return_chat_channel() throws Exception {
+    public void create_should_set_session_data_and_return_chat_channel()
+            throws Exception {
         val url = "/createChannel";
 
         val form = formFactory.make();
@@ -54,17 +55,17 @@ public class ChannelControllerTests {
 
         val createdChannel = createdChannelFactory.make();
         when(service.create(form.getChannelName())).thenReturn(createdChannel);
-        val expectedHostChannel = objectMapper.writeValueAsString(createdChannel.hostChannel());
+        val expectedHostChannel =
+                objectMapper.writeValueAsString(createdChannel.hostChannel());
 
-        val request = post(url)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(json)
-            .with(SecurityMockMvcRequestPostProcessors.csrf());
+        val request = post(url).contentType(MediaType.APPLICATION_JSON).content(json)
+                .with(SecurityMockMvcRequestPostProcessors.csrf());
 
-        mockMvc.perform(request)
-            .andExpect(status().isOk())
-            .andExpect(request().sessionAttribute("hostId", createdChannel.hostId()))
-            .andExpect(request().sessionAttribute("secretKeyHost", createdChannel.hostChannel().secretKey()))
-            .andExpect(content().json(expectedHostChannel));
+        mockMvc.perform(request).andExpect(status().isOk())
+                .andExpect(request().sessionAttribute("hostId",
+                        createdChannel.hostId()))
+                .andExpect(request().sessionAttribute("secretKeyHost",
+                        createdChannel.hostChannel().secretKey()))
+                .andExpect(content().json(expectedHostChannel));
     }
 }

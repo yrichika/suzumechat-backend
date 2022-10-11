@@ -1,4 +1,4 @@
-package com.example.suzumechat.service.channel;
+package com.example.suzumechat.service.channel.service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -12,11 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.example.suzumechat.service.channel.Channel;
+import com.example.suzumechat.service.channel.ChannelRepository;
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
 import com.example.suzumechat.service.channel.dto.HostChannel;
-import com.example.suzumechat.service.channel.dto.VisitorsStatus;
+import com.example.suzumechat.service.channel.dto.message.VisitorsStatus;
 import com.example.suzumechat.service.channel.exception.ChannelNotFoundByHostIdException;
+import com.example.suzumechat.service.channel.exception.ChannelNotFoundByTokenException;
 import com.example.suzumechat.service.channel.exception.HostChannelTokensMismatchException;
 import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
 import com.example.suzumechat.service.channel.exception.VisitorNotFoundException;
@@ -59,6 +61,7 @@ public class ChannelServiceImpl implements ChannelService {
 
         val hostChannelToken = random.alphanumeric();
         val hostChannelTokenHashed = hash.digest(hostChannelToken);
+        val hostChannelTokenEnc = crypter.encrypt(hostChannelToken, ad);
 
         val joinChannelToken = random.alphanumeric();
         val joinChannelTokenHashed = hash.digest(joinChannelToken);
@@ -77,6 +80,7 @@ public class ChannelServiceImpl implements ChannelService {
         channel.setChannelTokenId(channelTokenId);
         channel.setChannelNameEnc(channelNameEnc);
         channel.setHostChannelTokenHashed(hostChannelTokenHashed);
+        channel.setHostChannelTokenEnc(hostChannelTokenEnc);
         channel.setJoinChannelTokenHashed(joinChannelTokenHashed);
         channel.setJoinChannelTokenEnc(joinChannelTokenEnc);
         channel.setGuestChannelTokenHashed(guestChannelTokenHashed);
@@ -164,6 +168,49 @@ public class ChannelServiceImpl implements ChannelService {
         return channel;
     }
 
+    // TEST:
+    @Override
+    public Channel getByJoinChannelToken(final String joinChannelToken)
+            throws Exception {
+        val joinChannelTokenHashed = hash.digest(joinChannelToken);
+        val channelOpt =
+                repository.findByJoinChannelTokenHashed(joinChannelTokenHashed);
+        val channel = channelOpt.orElseThrow(ChannelNotFoundByTokenException::new);
+
+        return channel;
+    }
+
+    // TEST:
+    @Override
+    public String getHostChannelTokenByJoinChannelToken(
+            final String joinChannelToken) throws Exception {
+        val channel = getByJoinChannelToken(joinChannelToken);
+        val hostChannelToken = crypter.decrypt(channel.getHostChannelTokenEnc(),
+                channel.getChannelId());
+        return hostChannelToken;
+    }
+
+    // TEST:
+    @Override
+    public Channel getByHostChannelToken(final String hostChannelToken)
+            throws Exception {
+        val hostChannelTokenHashed = hash.digest(hostChannelToken);
+        val channelOpt =
+                repository.findByHostChannelTokenHashed(hostChannelTokenHashed);
+        val channel = channelOpt.orElseThrow(ChannelNotFoundByTokenException::new);
+
+        return channel;
+    }
+
+    // TEST:
+    @Override
+    public String getJoinChannelTokenByHostChannelToken(
+            final String hostChannelToken) throws Exception {
+        val channel = getByHostChannelToken(hostChannelToken);
+        val joinChannelToken = crypter.decrypt(channel.getJoinChannelTokenEnc(),
+                channel.getChannelId());
+        return joinChannelToken;
+    }
 
     @Override
     public List<Channel> getItemsOrderThan(final Integer hours) {
