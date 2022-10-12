@@ -11,7 +11,9 @@ import lombok.val;
 import com.example.suzumechat.service.guest.application.VisitorMessageHandlerService;
 import com.example.suzumechat.service.guest.dto.message.JoinRequest;
 import com.example.suzumechat.service.guest.dto.message.VisitorsRequest;
+import com.example.suzumechat.service.guest.dto.message.error.JoinRequestError;
 import com.example.suzumechat.utility.JsonHelper;
+import com.example.suzumechat.utility.dto.message.ErrorMessage;
 
 @RestController
 public class WebSocketVisitorMessageController {
@@ -40,15 +42,30 @@ public class WebSocketVisitorMessageController {
             @Payload final String messageJson) throws Exception {
 
         if (jsonHelper.hasAllFieldsOf(messageJson, JoinRequest.class)) {
+
             val joinRequest = mapper.readValue(messageJson, JoinRequest.class);
 
-            val pendedRequest = service.createGuestAsVisitor(joinChannelToken,
+            val pendedRequestOpt = service.createGuestAsVisitor(joinChannelToken,
                     joinRequest.visitorId(), joinRequest.codename(),
                     joinRequest.passphrase());
+            if (pendedRequestOpt.isPresent()) {
+                sendToHost(pendedRequestOpt.get().hostChannelToken(),
+                        pendedRequestOpt.get().visitorsRequest());
+            } else {
+                returningToVisitor(joinChannelToken, joinRequest.visitorId(),
+                        new JoinRequestError());
+            }
 
-            sendToHost(pendedRequest.hostChannelToken(),
-                    pendedRequest.visitorsRequest());
+
         }
+    }
+
+    private void returningToVisitor(String joinChannelToken, String visitorId,
+            ErrorMessage errorMessage) {
+        // REFACTOR: TEST:
+        template.convertAndSend(
+                "/receive/visitor/" + joinChannelToken + "/" + visitorId,
+                errorMessage);
     }
 
     private void sendToHost(String hostChannelToken,

@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.*;
 import lombok.experimental.Accessors;
 import static org.mockito.Mockito.*;
+import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 
 
@@ -54,62 +55,98 @@ public class HostMessageHandlerServiceImplTests {
                 .thenReturn(expected);
 
         val result = service.getGuestChannelToken(hostId, hostChannelToken);
-        assertThat(result).isEqualTo(expected);
+        assertThat(result.get()).isEqualTo(expected);
     }
+
+    @Test
+    public void getGuestChannelToken_should_return_empty_if_exception_thrown()
+            throws Exception {
+
+        val hostId = testRandom.string.alphanumeric();
+        val hostChannelToken = testRandom.string.alphanumeric();
+
+        when(channelService.getGuestChannelToken(hostId, hostChannelToken))
+                .thenThrow(new Exception());
+
+        val result = service.getGuestChannelToken(hostId, hostChannelToken);
+        assertThat(result.isEmpty()).isTrue();
+    }
+
 
     @Test
     public void handleApproval_should_return_authenticated_result_if_approved()
             throws Exception {
         val secretKey = testRandom.string.alphanumeric().getBytes();
         final HandleApprovalTestDto testDto =
-                prepareForHandleApprovalTest(secretKey, true);
+                prepareForHandleApprovalTest(secretKey, true, false);
 
-        final ApprovalResult result =
+        final Optional<ApprovalResult> result =
                 service.handleApproval(testDto.hostId, testDto.hostChannelToken,
                         testDto.visitorId, testDto.isAuthenticated);
 
-        assertThat(result.joinChannelToken()).isEqualTo(testDto.joinChannelToken);
-        assertThat(result.authenticationStatus().isClosed()).isFalse();
-        assertThat(result.authenticationStatus().isAuthenticated()).isTrue();
-        assertThat(result.authenticationStatus().guestChannelToken())
+        assertThat(result.get().joinChannelToken())
+                .isEqualTo(testDto.joinChannelToken);
+        assertThat(result.get().authenticationStatus().isClosed()).isFalse();
+        assertThat(result.get().authenticationStatus().isAuthenticated()).isTrue();
+        assertThat(result.get().authenticationStatus().guestChannelToken())
                 .isEqualTo(testDto.guestChannelToken);
     }
 
+    @Test
     public void handleApproval_should_return_closed_request_if_channel_closes()
             throws Exception {
 
         final HandleApprovalTestDto testDto =
-                prepareForHandleApprovalTest(null, null);
+                prepareForHandleApprovalTest(null, null, false);
 
-        final ApprovalResult result =
-                service.handleApproval(testDto.hostId, testDto.hostChannelToken,
-                        testDto.visitorId, testDto.isAuthenticated);
+        // WARNING! can't pass testDto.isAuthenticated becase it's null
+        final Optional<ApprovalResult> result = service.handleApproval(
+                testDto.hostId, testDto.hostChannelToken, testDto.visitorId, false);
 
-        assertThat(result.joinChannelToken()).isEqualTo(testDto.joinChannelToken);
-        assertThat(result.authenticationStatus().isClosed()).isTrue();
-        assertThat(result.authenticationStatus().isAuthenticated()).isNull();
-        assertThat(result.authenticationStatus().guestChannelToken()).isEqualTo("");
+        assertThat(result.get().joinChannelToken())
+                .isEqualTo(testDto.joinChannelToken);
+        assertThat(result.get().authenticationStatus().isClosed()).isTrue();
+        assertThat(result.get().authenticationStatus().isAuthenticated()).isNull();
+        assertThat(result.get().authenticationStatus().guestChannelToken())
+                .isEqualTo("");
     }
 
+    @Test
     public void handleApproval_should_return_isAuthenticated_false_and_guestChannelToken_empty_if_rejected()
             throws Exception {
 
         val secretKeyEnc = testRandom.string.alphanumeric().getBytes();
         final HandleApprovalTestDto testDto =
-                prepareForHandleApprovalTest(secretKeyEnc, false);
+                prepareForHandleApprovalTest(secretKeyEnc, false, false);
 
-        final ApprovalResult result =
+        final Optional<ApprovalResult> result =
                 service.handleApproval(testDto.hostId, testDto.hostChannelToken,
                         testDto.visitorId, testDto.isAuthenticated);
 
-        assertThat(result.joinChannelToken()).isEqualTo(testDto.joinChannelToken);
-        assertThat(result.authenticationStatus().isClosed()).isFalse();
-        assertThat(result.authenticationStatus().isAuthenticated()).isFalse();
-        assertThat(result.authenticationStatus().guestChannelToken()).isEqualTo("");
+        assertThat(result.get().joinChannelToken())
+                .isEqualTo(testDto.joinChannelToken);
+        assertThat(result.get().authenticationStatus().isClosed()).isFalse();
+        assertThat(result.get().authenticationStatus().isAuthenticated()).isFalse();
+        assertThat(result.get().authenticationStatus().guestChannelToken())
+                .isEqualTo("");
+    }
+
+    @Test
+    public void handleApproval_should_return_empty_if_exception_thrown()
+            throws Exception {
+
+        final HandleApprovalTestDto testDto =
+                prepareForHandleApprovalTest(null, false, true);
+
+        final Optional<ApprovalResult> result =
+                service.handleApproval(testDto.hostId, testDto.hostChannelToken,
+                        testDto.visitorId, testDto.isAuthenticated);
+
+        assertThat(result.isEmpty()).isTrue();
     }
 
     public HandleApprovalTestDto prepareForHandleApprovalTest(byte[] secretKeyEnc,
-            Boolean isAuthenticated) throws Exception {
+            Boolean isAuthenticated, boolean throwsException) throws Exception {
         val hostId = testRandom.string.alphanumeric();
         val hostIdHashed = testRandom.string.alphanumeric();
         val hostChannelToken = testRandom.string.alphanumeric();
@@ -121,8 +158,15 @@ public class HostMessageHandlerServiceImplTests {
                 channelFactory.secretKeyEnc(secretKeyEnc).hostIdHashed(hostIdHashed)
                         .hostChannelTokenHashed(hostChannelTokenHashed).make();
 
-        when(channelService.getByHostChannelToken(hostId, hostChannelToken))
-                .thenReturn(channel);
+
+        if (throwsException) {
+            when(channelService.getByHostChannelToken(hostId, hostChannelToken))
+            .thenThrow(new Exception());
+        } else {
+            when(channelService.getByHostChannelToken(hostId, hostChannelToken))
+            .thenReturn(channel);
+        }
+
         when(crypter.decrypt(channel.getJoinChannelTokenEnc(),
                 channel.getChannelId())).thenReturn(joinChannelToken);
         when(crypter.decrypt(channel.getGuestChannelTokenEnc(),
@@ -131,6 +175,7 @@ public class HostMessageHandlerServiceImplTests {
         return new HandleApprovalTestDto(hostId, visitorId, hostChannelToken,
                 joinChannelToken, guestChannelToken, isAuthenticated);
     }
+
 
     @Accessors(fluent = true)
     @Getter
@@ -141,6 +186,6 @@ public class HostMessageHandlerServiceImplTests {
         private String hostChannelToken;
         private String joinChannelToken;
         private String guestChannelToken;
-        private boolean isAuthenticated;
+        private Boolean isAuthenticated;
     }
 }

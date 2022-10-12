@@ -1,5 +1,6 @@
 package com.example.suzumechat.service.channel.application;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.dto.ApprovalResult;
@@ -20,33 +21,50 @@ public class HostMessageHandlerServiceImpl implements HostMessageHandlerService 
     private Crypter crypter;
 
     @Override
-    public String getGuestChannelToken(final String hostId,
-            final String hostChannelToken) throws Exception {
-        return channelService.getGuestChannelToken(hostId, hostChannelToken);
+    public Optional<String> getGuestChannelToken(final String hostId,
+            final String hostChannelToken) {
+        try {
+            val guestChannelToken =
+                    channelService.getGuestChannelToken(hostId, hostChannelToken);
+            return Optional.of(guestChannelToken);
+        } catch (Exception exception) {
+            // TODO: log
+            return Optional.empty();
+        }
     }
 
     @Override
-    public ApprovalResult handleApproval(final String hostId,
+    public Optional<ApprovalResult> handleApproval(final String hostId,
             final String hostChannelToken, final String visitorId,
-            final boolean isAuthenticated) throws Exception {
-        channelService.approveVisitor(visitorId, isAuthenticated);
+            final boolean isAuthenticated) {
+        try {
+            channelService.approveVisitor(visitorId, isAuthenticated);
 
-        val channel = channelService.getByHostChannelToken(hostId, hostChannelToken);
-        val joinChannelToken = crypter.decrypt(channel.getJoinChannelTokenEnc(),
-                channel.getChannelId());
+            val channel =
+                    channelService.getByHostChannelToken(hostId, hostChannelToken);
+            val joinChannelToken = crypter.decrypt(channel.getJoinChannelTokenEnc(),
+                    channel.getChannelId());
 
-        if (channel.isClosed()) {
-            return new ApprovalResult(joinChannelToken,
-                    new AuthenticationStatus(true, null, ""));
+            if (channel.isClosed()) {
+                val approvalResult = new ApprovalResult(joinChannelToken,
+                        new AuthenticationStatus(true, null, ""));
+                return Optional.of(approvalResult);
+            }
+            if (isAuthenticated == false) {
+                val approvalResult = new ApprovalResult(joinChannelToken,
+                        new AuthenticationStatus(false, isAuthenticated, ""));
+                return Optional.of(approvalResult);
+            }
+
+            val guestChannelToken = crypter.decrypt(
+                    channel.getGuestChannelTokenEnc(), channel.getChannelId());
+            val approvalResult =
+                    new ApprovalResult(joinChannelToken, new AuthenticationStatus(
+                            false, isAuthenticated, guestChannelToken));
+            return Optional.of(approvalResult);
+        } catch (Exception exception) {
+            // TODO: log
+            return Optional.empty();
         }
-        if (isAuthenticated == false) {
-            return new ApprovalResult(joinChannelToken,
-                    new AuthenticationStatus(false, isAuthenticated, ""));
-        }
-
-        val guestChannelToken = crypter.decrypt(channel.getGuestChannelTokenEnc(),
-                channel.getChannelId());
-        return new ApprovalResult(joinChannelToken,
-                new AuthenticationStatus(false, isAuthenticated, guestChannelToken));
     }
 }

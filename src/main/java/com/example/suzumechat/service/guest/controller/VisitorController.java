@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.suzumechat.service.channel.ChannelRepository;
 import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.service.guest.dto.ChannelStatus;
-import com.example.suzumechat.service.guest.dto.ReceptionStatus;
-import com.example.suzumechat.service.guest.form.JoinRequest;
 import com.example.suzumechat.service.guest.service.GuestService;
 import com.example.suzumechat.utility.form.ValidationOrder;
 
@@ -41,26 +39,4 @@ public class VisitorController {
                 service.getChannelNameByJoinChannelToken(joinChannelToken);
         return channelStatus;
     }
-
-
-    // DELETE:
-    @PostMapping("/visitor/joinRequest/{joinChannelToken:.+}")
-    public ReceptionStatus joinRequest(
-            @PathVariable("joinChannelToken") String joinChannelToken,
-            @Validated(ValidationOrder.class) @RequestBody final JoinRequest form)
-            throws Exception {
-        val fakeVisitorId = UUID.randomUUID().toString();
-        final Optional<String> visitorId =
-                service.createGuestAsVisitor(fakeVisitorId, joinChannelToken,
-                        form.getCodename(), form.getPassphrase());
-
-        if (visitorId.isEmpty()) {
-            return new ReceptionStatus(false);
-        }
-
-        session.setAttribute("visitorId", visitorId.get());
-
-        return new ReceptionStatus(true);
-    }
-
 }

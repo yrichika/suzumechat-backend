@@ -4,7 +4,6 @@ import java.util.Optional;
 import com.example.suzumechat.service.guest.dto.ChannelStatus;
 import com.example.suzumechat.service.guest.dto.message.AuthenticationStatus;
 import com.example.suzumechat.service.guest.dto.message.VisitorsRequest;
-import com.example.suzumechat.service.guest.form.JoinRequest;
 
 public interface GuestService {
 

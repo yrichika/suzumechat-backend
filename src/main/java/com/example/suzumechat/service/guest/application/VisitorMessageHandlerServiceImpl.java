@@ -19,17 +19,25 @@ public class VisitorMessageHandlerServiceImpl
     private GuestService guestService;
 
     @Override
-    public PendedJoinRequestResult createGuestAsVisitor(String joinChannelToken,
-            String visitorId, String codename, String passphrase) throws Exception {
-        guestService.createGuestAsVisitor(joinChannelToken, visitorId, codename,
-                passphrase);
+    public Optional<PendedJoinRequestResult> createGuestAsVisitor(
+            String joinChannelToken, String visitorId, String codename,
+            String passphrase) {
 
-        val hostChannelToken = channelService
-                .getHostChannelTokenByJoinChannelToken(joinChannelToken);
+        try {
+            guestService.createGuestAsVisitor(joinChannelToken, visitorId, codename,
+                    passphrase);
 
-        val visitorsRequest = new VisitorsRequest(visitorId, codename, passphrase,
-                Optional.empty());
+            val hostChannelToken = channelService
+                    .getHostChannelTokenByJoinChannelToken(joinChannelToken);
 
-        return new PendedJoinRequestResult(hostChannelToken, visitorsRequest);
+            val visitorsRequest = new VisitorsRequest(visitorId, codename,
+                    passphrase, Optional.empty());
+            val result =
+                    new PendedJoinRequestResult(hostChannelToken, visitorsRequest);
+            return Optional.of(result);
+        } catch (Exception exception) {
+            // TODO: log
+            return Optional.empty();
+        }
     }
 }

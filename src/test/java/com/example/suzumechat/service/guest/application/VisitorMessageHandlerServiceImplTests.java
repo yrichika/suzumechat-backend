@@ -14,6 +14,7 @@ import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import lombok.*;
 import static org.mockito.Mockito.*;
+import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringJUnitConfig
@@ -32,7 +33,8 @@ public class VisitorMessageHandlerServiceImplTests {
     private TestRandom testRandom;
 
     @Test
-    public void createGuestAsVisitor_() throws Exception {
+    public void createGuestAsVisitor_should_return_pended_result_if_saved()
+            throws Exception {
         val joinChannelToken = testRandom.string.alphanumeric();
         val visitorId = testRandom.string.alphanumeric();
         val codename = testRandom.string.alphanumeric();
@@ -42,14 +44,32 @@ public class VisitorMessageHandlerServiceImplTests {
         when(channelService.getHostChannelTokenByJoinChannelToken(joinChannelToken))
                 .thenReturn(hostChannelToken);
 
-        final PendedJoinRequestResult result = service.createGuestAsVisitor(
-                joinChannelToken, visitorId, codename, passphrase);
+        final Optional<PendedJoinRequestResult> result =
+                service.createGuestAsVisitor(joinChannelToken, visitorId, codename,
+                        passphrase);
 
-        assertThat(result.hostChannelToken()).isEqualTo(hostChannelToken);
-        assertThat(result.visitorsRequest().visitorId()).isEqualTo(visitorId);
-        assertThat(result.visitorsRequest().codename()).isEqualTo(codename);
-        assertThat(result.visitorsRequest().passphrase()).isEqualTo(passphrase);
-        assertThat(result.visitorsRequest().isAuthenticated()).isEmpty();
+        assertThat(result.get().hostChannelToken()).isEqualTo(hostChannelToken);
+        assertThat(result.get().visitorsRequest().visitorId()).isEqualTo(visitorId);
+        assertThat(result.get().visitorsRequest().codename()).isEqualTo(codename);
+        assertThat(result.get().visitorsRequest().passphrase())
+                .isEqualTo(passphrase);
+        assertThat(result.get().visitorsRequest().isAuthenticated()).isEmpty();
+    }
 
+    @Test
+    public void createGuestAsVisitor_should_return_empty_if_exception_thrown()
+            throws Exception {
+        val joinChannelToken = testRandom.string.alphanumeric();
+        val visitorId = testRandom.string.alphanumeric();
+        val codename = testRandom.string.alphanumeric();
+        val passphrase = testRandom.string.alphanumeric();
+
+        when(channelService.getHostChannelTokenByJoinChannelToken(joinChannelToken))
+                .thenThrow(new Exception());
+
+        final Optional<PendedJoinRequestResult> result =
+                service.createGuestAsVisitor(joinChannelToken, visitorId, codename,
+                        passphrase);
+        assertThat(result.isEmpty()).isTrue();
     }
 }
