@@ -18,6 +18,11 @@ public interface ChannelService {
     public String getGuestChannelToken(final String hostId,
             final String userSentHostChannelToken) throws Exception;
 
+    public Channel getByGuestChannelToken(final String guestChannelToken)
+            throws Exception;
+
+    public String getChannelNameByGuestChannelToken(final String guestChannelToken)
+            throws Exception;
 
     public Channel getByJoinChannelToken(final String joinChannelToken)
             throws Exception;

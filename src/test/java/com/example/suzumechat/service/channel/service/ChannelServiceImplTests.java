@@ -18,6 +18,7 @@ import com.example.suzumechat.service.channel.ChannelRepository;
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
 import com.example.suzumechat.service.channel.dto.message.VisitorsStatus;
 import com.example.suzumechat.service.channel.exception.ChannelNotFoundByHostIdException;
+import com.example.suzumechat.service.channel.exception.ChannelNotFoundByTokenException;
 import com.example.suzumechat.service.channel.exception.HostChannelTokensMismatchException;
 import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
 import com.example.suzumechat.service.channel.exception.VisitorNotFoundException;
@@ -267,6 +268,55 @@ public class ChannelServiceImplTests {
         assertThrows(HostUnauthorizedException.class, () -> {
             service.getChannelByHostId(hostId);
         });
+    }
+
+    @Test
+    public void getByGuestChannelToken_should_return_guestChannel_by_guest_channel_token()
+            throws Exception {
+        val guestChannelToken = testRandom.string.alphanumeric();
+        val guestChannelTokenHashed = testRandom.string.alphanumeric();
+        val channel = channelFactory.make();
+        when(hash.digest(guestChannelToken)).thenReturn(guestChannelTokenHashed);
+        when(repository.findByGuestChannelTokenHashed(guestChannelTokenHashed))
+                .thenReturn(Optional.of(channel));
+
+        val result = service.getByGuestChannelToken(guestChannelToken);
+
+        assertThat(result).isEqualTo(channel);
+    }
+
+    @Test
+    public void getByGuestChannelToken_should_throw_exception_if_not_found()
+            throws Exception {
+        val guestChannelToken = testRandom.string.alphanumeric();
+        val guestChannelTokenHashed = testRandom.string.alphanumeric();
+
+        when(hash.digest(guestChannelToken)).thenReturn(guestChannelTokenHashed);
+        when(repository.findByGuestChannelTokenHashed(guestChannelTokenHashed))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ChannelNotFoundByTokenException.class, () -> {
+            service.getByGuestChannelToken(guestChannelToken);
+        });
+    }
+
+    @Test
+    public void getChannelNameByGuestChannelToken_should_return_channelName()
+            throws Exception {
+        val guestChannelToken = testRandom.string.alphanumeric();
+        val guestChannelTokenHashed = testRandom.string.alphanumeric();
+        val channel = channelFactory.make();
+        val channelName = testRandom.string.alphanumeric();
+
+        when(hash.digest(guestChannelToken)).thenReturn(guestChannelTokenHashed);
+        when(repository.findByGuestChannelTokenHashed(guestChannelTokenHashed))
+                .thenReturn(Optional.of(channel));
+        when(crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId()))
+                .thenReturn(channelName);
+
+        val result = service.getChannelNameByGuestChannelToken(guestChannelToken);
+
+        assertThat(result).isEqualTo(channelName);
     }
 
 
