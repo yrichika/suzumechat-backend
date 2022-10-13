@@ -55,29 +55,6 @@ public class HostControllerTests {
     }
 
     @Test
-    public void approveRequest_should_return_204_if_request_either_accepted_or_rejected()
-            throws Exception {
-        val hostChannelToken = testRandom.string.alphanumeric();
-        val url = "/host/approveRequest/" + hostChannelToken;
-
-        final VisitorsAuthStatus form = statusFactory.make();
-        val jsonedForm = objectMapper.writeValueAsString(form);
-
-        // Not necessary, but just as a memo.
-        // doNothing().when(service).approveVisitor(form.getVisitorId(),
-        // form.getIsAuthenticated());
-
-        val request =
-                post(url).contentType(MediaType.APPLICATION_JSON).content(jsonedForm)
-                        .with(SecurityMockMvcRequestPostProcessors.csrf());
-        mockMvc.perform(request).andExpect(status().isNoContent());
-
-        verify(service, times(1)).approveVisitor(form.getVisitorId(),
-                form.getIsAuthenticated());
-    }
-
-
-    @Test
     public void endChannel_should_delete_secretKey_and_invalidate_session()
             throws Exception {
         val hostChannelToken = testRandom.string.alphanumeric();

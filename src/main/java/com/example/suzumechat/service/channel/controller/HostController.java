@@ -24,17 +24,6 @@ public class HostController {
     @Autowired
     private HttpSession session;
 
-    @PostMapping("/host/approveRequest/{hostChannelToken:.+}")
-    public ResponseEntity<String> approveRequest(
-            @PathVariable("hostChannelToken") final String hostChannelToken,
-            @Validated(ValidationOrder.class) @RequestBody final VisitorsAuthStatus form)
-            throws Exception {
-
-        service.approveVisitor(form.getVisitorId(), form.getIsAuthenticated());
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
     @PostMapping("/host/endChannel/{hostChannelToken:.+}")
     public ResponseEntity<String> endChannel(
             @PathVariable("hostChannelToken") final String hostChannelToken)
