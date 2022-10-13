@@ -38,7 +38,7 @@ public class HostMessageHandlerServiceImpl implements HostMessageHandlerService 
             final String hostChannelToken, final String visitorId,
             final boolean isAuthenticated) {
         try {
-            channelService.approveVisitor(visitorId, isAuthenticated);
+            val guestId = channelService.approveVisitor(visitorId, isAuthenticated);
 
             val channel =
                     channelService.getByHostChannelToken(hostId, hostChannelToken);
@@ -47,12 +47,12 @@ public class HostMessageHandlerServiceImpl implements HostMessageHandlerService 
 
             if (channel.isClosed()) {
                 val approvalResult = new ApprovalResult(joinChannelToken,
-                        new AuthenticationStatus(true, null, ""));
+                        new AuthenticationStatus(true, null, "", ""));
                 return Optional.of(approvalResult);
             }
             if (isAuthenticated == false) {
                 val approvalResult = new ApprovalResult(joinChannelToken,
-                        new AuthenticationStatus(false, isAuthenticated, ""));
+                        new AuthenticationStatus(false, isAuthenticated, "", ""));
                 return Optional.of(approvalResult);
             }
 
@@ -60,7 +60,7 @@ public class HostMessageHandlerServiceImpl implements HostMessageHandlerService 
                     channel.getGuestChannelTokenEnc(), channel.getChannelId());
             val approvalResult =
                     new ApprovalResult(joinChannelToken, new AuthenticationStatus(
-                            false, isAuthenticated, guestChannelToken));
+                            false, isAuthenticated, guestId, guestChannelToken));
             return Optional.of(approvalResult);
         } catch (Exception exception) {
             // TODO: log

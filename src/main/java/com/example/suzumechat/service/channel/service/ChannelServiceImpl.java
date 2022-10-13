@@ -27,7 +27,6 @@ import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.utility.Crypter;
 import com.example.suzumechat.utility.Hash;
 import com.example.suzumechat.utility.Random;
-
 import lombok.*;
 
 @Service
@@ -222,7 +221,7 @@ public class ChannelServiceImpl implements ChannelService {
 
 
     @Override
-    public void approveVisitor(String visitorId, boolean isAuthenticated)
+    public String approveVisitor(String visitorId, boolean isAuthenticated)
             throws Exception {
         val visitorIdHashed = hash.digest(visitorId);
         final Optional<Guest> guestOpt =
@@ -232,7 +231,7 @@ public class ChannelServiceImpl implements ChannelService {
         if (!isAuthenticated) {
             guest.setIsAuthenticated(false);
             guestRepository.save(guest);
-            return;
+            return "";
         }
 
         val guestId = UUID.randomUUID().toString();
@@ -244,6 +243,8 @@ public class ChannelServiceImpl implements ChannelService {
         guest.setIsAuthenticated(true);
 
         guestRepository.save(guest);
+
+        return guestId;
     }
 
 

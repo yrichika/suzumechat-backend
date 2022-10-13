@@ -75,41 +75,6 @@ public class GuestServiceImpl implements GuestService {
         return Optional.of(visitorId);
     }
 
-    // DELETE:
-    @Override
-    public AuthenticationStatus getAuthenticationStatus(
-            final String joinChannelToken, final String visitorId) throws Exception {
-        val visitorIdHashed = hash.digest(visitorId);
-        final Optional<Guest> guestAsVisitorOpt =
-                repository.findByVisitorIdHashed(visitorIdHashed);
-        val guestAsVisitor =
-                guestAsVisitorOpt.orElseThrow(VisitorInvalidException::new);
-        final Channel channel = guestAsVisitor.getChannel();
-        val joinChannelTokenHashed = hash.digest(joinChannelToken);
-
-        if (!joinChannelTokenHashed.equals(channel.getJoinChannelTokenHashed())) {
-            throw new VisitorInvalidException();
-        }
-
-        if (channel.isClosed()) {
-            return new AuthenticationStatus(true, null, "");
-        }
-
-        if (guestAsVisitor.getIsAuthenticated() == null) {
-            return new AuthenticationStatus(false, null, "");
-        }
-
-        if (guestAsVisitor.getIsAuthenticated() == false) {
-            return new AuthenticationStatus(false, false, "");
-        }
-
-        val guestChannelToken = crypter.decrypt(channel.getGuestChannelTokenEnc(),
-                channel.getChannelId());
-        return new AuthenticationStatus(false, true, guestChannelToken);
-
-
-    }
-
     @Override
     public void updateStatus(String visitorId, Boolean isAuthenticated) {
         val visitorIdHashed = hash.digest(visitorId);

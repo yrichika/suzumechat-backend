@@ -17,6 +17,7 @@ public class AuthenticationStatusFactory {
 
     private boolean isClosed = false;
     private Boolean isAuthenticated = null;
+    private String guestId = null;
     private String guestChannelToken = null;
 
     public AuthenticationStatus make() {
@@ -25,11 +26,13 @@ public class AuthenticationStatusFactory {
                 TestHelper.getOrDefault(this.isClosed, random.bool.nextBoolean());
         val isAuthenticated = TestHelper.getOrDefault(this.isAuthenticated,
                 random.bool.nextBoolean());
+        val guestId =
+                TestHelper.getOrDefault(this.guestId, random.string.alphanumeric());
         val guestChannelToken = TestHelper.getOrDefault(this.guestChannelToken,
                 random.string.alphanumeric());
 
         val authenticationStatus = new AuthenticationStatus(isClosed,
-                isAuthenticated, guestChannelToken);
+                isAuthenticated, guestId, guestChannelToken);
         reset();
         return authenticationStatus;
     }
@@ -37,6 +40,7 @@ public class AuthenticationStatusFactory {
     private void reset() {
         isClosed = false;
         isAuthenticated = null;
+        guestId = null;
         guestChannelToken = null;
     }
 }

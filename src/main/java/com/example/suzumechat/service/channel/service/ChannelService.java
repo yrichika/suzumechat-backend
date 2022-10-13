@@ -34,7 +34,7 @@ public interface ChannelService {
     public List<Channel> getItemsOrderThan(final Integer hour);
 
     // originally AuthenticatedClients.create() and updateStatus()
-    public void approveVisitor(String visitorId, boolean isAuthenticated)
+    public String approveVisitor(String visitorId, boolean isAuthenticated)
             throws Exception;
 
     public void trashSecretKeyByHostChannelToken(final String hostId,

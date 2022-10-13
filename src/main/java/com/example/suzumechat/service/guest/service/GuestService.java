@@ -14,9 +14,6 @@ public interface GuestService {
     public Optional<String> createGuestAsVisitor(String joinChannelToken,
             String visitorId, String codename, String passphrase) throws Exception;
 
-    public AuthenticationStatus getAuthenticationStatus(String joinChannelToken,
-            String visitorId) throws Exception;
-
     // originally ClientLoginRequests.updateStatus
     public void updateStatus(String visitorId, Boolean isAuthenticated);
 }
