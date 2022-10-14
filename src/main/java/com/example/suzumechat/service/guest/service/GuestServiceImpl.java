@@ -13,6 +13,7 @@ import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.service.guest.dto.ChannelStatus;
 import com.example.suzumechat.service.guest.dto.message.AuthenticationStatus;
 import com.example.suzumechat.service.guest.dto.message.VisitorsRequest;
+import com.example.suzumechat.service.guest.exception.GuestNotFoundException;
 import com.example.suzumechat.service.guest.exception.JoinChannelTokenInvalidException;
 import com.example.suzumechat.service.guest.exception.VisitorInvalidException;
 import com.example.suzumechat.utility.*;
@@ -45,6 +46,15 @@ public class GuestServiceImpl implements GuestService {
         }
 
         return new ChannelStatus(channelName, true);
+    }
+
+    @Override
+    public Guest getByGuestId(final String guestId) throws Exception {
+        val guestIdHashed = hash.digest(guestId);
+        val guestOpt = repository.findByGuestIdHashed(guestIdHashed);
+        val guest = guestOpt.orElseThrow(GuestNotFoundException::new);
+
+        return guest;
     }
 
     @Override
@@ -82,7 +92,7 @@ public class GuestServiceImpl implements GuestService {
                 isAuthenticated);
     }
 
-
+    // FIXME: move to another appropriate class
     public Channel getChannelByJoinChannelToken(final String joinChannelToken)
             throws Exception {
         val joinChannelTokenHashed = hash.digest(joinChannelToken);

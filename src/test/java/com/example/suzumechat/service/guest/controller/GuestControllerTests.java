@@ -12,6 +12,7 @@ import com.example.suzumechat.service.guest.application.GuestChannelService;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.dto.GuestChannelFactory;
+import com.example.suzumechat.testutil.stub.factory.dto.GuestDtoFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -35,6 +36,8 @@ public class GuestControllerTests {
     private TestRandom testRandom;
     @Autowired
     private GuestChannelFactory guestChannelFactory;
+    @Autowired
+    private GuestDtoFactory guestDtoFactory;
 
     @Test
     public void channelName_should_return_guestChannel() throws Exception {
@@ -49,6 +52,22 @@ public class GuestControllerTests {
 
         val request = get(url);
         mockMvc.perform(request).andExpect(status().isOk())
+                .andExpect(content().json(expected));
+    }
+
+    @Test
+    public void guestDto_should_return_guestDto_by_guestId() throws Exception {
+        val guestId = testRandom.string.alphanumeric();
+        val guestChannelToken = testRandom.string.alphanumeric();
+        val url = "/guest/guestDto/" + guestChannelToken;
+        val guestDto = guestDtoFactory.make();
+        when(service.getGuestDtoByGuestId(guestId, guestChannelToken))
+                .thenReturn(guestDto);
+
+        val expected = objectMapper.writeValueAsString(guestDto);
+        val request = get(url).param("guestId", guestId);
+        mockMvc.perform(request).andExpect(status().isOk())
+                .andExpect(request().sessionAttribute("guestId", guestId))
                 .andExpect(content().json(expected));
     }
 }

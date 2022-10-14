@@ -239,7 +239,7 @@ public class ChannelServiceImpl implements ChannelService {
         return repository.findAllByCreatedAtBefore(date);
     }
 
-
+    // FIXME: move to HostMessageHandlerService
     @Override
     public String approveVisitor(String visitorId, boolean isAuthenticated)
             throws Exception {

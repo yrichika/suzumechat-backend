@@ -15,6 +15,7 @@ import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.service.guest.dto.ChannelStatus;
 import com.example.suzumechat.service.guest.dto.message.VisitorsRequest;
+import com.example.suzumechat.service.guest.exception.GuestNotFoundException;
 import com.example.suzumechat.service.guest.exception.JoinChannelTokenInvalidException;
 import com.example.suzumechat.service.guest.exception.VisitorInvalidException;
 import com.example.suzumechat.service.guest.service.GuestServiceImpl;
@@ -101,6 +102,31 @@ public class GuestServiceImplTests {
         assertThat(channelStatus.isAccepting()).isFalse(); // This is the difference
     }
 
+    @Test
+    public void getByGuestId_should_return_guest_if_found() throws Exception {
+        val guestId = testRandom.string.alphanumeric();
+        val guestIdHashed = testRandom.string.alphanumeric();
+        val guest = guestFactory.make();
+        when(hash.digest(guestId)).thenReturn(guestIdHashed);
+        when(guestRepository.findByGuestIdHashed(guestIdHashed))
+                .thenReturn(Optional.of(guest));
+
+        val result = service.getByGuestId(guestId);
+        assertThat(result).isEqualTo(guest);
+    }
+
+    @Test
+    public void getByGuestId_should_throw_exception_if_not_found() throws Exception {
+        val guestId = testRandom.string.alphanumeric();
+        val guestIdHashed = testRandom.string.alphanumeric();
+
+        when(hash.digest(guestId)).thenReturn(guestIdHashed);
+        when(guestRepository.findByGuestIdHashed(guestIdHashed))
+                .thenReturn(Optional.empty());
+        assertThrows(GuestNotFoundException.class, () -> {
+            service.getByGuestId(guestId);
+        });
+    }
 
     @Test
     public void createGuestAsVisitor_should_save_guest_as_visitor_and_return_visitor_id()
