@@ -239,9 +239,9 @@ public class ChannelServiceImpl implements ChannelService {
         return repository.findAllByCreatedAtBefore(date);
     }
 
-    // FIXME: move to HostMessageHandlerService
+    // FIXME: move to GuestService
     @Override
-    public String approveVisitor(String visitorId, boolean isAuthenticated)
+    public Guest approveVisitor(String visitorId, boolean isAuthenticated)
             throws Exception {
         val visitorIdHashed = hash.digest(visitorId);
         final Optional<Guest> guestOpt =
@@ -251,7 +251,7 @@ public class ChannelServiceImpl implements ChannelService {
         if (!isAuthenticated) {
             guest.setIsAuthenticated(false);
             guestRepository.save(guest);
-            return "";
+            return guest;
         }
 
         val guestId = UUID.randomUUID().toString();
@@ -264,7 +264,7 @@ public class ChannelServiceImpl implements ChannelService {
 
         guestRepository.save(guest);
 
-        return guestId;
+        return guest;
     }
 
 

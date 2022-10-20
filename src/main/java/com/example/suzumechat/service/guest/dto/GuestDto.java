@@ -1,5 +1,6 @@
 package com.example.suzumechat.service.guest.dto;
 
-public record GuestDto(String codename, String secretKey) {
+// DELETE:
+public record GuestDto(String channelName, String codename, String secretKey) {
 
 }

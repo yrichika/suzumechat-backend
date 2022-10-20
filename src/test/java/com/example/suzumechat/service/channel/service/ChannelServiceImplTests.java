@@ -348,7 +348,7 @@ public class ChannelServiceImplTests {
         when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
                 .thenReturn(Optional.of(guest));
 
-        val guestId = service.approveVisitor(visitorId, isAuthenticated);
+        val guestResult = service.approveVisitor(visitorId, isAuthenticated);
 
         // the parameter is set to null because unable to mock guestIdHashed.
         // the parameter should be like `anyString()`
@@ -359,7 +359,8 @@ public class ChannelServiceImplTests {
         verify(guest, times(1)).setGuestIdEnc(null);
         verify(guest, times(1)).setIsAuthenticated(isAuthenticated);
         verify(guestRepository, times(1)).save(any(Guest.class));
-        assertThat(guestId).isNotEmpty();
+
+        assertThat(guestResult.getIsAuthenticated()).isTrue();
     }
 
 
@@ -376,13 +377,14 @@ public class ChannelServiceImplTests {
         when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
                 .thenReturn(Optional.of(guest));
 
-        val result = service.approveVisitor(visitorId, isAuthenticated);
+        val guestResult = service.approveVisitor(visitorId, isAuthenticated);
 
         verify(guest, never()).setGuestIdHashed(null);
         verify(guest, never()).setGuestIdEnc(null);
         verify(guest, times(1)).setIsAuthenticated(isAuthenticated);
         verify(guestRepository, times(1)).save(any(Guest.class));
-        assertThat(result).isEqualTo("");
+
+        assertThat(guestResult.getIsAuthenticated()).isFalse();
     }
 
 

@@ -1,6 +1,7 @@
 package com.example.suzumechat.service.guest.controller;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import javax.servlet.http.HttpSession;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -27,6 +29,8 @@ import static org.mockito.Mockito.*;
 public class GuestControllerTests {
     @MockBean
     private GuestChannelService service;
+    @Mock
+    private HttpSession session;
 
     @Autowired
     private MockMvc mockMvc;
@@ -39,6 +43,35 @@ public class GuestControllerTests {
     @Autowired
     private GuestDtoFactory guestDtoFactory;
 
+    @Test
+    public void setSession_should_return_ok_if_guest_exist_in_the_channel()
+            throws Exception {
+        val guestId = testRandom.string.alphanumeric();
+        val guestChannelToken = testRandom.string.alphanumeric();
+        val url = "/guest/setSession/" + guestChannelToken;
+
+        when(service.guestExistsInChannel(guestId, guestChannelToken))
+                .thenReturn(true);
+
+        val request = get(url).param("guestId", guestId);
+        mockMvc.perform(request).andExpect(status().isOk())
+                .andExpect(request().sessionAttribute("guestId", guestId));
+    }
+
+    @Test
+    public void setSession_should_return_unauthorized() throws Exception {
+        val guestId = testRandom.string.alphanumeric();
+        val guestChannelToken = testRandom.string.alphanumeric();
+        val url = "/guest/setSession/" + guestChannelToken;
+
+        when(service.guestExistsInChannel(guestId, guestChannelToken))
+                .thenReturn(false);
+
+        val request = get(url).param("guestId", guestId);
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
+    }
+
+    // DELETE:
     @Test
     public void channelName_should_return_guestChannel() throws Exception {
         val guestChannelToken = testRandom.string.alphanumeric();
@@ -55,6 +88,7 @@ public class GuestControllerTests {
                 .andExpect(content().json(expected));
     }
 
+    // DELETE:
     @Test
     public void guestDto_should_return_guestDto_by_guestId() throws Exception {
         val guestId = testRandom.string.alphanumeric();

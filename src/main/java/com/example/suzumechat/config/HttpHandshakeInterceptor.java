@@ -41,6 +41,11 @@ public class HttpHandshakeInterceptor implements HandshakeInterceptor {
             if (secretKeyHost != null) {
                 attributes.put("secretKeyHost", secretKeyHost);
             }
+
+            val guestId = session.getAttribute("guestId");
+            if (guestId != null) {
+                attributes.put("guestId", guestId);
+            }
         }
         return true;
     }

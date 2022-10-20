@@ -11,11 +11,8 @@ import com.example.suzumechat.service.channel.ChannelRepository;
 import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.service.guest.dto.ChannelStatus;
-import com.example.suzumechat.service.guest.dto.message.AuthenticationStatus;
-import com.example.suzumechat.service.guest.dto.message.VisitorsRequest;
 import com.example.suzumechat.service.guest.exception.GuestNotFoundException;
 import com.example.suzumechat.service.guest.exception.JoinChannelTokenInvalidException;
-import com.example.suzumechat.service.guest.exception.VisitorInvalidException;
 import com.example.suzumechat.utility.*;
 
 import lombok.val;

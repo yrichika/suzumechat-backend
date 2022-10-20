@@ -15,21 +15,25 @@ public class GuestDtoFactory {
     @Autowired
     private TestRandom random;
 
+    private String channelName = null;
     private String codename = null;
     private String secretKey = null;
 
     public GuestDto make() {
+        val channelName = TestHelper.getOrDefault(this.channelName,
+                random.string.alphanumeric());
         val codename = TestHelper.getOrDefault(this.codename,
                 random.string.alphanumeric(5));
         val secretKey = TestHelper.getOrDefault(this.secretKey,
                 random.string.alphanumeric(5));
 
-        val guestDto = new GuestDto(codename, secretKey);
+        val guestDto = new GuestDto(channelName, codename, secretKey);
         reset();
         return guestDto;
     }
 
     public void reset() {
+        channelName = null;
         codename = null;
         secretKey = null;
     }

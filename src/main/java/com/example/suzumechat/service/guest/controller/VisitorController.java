@@ -31,6 +31,7 @@ public class VisitorController {
     @Autowired
     private HttpSession session;
 
+    // FIXME: "channelName" -> channelStatus か何か適した名前にすべて変える
     @GetMapping("/visitor/channelName/{joinChannelToken:.+}")
     public ChannelStatus channelName(
             @PathVariable("joinChannelToken") String joinChannelToken)

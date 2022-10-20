@@ -4,6 +4,7 @@ import java.util.List;
 import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
 import com.example.suzumechat.service.channel.dto.message.VisitorsStatus;
+import com.example.suzumechat.service.guest.Guest;
 
 public interface ChannelService {
     public CreatedChannel create(final String channelName) throws Exception;
@@ -39,7 +40,7 @@ public interface ChannelService {
     public List<Channel> getItemsOrderThan(final Integer hour);
 
     // originally AuthenticatedClients.create() and updateStatus()
-    public String approveVisitor(String visitorId, boolean isAuthenticated)
+    public Guest approveVisitor(String visitorId, boolean isAuthenticated)
             throws Exception;
 
     public void trashSecretKeyByHostChannelToken(final String hostId,

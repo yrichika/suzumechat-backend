@@ -19,6 +19,7 @@ public class GuestChannelServiceImpl implements GuestChannelService {
     @Autowired
     private Crypter crypter;
 
+    // DELETE:
     public GuestChannel getGuestChannelByGuestChannelToken(
             final String guestChannelToken) throws Exception {
         val channelName =
@@ -27,15 +28,26 @@ public class GuestChannelServiceImpl implements GuestChannelService {
         return new GuestChannel(channelName);
     }
 
+    // DELETE:
     @Override
     public GuestDto getGuestDtoByGuestId(final String guestId,
             final String guestChannelToken) throws Exception {
         val channel = channelService.getByGuestChannelToken(guestChannelToken);
         val guest = guestService.getByGuestId(guestId);
+        val channelName =
+                crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId());
         val codename =
                 crypter.decrypt(guest.getCodenameEnc(), channel.getChannelId());
         val secretKey =
                 crypter.decrypt(channel.getSecretKeyEnc(), channel.getChannelId());
-        return new GuestDto(codename, secretKey);
+        return new GuestDto(channelName, codename, secretKey);
+    }
+
+    @Override
+    public boolean guestExistsInChannel(final String guestId,
+            final String guestChannelToken) throws Exception {
+        val channel = channelService.getByGuestChannelToken(guestChannelToken);
+        val guest = guestService.getByGuestId(guestId);
+        return channel.getChannelId().equals(guest.getChannelId());
     }
 }
