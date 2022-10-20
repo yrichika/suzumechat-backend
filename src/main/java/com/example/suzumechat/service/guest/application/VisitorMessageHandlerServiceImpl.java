@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.service.ChannelService;
 import com.example.suzumechat.service.guest.dto.PendedJoinRequestResult;
 import lombok.val;
-import com.example.suzumechat.service.guest.dto.message.VisitorsRequest;
+import com.example.suzumechat.service.guest.dto.message.ManagedJoinRequest;
 import com.example.suzumechat.service.guest.service.GuestService;
 
 @Service
@@ -30,10 +30,10 @@ public class VisitorMessageHandlerServiceImpl
             val hostChannelToken = channelService
                     .getHostChannelTokenByJoinChannelToken(joinChannelToken);
 
-            val visitorsRequest = new VisitorsRequest(visitorId, codename,
+            val managedJoinRequest = new ManagedJoinRequest(visitorId, codename,
                     passphrase, Optional.empty());
-            val result =
-                    new PendedJoinRequestResult(hostChannelToken, visitorsRequest);
+            val result = new PendedJoinRequestResult(hostChannelToken,
+                    managedJoinRequest);
             return Optional.of(result);
         } catch (Exception exception) {
             // TODO: log

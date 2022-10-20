@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
 import com.example.suzumechat.service.guest.application.VisitorMessageHandlerService;
 import com.example.suzumechat.service.guest.dto.message.JoinRequest;
-import com.example.suzumechat.service.guest.dto.message.VisitorsRequest;
+import com.example.suzumechat.service.guest.dto.message.ManagedJoinRequest;
 import com.example.suzumechat.service.guest.dto.message.error.JoinRequestError;
 import com.example.suzumechat.utility.JsonHelper;
 import com.example.suzumechat.utility.dto.message.ErrorMessage;
@@ -50,7 +50,7 @@ public class WebSocketVisitorMessageController {
                     joinRequest.passphrase());
             if (pendedRequestOpt.isPresent()) {
                 sendToHost(pendedRequestOpt.get().hostChannelToken(),
-                        pendedRequestOpt.get().visitorsRequest());
+                        pendedRequestOpt.get().managedJoinRequest());
             } else {
                 returningToVisitor(joinChannelToken, joinRequest.visitorId(),
                         new JoinRequestError());
@@ -69,7 +69,7 @@ public class WebSocketVisitorMessageController {
     }
 
     private void sendToHost(String hostChannelToken,
-            VisitorsRequest authenticationStatus) {
+            ManagedJoinRequest authenticationStatus) {
         val hostReceivingUrl = String.join("/", "/receive/host", hostChannelToken);
 
         template.convertAndSend(hostReceivingUrl, authenticationStatus);

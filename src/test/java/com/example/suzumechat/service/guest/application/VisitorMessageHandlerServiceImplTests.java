@@ -49,11 +49,12 @@ public class VisitorMessageHandlerServiceImplTests {
                         passphrase);
 
         assertThat(result.get().hostChannelToken()).isEqualTo(hostChannelToken);
-        assertThat(result.get().visitorsRequest().visitorId()).isEqualTo(visitorId);
-        assertThat(result.get().visitorsRequest().codename()).isEqualTo(codename);
-        assertThat(result.get().visitorsRequest().passphrase())
+        assertThat(result.get().managedJoinRequest().visitorId())
+                .isEqualTo(visitorId);
+        assertThat(result.get().managedJoinRequest().codename()).isEqualTo(codename);
+        assertThat(result.get().managedJoinRequest().passphrase())
                 .isEqualTo(passphrase);
-        assertThat(result.get().visitorsRequest().isAuthenticated()).isEmpty();
+        assertThat(result.get().managedJoinRequest().isAuthenticated()).isEmpty();
     }
 
     @Test

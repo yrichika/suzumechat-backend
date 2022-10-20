@@ -1,8 +1,8 @@
 package com.example.suzumechat.service.guest.dto;
 
-import com.example.suzumechat.service.guest.dto.message.VisitorsRequest;
+import com.example.suzumechat.service.guest.dto.message.ManagedJoinRequest;
 
 public record PendedJoinRequestResult(String hostChannelToken,
-        VisitorsRequest visitorsRequest) {
+        ManagedJoinRequest managedJoinRequest) {
 
 }
