@@ -52,11 +52,10 @@ public class WebSocketGuestMessageController {
                 broadcastToChatChannel(guestChannelToken, hostChannelTokenOpt.get(),
                         messageJson);
             }
-            if (jsonHelper.hasAllFieldsOf(messageJson, Terminate.class)) {
-                toGuest(guestChannelToken, messageJson);
-            } else {
-                returningToGuest(guestChannelToken);
-            }
+        } else if (jsonHelper.hasAllFieldsOf(messageJson, Terminate.class)) {
+            toGuest(guestChannelToken, messageJson);
+        } else {
+            returningToGuest(guestChannelToken);
         }
     }
 

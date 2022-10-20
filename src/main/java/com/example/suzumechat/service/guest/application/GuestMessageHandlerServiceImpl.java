@@ -19,7 +19,9 @@ public class GuestMessageHandlerServiceImpl implements GuestMessageHandlerServic
     @Autowired
     private Crypter crypter;
 
-    @Cacheable(value = "hostChannelToken", key = "{#guestId, #guestChannelToken}")
+    // TODO: caching is not working
+    // @Cacheable(value = "hostChannelToken", key = "{#guestId,
+    // #guestChannelToken}")
     @Override
     public Optional<String> getHostChannelToken(final String guestId,
             final String guestChannelToken) throws Exception {
