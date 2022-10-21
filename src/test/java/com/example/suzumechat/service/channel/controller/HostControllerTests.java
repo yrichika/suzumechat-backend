@@ -46,14 +46,6 @@ public class HostControllerTests {
     @Autowired
     VisitorsAuthStatusFactory statusFactory;
 
-    // FIXME: unable to inject HttpSession
-    MockHttpSession httpSession;
-
-    @BeforeEach
-    public void setUp() {
-        httpSession = new MockHttpSession();
-    }
-
     @Test
     public void endChannel_should_delete_secretKey_and_invalidate_session()
             throws Exception {
@@ -61,18 +53,26 @@ public class HostControllerTests {
         val url = "/host/endChannel/" + hostChannelToken;
         val hostId = testRandom.string.alphanumeric();
 
-        httpSession.setAttribute("hostId", hostId);
-
         val request = post(url).contentType(MediaType.APPLICATION_JSON)
-                .session(httpSession)
+                .sessionAttr("hostId", hostId)
                 .with(SecurityMockMvcRequestPostProcessors.csrf());
-        mockMvc.perform(request).andExpect(status().isNoContent());
+        mockMvc.perform(request).andExpect(status().isNoContent())
+                .andExpect(request().sessionAttributeDoesNotExist("hostId"));
 
         verify(service, times(1)).trashSecretKeyByHostChannelToken(hostId,
                 hostChannelToken);
+    }
 
-        // FIXME: unable to assert .invalidate() is called
-        // verify(httpSession, times(1)).invalidate();
+    @Test
+    public void endChannel_should_return_unauthorized_if_host_id_does_not_exist_in_session()
+            throws Exception {
+        val hostChannelToken = testRandom.string.alphanumeric();
+        val url = "/host/endChannel/" + hostChannelToken;
+
+        val request = post(url).contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.csrf());
+
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
     }
 
 }

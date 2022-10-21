@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.suzumechat.service.channel.exception.HostIdMissingInSessionException;
 import com.example.suzumechat.service.channel.form.VisitorsAuthStatus;
 import com.example.suzumechat.service.channel.service.ChannelService;
 import com.example.suzumechat.utility.form.ValidationOrder;
@@ -30,6 +31,9 @@ public class HostController {
             throws Exception {
 
         val hostId = (String) session.getAttribute("hostId");
+        if (hostId == null) {
+            throw new HostIdMissingInSessionException();
+        }
 
         service.trashSecretKeyByHostChannelToken(hostId, hostChannelToken);
 
