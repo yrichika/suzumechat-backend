@@ -68,6 +68,49 @@ public class GuestControllerTests {
                 .thenReturn(false);
 
         val request = get(url).param("guestId", guestId);
+        mockMvc.perform(request).andExpect(status().isUnauthorized())
+                .andExpect(request().sessionAttributeDoesNotExist("guestId"));
+    }
+
+    @Test
+    public void invalidateSession_should_invalidate_session() throws Exception {
+        val guestId = testRandom.string.alphanumeric();
+        val guestChannelToken = testRandom.string.alphanumeric();
+        val url = "/guest/invalidateSession/" + guestChannelToken;
+
+        when(service.guestExistsInChannel(guestId, guestChannelToken))
+                .thenReturn(true);
+
+        val request = get(url).sessionAttr("guestId", guestId);
+        mockMvc.perform(request).andExpect(status().isOk())
+                .andExpect(request().sessionAttributeDoesNotExist("guestId"));
+    }
+
+    @Test
+    public void invalidateSession_should_return_unauthorized_if_geust_id_does_not_exist_in_session()
+            throws Exception {
+        val guestId = testRandom.string.alphanumeric();
+        val guestChannelToken = testRandom.string.alphanumeric();
+        val url = "/guest/invalidateSession/" + guestChannelToken;
+
+        when(service.guestExistsInChannel(guestId, guestChannelToken))
+                .thenReturn(true);
+
+        val request = get(url);
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void invalidateSession_should_return_unauthorized_if_guest_does_not_belong_to_channel()
+            throws Exception {
+        val guestId = testRandom.string.alphanumeric();
+        val guestChannelToken = testRandom.string.alphanumeric();
+        val url = "/guest/invalidateSession/" + guestChannelToken;
+
+        when(service.guestExistsInChannel(guestId, guestChannelToken))
+                .thenReturn(false); // NOTICE: difference
+
+        val request = get(url).sessionAttr("guestId", guestId);
         mockMvc.perform(request).andExpect(status().isUnauthorized());
     }
 

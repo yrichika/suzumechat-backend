@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.suzumechat.service.guest.application.GuestChannelService;
 import com.example.suzumechat.service.guest.dto.GuestChannel;
 import com.example.suzumechat.service.guest.dto.GuestDto;
+import com.example.suzumechat.service.guest.exception.GuestIdMissingInSessionException;
 import com.example.suzumechat.service.guest.exception.GuestNotBelongingToChannelException;
+import lombok.val;
 
 @RestController
 public class GuestController {
@@ -33,6 +35,23 @@ public class GuestController {
             throw new GuestNotBelongingToChannelException();
         }
         session.setAttribute("guestId", guestId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("guest/invalidateSession/{guestChannelToken:.+}")
+    public ResponseEntity<String> invalidateSession(
+            @PathVariable("guestChannelToken") @NotBlank @Size(
+                    max = 64) String guestChannelToken)
+            throws Exception {
+        val guestId = (String) session.getAttribute("guestId");
+        if (guestId == null) {
+            throw new GuestIdMissingInSessionException();
+        }
+
+        if (!service.guestExistsInChannel(guestId, guestChannelToken)) {
+            throw new GuestNotBelongingToChannelException();
+        }
+        session.invalidate();
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
