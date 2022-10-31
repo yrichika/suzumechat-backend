@@ -1,30 +1,26 @@
 package com.example.suzumechat.service.channel.controller;
 
-import org.junit.jupiter.api.BeforeEach;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.junit.jupiter.api.Test;
 import org.mockito.junit.jupiter.MockitoSettings;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import com.example.suzumechat.config.SecurityConfig;
-import com.example.suzumechat.service.channel.form.VisitorsAuthStatus;
-import com.example.suzumechat.service.channel.service.ChannelService;
+import com.example.suzumechat.service.channel.application.HostUseCase;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.form.VisitorsAuthStatusFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import javax.servlet.http.HttpSession;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
-import static org.mockito.Mockito.*;
+import lombok.val;
 
 @Import({TestConfig.class, SecurityConfig.class})
 @WebMvcTest(HostController.class)
@@ -32,7 +28,7 @@ import static org.mockito.Mockito.*;
 public class HostControllerTests {
 
     @MockBean
-    private ChannelService service;
+    private HostUseCase service;
 
     @Autowired
     private MockMvc mockMvc;
@@ -59,8 +55,7 @@ public class HostControllerTests {
         mockMvc.perform(request).andExpect(status().isNoContent())
                 .andExpect(request().sessionAttributeDoesNotExist("hostId"));
 
-        verify(service, times(1)).trashSecretKeyByHostChannelToken(hostId,
-                hostChannelToken);
+        verify(service, times(1)).endChannel(hostId, hostChannelToken);
     }
 
     @Test

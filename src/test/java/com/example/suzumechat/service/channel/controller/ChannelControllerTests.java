@@ -1,5 +1,10 @@
 package com.example.suzumechat.service.channel.controller;
 
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.junit.jupiter.api.Test;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.modelmapper.ModelMapper;
@@ -10,20 +15,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
-import static org.mockito.Mockito.*;
-
 import com.example.suzumechat.config.SecurityConfig;
-import com.example.suzumechat.service.channel.controller.ChannelController;
-import com.example.suzumechat.service.channel.service.ChannelService;
+import com.example.suzumechat.service.channel.application.ChannelUseCase;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.stub.factory.dto.CreatedChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.form.CreatingChannelFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.*;
+import lombok.val;
 
 @Import({TestConfig.class, SecurityConfig.class})
 @WebMvcTest(ChannelController.class)
@@ -31,7 +29,7 @@ import lombok.*;
 public class ChannelControllerTests {
 
     @MockBean
-    private ChannelService service;
+    private ChannelUseCase service;
     @MockBean
     private ModelMapper modelMapper;
 
