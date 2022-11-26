@@ -2,15 +2,28 @@ package com.example.suzumechat.service.channel;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import com.example.suzumechat.service.guest.Guest;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Entity
@@ -57,9 +70,12 @@ public class Channel implements Serializable {
     @Column(nullable = true)
     private byte[] secretKeyEnc;
 
+    // TODO: add
+    // private String hostPublicKey;
+
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "channelId", referencedColumnName = "channelId",
-            insertable = false, updatable = true)
+        insertable = false, updatable = true)
     private Set<Guest> guests;
 
     @Temporal(TemporalType.TIMESTAMP)

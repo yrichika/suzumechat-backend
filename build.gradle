@@ -1,6 +1,6 @@
 plugins {
-	id 'org.springframework.boot' version '2.7.1'
-	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'org.springframework.boot' version '2.7.5'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 	id 'java'
 }
 
@@ -32,6 +32,16 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	implementation 'org.springframework.session:spring-session-data-redis'
+	// for parameter store
+	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap:3.1.5'
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws-parameter-store-config:2.2.6.RELEASE'
+	// this project needs httpclient to use spring cloud libraries
+	implementation 'org.apache.httpcomponents:httpclient'
+
 	implementation 'com.google.crypto.tink:tink:1.6.1'
 	implementation 'com.google.crypto.tink:tink-awskms:1.6.1'
 	compileOnly 'org.projectlombok:lombok'
@@ -40,6 +50,11 @@ dependencies {
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// FIXME: necessary for local M1 Mac development only 急に必要になった。後で削除したい
+	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.73.Final:osx-aarch_64'
+
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'io.projectreactor:reactor-test'

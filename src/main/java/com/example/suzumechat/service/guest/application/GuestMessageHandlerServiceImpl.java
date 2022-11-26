@@ -19,12 +19,11 @@ public class GuestMessageHandlerServiceImpl implements GuestMessageHandlerServic
     @Autowired
     private Crypter crypter;
 
-    // TODO: caching is not working
-    // @Cacheable(value = "hostChannelToken", key = "{#guestId,
-    // #guestChannelToken}")
+
+    @Cacheable(value = "hostChannelToken")
     @Override
     public Optional<String> getHostChannelToken(final String guestId,
-            final String guestChannelToken) throws Exception {
+        final String guestChannelToken) throws Exception {
         try {
             val channel = channelService.getByGuestChannelToken(guestChannelToken);
             val guest = guestService.getByGuestId(guestId);
@@ -33,7 +32,7 @@ public class GuestMessageHandlerServiceImpl implements GuestMessageHandlerServic
             }
 
             val hostChannelToken = crypter.decrypt(channel.getHostChannelTokenEnc(),
-                    channel.getChannelId());
+                channel.getChannelId());
             return Optional.of(hostChannelToken);
         } catch (Exception exception) {
             // TODO: log

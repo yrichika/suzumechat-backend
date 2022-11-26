@@ -2,14 +2,25 @@ package com.example.suzumechat.service.guest;
 
 import java.io.Serializable;
 import java.util.Date;
-
-import javax.persistence.*;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import com.example.suzumechat.service.channel.Channel;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
@@ -31,9 +42,12 @@ public class Guest implements Serializable {
     @Type(type = "org.hibernate.type.BinaryType")
     private byte[] guestIdEnc; // AuthenticatedClientIdEnc
 
+    // DELETE: not necessary
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
     private byte[] codenameEnc; // ClientLoginRequests.codenameEnc
+
+    // DELETE: not necessary
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
     private byte[] passphraseEnc; // ClientLoginRequests.passphraseEnc
@@ -57,7 +71,7 @@ public class Guest implements Serializable {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "channelId", referencedColumnName = "channelId",
-            insertable = false, updatable = false)
+        insertable = false, updatable = false)
     private Channel channel;
 
     @Temporal(TemporalType.TIMESTAMP)

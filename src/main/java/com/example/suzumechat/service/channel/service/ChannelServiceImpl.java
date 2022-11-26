@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.utility.Crypter;
 import com.example.suzumechat.utility.Hash;
 import com.example.suzumechat.utility.Random;
-import lombok.*;
+import lombok.val;
 
 @Service
 public class ChannelServiceImpl implements ChannelService {
@@ -89,16 +88,16 @@ public class ChannelServiceImpl implements ChannelService {
         repository.save(channel);
 
         val hostChannel =
-                new HostChannel(hostChannelToken, joinChannelToken, secretKey);
+            new HostChannel(hostChannelToken, joinChannelToken, secretKey);
         return new CreatedChannel(hostId, hostChannel);
     }
 
     @Override
     public Channel getByHostChannelToken(final String hostId,
-            final String hostChannelToken) throws Exception {
+        final String hostChannelToken) throws Exception {
         val hostIdHashed = hash.digest(hostId);
         final Optional<Channel> channelOpt =
-                repository.findByHostIdHashed(hostIdHashed);
+            repository.findByHostIdHashed(hostIdHashed);
 
         val channel = channelOpt.orElseThrow(ChannelNotFoundByHostIdException::new);
 
@@ -113,25 +112,25 @@ public class ChannelServiceImpl implements ChannelService {
 
     @Override
     public List<VisitorsStatus> getVisitorsStatus(final String channelId)
-            throws Exception {
+        throws Exception {
         final List<Guest> guests =
-                guestRepository.findAllByChannelIdOrderByIdDesc(channelId);
+            guestRepository.findAllByChannelIdOrderByIdDesc(channelId);
 
         return toVisitorsStatus(guests, channelId);
     }
 
 
     private List<VisitorsStatus> toVisitorsStatus(final List<Guest> guests,
-            final String channelId) throws Exception {
+        final String channelId) throws Exception {
         return guests.stream().map(guest -> {
             try {
                 val visitorId = crypter.decrypt(guest.getVisitorIdEnc(), channelId);
                 val codename = crypter.decrypt(guest.getCodenameEnc(), channelId);
                 val passphrase =
-                        crypter.decrypt(guest.getPassphraseEnc(), channelId);
+                    crypter.decrypt(guest.getPassphraseEnc(), channelId);
                 val isAuthenticated = guest.getIsAuthenticated();
                 return new VisitorsStatus(visitorId, codename, passphrase,
-                        isAuthenticated);
+                    isAuthenticated);
             } catch (Exception exception) {
                 throw new RuntimeException(exception);
             }
@@ -140,28 +139,28 @@ public class ChannelServiceImpl implements ChannelService {
 
 
     @Override
-    @Cacheable(value = "guestChannelToken", key = "#hostId")
+    @Cacheable(value = "guestChannelToken")
     public String getGuestChannelToken(final String hostId,
-            final String userSentHostChannelToken) throws Exception {
+        final String userSentHostChannelToken) throws Exception {
         val channel = getChannelByHostId(hostId);
 
         val userSentHostChannelTokenHashed = hash.digest(userSentHostChannelToken);
         if (!userSentHostChannelTokenHashed
-                .equals(channel.getHostChannelTokenHashed())) {
+            .equals(channel.getHostChannelTokenHashed())) {
             throw new HostUnauthorizedException();
         }
 
         val guestChannelToken = crypter.decrypt(channel.getGuestChannelTokenEnc(),
-                channel.getChannelId());
+            channel.getChannelId());
         return guestChannelToken;
     }
 
 
     public Channel getChannelByHostId(final String hostId)
-            throws HostUnauthorizedException {
+        throws HostUnauthorizedException {
         val hostIdHashed = hash.digest(hostId);
         final Optional<Channel> channelOpt =
-                repository.findByHostIdHashed(hostIdHashed);
+            repository.findByHostIdHashed(hostIdHashed);
         val channel = channelOpt.orElseThrow(HostUnauthorizedException::new);
 
         return channel;
@@ -169,10 +168,10 @@ public class ChannelServiceImpl implements ChannelService {
 
     @Override
     public Channel getByGuestChannelToken(final String guestChannelToken)
-            throws Exception {
+        throws Exception {
         val guestChannelTokenHashed = hash.digest(guestChannelToken);
         val channelOpt =
-                repository.findByGuestChannelTokenHashed(guestChannelTokenHashed);
+            repository.findByGuestChannelTokenHashed(guestChannelTokenHashed);
         val channel = channelOpt.orElseThrow(ChannelNotFoundByTokenException::new);
 
         return channel;
@@ -180,20 +179,20 @@ public class ChannelServiceImpl implements ChannelService {
 
     @Override
     public String getChannelNameByGuestChannelToken(final String guestChannelToken)
-            throws Exception {
+        throws Exception {
         val channel = getByGuestChannelToken(guestChannelToken);
         val channelName =
-                crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId());
+            crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId());
         return channelName;
     }
 
     // TEST:
     @Override
     public Channel getByJoinChannelToken(final String joinChannelToken)
-            throws Exception {
+        throws Exception {
         val joinChannelTokenHashed = hash.digest(joinChannelToken);
         val channelOpt =
-                repository.findByJoinChannelTokenHashed(joinChannelTokenHashed);
+            repository.findByJoinChannelTokenHashed(joinChannelTokenHashed);
         val channel = channelOpt.orElseThrow(ChannelNotFoundByTokenException::new);
 
         return channel;
@@ -202,20 +201,20 @@ public class ChannelServiceImpl implements ChannelService {
     // TEST:
     @Override
     public String getHostChannelTokenByJoinChannelToken(
-            final String joinChannelToken) throws Exception {
+        final String joinChannelToken) throws Exception {
         val channel = getByJoinChannelToken(joinChannelToken);
         val hostChannelToken = crypter.decrypt(channel.getHostChannelTokenEnc(),
-                channel.getChannelId());
+            channel.getChannelId());
         return hostChannelToken;
     }
 
     // TEST: DELETE: not used?
     @Override
     public Channel getByHostChannelToken(final String hostChannelToken)
-            throws Exception {
+        throws Exception {
         val hostChannelTokenHashed = hash.digest(hostChannelToken);
         val channelOpt =
-                repository.findByHostChannelTokenHashed(hostChannelTokenHashed);
+            repository.findByHostChannelTokenHashed(hostChannelTokenHashed);
         val channel = channelOpt.orElseThrow(ChannelNotFoundByTokenException::new);
 
         return channel;
@@ -224,10 +223,10 @@ public class ChannelServiceImpl implements ChannelService {
     // TEST:
     @Override
     public String getJoinChannelTokenByHostChannelToken(
-            final String hostChannelToken) throws Exception {
+        final String hostChannelToken) throws Exception {
         val channel = getByHostChannelToken(hostChannelToken);
         val joinChannelToken = crypter.decrypt(channel.getJoinChannelTokenEnc(),
-                channel.getChannelId());
+            channel.getChannelId());
         return joinChannelToken;
     }
 
@@ -242,10 +241,10 @@ public class ChannelServiceImpl implements ChannelService {
     // FIXME: move to GuestService
     @Override
     public Guest approveVisitor(String visitorId, boolean isAuthenticated)
-            throws Exception {
+        throws Exception {
         val visitorIdHashed = hash.digest(visitorId);
         final Optional<Guest> guestOpt =
-                guestRepository.findByVisitorIdHashed(visitorIdHashed);
+            guestRepository.findByVisitorIdHashed(visitorIdHashed);
         val guest = guestOpt.orElseThrow(VisitorNotFoundException::new);
 
         if (!isAuthenticated) {
@@ -271,7 +270,7 @@ public class ChannelServiceImpl implements ChannelService {
     @Transactional
     @Override
     public void trashSecretKeyByHostChannelToken(final String hostId,
-            final String hostChannelToken) throws Exception {
+        final String hostChannelToken) throws Exception {
         val channel = getByHostChannelToken(hostId, hostChannelToken);
 
         channel.setSecretKeyEnc(null);

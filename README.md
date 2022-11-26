@@ -1,3 +1,15 @@
+
+## Start development environment
+
+You need DB and Redis to start this app.
+DB and Redis is included in the `docker-compose.yml`
+
+You just need to start docker.
+
+```sh
+docker compose up
+```
+
 ## Checking docker image
 
 
@@ -5,8 +17,8 @@ To check if the docker image works:
 
 ```sh
 ./gredlew build
-docker build -t suzumechat-backend .
-docker run -p 8080:8080 suzumechat-backend
+docker build -t suzumechat-backend-local .
+docker compose up
 ```
 
 
