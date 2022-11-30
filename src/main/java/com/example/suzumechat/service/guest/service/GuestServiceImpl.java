@@ -1,11 +1,14 @@
 package com.example.suzumechat.service.guest.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.service.channel.ChannelRepository;
+import com.example.suzumechat.service.channel.dto.message.VisitorsStatus;
 import com.example.suzumechat.service.channel.exception.VisitorNotFoundException;
 import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.service.guest.GuestRepository;
@@ -97,6 +100,34 @@ public class GuestServiceImpl implements GuestService {
         val channel = channelOpt.orElseThrow(JoinChannelTokenInvalidException::new);
 
         return channel;
+    }
+
+    // DELETE: not used
+    @Override
+    public List<VisitorsStatus> getVisitorsStatus(final String channelId)
+        throws Exception {
+        final List<Guest> guests =
+            repository.findAllByChannelIdOrderByIdDesc(channelId);
+
+        return toVisitorsStatus(guests, channelId);
+    }
+
+    // DELETE:
+    private List<VisitorsStatus> toVisitorsStatus(final List<Guest> guests,
+        final String channelId) throws Exception {
+        return guests.stream().map(guest -> {
+            try {
+                val visitorId = crypter.decrypt(guest.getVisitorIdEnc(), channelId);
+                val codename = crypter.decrypt(guest.getCodenameEnc(), channelId);
+                val passphrase =
+                    crypter.decrypt(guest.getPassphraseEnc(), channelId);
+                val isAuthenticated = guest.getIsAuthenticated();
+                return new VisitorsStatus(visitorId, codename, passphrase,
+                    isAuthenticated);
+            } catch (Exception exception) {
+                throw new RuntimeException(exception);
+            }
+        }).collect(Collectors.toList());
     }
 
     @Override

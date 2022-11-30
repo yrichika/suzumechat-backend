@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -20,12 +19,10 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.service.channel.ChannelRepository;
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
-import com.example.suzumechat.service.channel.dto.message.VisitorsStatus;
 import com.example.suzumechat.service.channel.exception.ChannelNotFoundByHostIdException;
 import com.example.suzumechat.service.channel.exception.ChannelNotFoundByTokenException;
 import com.example.suzumechat.service.channel.exception.HostChannelTokensMismatchException;
 import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
-import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
@@ -142,58 +139,6 @@ public class ChannelServiceImplTests {
             service.getByHostChannelToken(hostId, hostChannelToken);
         });
     }
-
-
-    @Test
-    public void getVisitorsStatus_should_return_all_visitors_status_belongs_to_the_channel()
-        throws Exception {
-        val channel = channelFactory.make();
-        final List<Guest> guests = new ArrayList<>();
-        int howMany = testRandom.integer.between(1, 5);
-        for (int i = 0; i < howMany; i++) {
-            val guest = guestFactory.make();
-            guests.add(guest);
-        }
-
-        final List<String> valuesToAssertSimply =
-            setUpGetStatusVisitorMock(channel, guests);
-
-        final List<VisitorsStatus> result =
-            service.getVisitorsStatus(channel.getChannelId());
-
-        for (int i = 0; i < guests.size(); i++) {
-            assertThat(result.get(i).visitorId())
-                .isEqualTo(valuesToAssertSimply.get(i));
-            assertThat(result.get(i).visitorId())
-                .isEqualTo(valuesToAssertSimply.get(i));
-            assertThat(result.get(i).visitorId())
-                .isEqualTo(valuesToAssertSimply.get(i));
-            assertThat(result.get(i).isAuthenticated())
-                .isEqualTo(guests.get(i).getIsAuthenticated());
-        }
-    }
-
-
-    private List<String> setUpGetStatusVisitorMock(final Channel channel,
-            final List<Guest> guests) throws Exception {
-
-        when(guestRepository.findAllByChannelIdOrderByIdDesc(channel.getChannelId()))
-                .thenReturn(guests);
-
-        final List<String> valuesToAssertSimply = new ArrayList<>();
-        for (Guest guest : guests) {
-            val valueToAssertSimply = testRandom.string.alphanumeric();
-            when(crypter.decrypt(guest.getVisitorIdEnc(), channel.getChannelId()))
-                    .thenReturn(valueToAssertSimply);
-            when(crypter.decrypt(guest.getCodenameEnc(), channel.getChannelId()))
-                    .thenReturn(valueToAssertSimply);
-            when(crypter.decrypt(guest.getPassphraseEnc(), channel.getChannelId()))
-                    .thenReturn(valueToAssertSimply);
-            valuesToAssertSimply.add(valueToAssertSimply);
-        }
-        return valuesToAssertSimply;
-    }
-
 
     @Test
     public void getGuestChannelToken_should_return_gestChannelToken()
