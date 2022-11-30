@@ -4,45 +4,40 @@ import java.util.List;
 import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
 import com.example.suzumechat.service.channel.dto.message.VisitorsStatus;
-import com.example.suzumechat.service.guest.Guest;
 
 public interface ChannelService {
     public CreatedChannel create(final String channelName) throws Exception;
 
     // FIXME: change method name to another appropriate one
     public Channel getByHostChannelToken(final String hostId,
-            final String hostChannelToken) throws Exception;
+        final String hostChannelToken) throws Exception;
 
     public List<VisitorsStatus> getVisitorsStatus(final String channelId)
-            throws Exception;
+        throws Exception;
 
     public String getGuestChannelToken(final String hostId,
-            final String userSentHostChannelToken) throws Exception;
+        final String userSentHostChannelToken) throws Exception;
 
     public Channel getByGuestChannelToken(final String guestChannelToken)
-            throws Exception;
+        throws Exception;
 
     public String getChannelNameByGuestChannelToken(final String guestChannelToken)
-            throws Exception;
+        throws Exception;
 
     public Channel getByJoinChannelToken(final String joinChannelToken)
-            throws Exception;
+        throws Exception;
 
     public String getHostChannelTokenByJoinChannelToken(
-            final String joinChannelToken) throws Exception;
+        final String joinChannelToken) throws Exception;
 
     public Channel getByHostChannelToken(final String hostChannelToken)
-            throws Exception;
+        throws Exception;
 
     public String getJoinChannelTokenByHostChannelToken(
-            final String hostChannelToken) throws Exception;
+        final String hostChannelToken) throws Exception;
 
     public List<Channel> getItemsOrderThan(final Integer hour);
 
-    // originally AuthenticatedClients.create() and updateStatus()
-    public Guest approveVisitor(String visitorId, boolean isAuthenticated)
-            throws Exception;
-
     public void trashSecretKeyByHostChannelToken(final String hostId,
-            final String hostChannelToken) throws Exception;
+        final String hostChannelToken) throws Exception;
 }

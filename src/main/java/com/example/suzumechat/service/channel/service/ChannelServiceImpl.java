@@ -20,7 +20,6 @@ import com.example.suzumechat.service.channel.exception.ChannelNotFoundByHostIdE
 import com.example.suzumechat.service.channel.exception.ChannelNotFoundByTokenException;
 import com.example.suzumechat.service.channel.exception.HostChannelTokensMismatchException;
 import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
-import com.example.suzumechat.service.channel.exception.VisitorNotFoundException;
 import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.utility.Crypter;
@@ -237,35 +236,6 @@ public class ChannelServiceImpl implements ChannelService {
         val date = Date.from(hoursAgoTimestamp);
         return repository.findAllByCreatedAtBefore(date);
     }
-
-    // FIXME: move to GuestService
-    @Override
-    public Guest approveVisitor(String visitorId, boolean isAuthenticated)
-        throws Exception {
-        val visitorIdHashed = hash.digest(visitorId);
-        final Optional<Guest> guestOpt =
-            guestRepository.findByVisitorIdHashed(visitorIdHashed);
-        val guest = guestOpt.orElseThrow(VisitorNotFoundException::new);
-
-        if (!isAuthenticated) {
-            guest.setIsAuthenticated(false);
-            guestRepository.save(guest);
-            return guest;
-        }
-
-        val guestId = UUID.randomUUID().toString();
-        val guestIdHashed = hash.digest(guestId);
-        val guestIdEnc = crypter.encrypt(guestId, guest.getChannelId());
-
-        guest.setGuestIdHashed(guestIdHashed);
-        guest.setGuestIdEnc(guestIdEnc);
-        guest.setIsAuthenticated(true);
-
-        guestRepository.save(guest);
-
-        return guest;
-    }
-
 
     @Transactional
     @Override

@@ -2,19 +2,18 @@ package com.example.suzumechat.service.guest.service;
 
 import java.util.Optional;
 import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.service.channel.ChannelRepository;
+import com.example.suzumechat.service.channel.exception.VisitorNotFoundException;
 import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.service.guest.dto.ChannelStatus;
 import com.example.suzumechat.service.guest.exception.GuestNotFoundException;
 import com.example.suzumechat.service.guest.exception.JoinChannelTokenInvalidException;
-import com.example.suzumechat.utility.*;
-
+import com.example.suzumechat.utility.Crypter;
+import com.example.suzumechat.utility.Hash;
 import lombok.val;
 
 @Service
@@ -32,11 +31,11 @@ public class GuestServiceImpl implements GuestService {
 
     @Override
     public ChannelStatus getChannelNameByJoinChannelToken(String joinChannelToken)
-            throws Exception {
+        throws Exception {
         final Channel channel = getChannelByJoinChannelToken(joinChannelToken);
 
         val channelName =
-                crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId());
+            crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId());
 
         if (channel.getSecretKeyEnc() == null) {
             return new ChannelStatus(channelName, false);
@@ -56,8 +55,8 @@ public class GuestServiceImpl implements GuestService {
 
     @Override
     public Optional<String> createGuestAsVisitor(final String joinChannelToken,
-            final String visitorId, final String codename, final String passphrase)
-            throws Exception {
+        final String visitorId, final String codename, final String passphrase)
+        throws Exception {
 
         final Channel channel = getChannelByJoinChannelToken(joinChannelToken);
         if (channel.secretKeyEmpty()) {
@@ -86,17 +85,44 @@ public class GuestServiceImpl implements GuestService {
     public void updateStatus(String visitorId, Boolean isAuthenticated) {
         val visitorIdHashed = hash.digest(visitorId);
         repository.updateIsAuthenticatedByVisitorIdHashed(visitorIdHashed,
-                isAuthenticated);
+            isAuthenticated);
     }
 
     // FIXME: move to another appropriate class
     public Channel getChannelByJoinChannelToken(final String joinChannelToken)
-            throws Exception {
+        throws Exception {
         val joinChannelTokenHashed = hash.digest(joinChannelToken);
         final Optional<Channel> channelOpt = channelRepository
-                .findByJoinChannelTokenHashed(joinChannelTokenHashed);
+            .findByJoinChannelTokenHashed(joinChannelTokenHashed);
         val channel = channelOpt.orElseThrow(JoinChannelTokenInvalidException::new);
 
         return channel;
+    }
+
+    @Override
+    public Guest approveVisitor(String visitorId, boolean isAuthenticated)
+        throws Exception {
+        val visitorIdHashed = hash.digest(visitorId);
+        final Optional<Guest> guestOpt =
+            repository.findByVisitorIdHashed(visitorIdHashed);
+        val guest = guestOpt.orElseThrow(VisitorNotFoundException::new);
+
+        if (!isAuthenticated) {
+            guest.setIsAuthenticated(false);
+            repository.save(guest);
+            return guest;
+        }
+
+        val guestId = UUID.randomUUID().toString();
+        val guestIdHashed = hash.digest(guestId);
+        val guestIdEnc = crypter.encrypt(guestId, guest.getChannelId());
+
+        guest.setGuestIdHashed(guestIdHashed);
+        guest.setGuestIdEnc(guestIdEnc);
+        guest.setIsAuthenticated(true);
+
+        repository.save(guest);
+
+        return guest;
     }
 }
