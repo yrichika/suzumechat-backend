@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -20,14 +19,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.example.suzumechat.service.channel.Channel;
-import com.example.suzumechat.service.channel.ChannelRepository;
 import com.example.suzumechat.service.channel.dto.message.VisitorsStatus;
 import com.example.suzumechat.service.channel.exception.VisitorNotFoundException;
 import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.service.guest.GuestRepository;
-import com.example.suzumechat.service.guest.dto.ChannelStatus;
 import com.example.suzumechat.service.guest.exception.GuestNotFoundException;
-import com.example.suzumechat.service.guest.exception.JoinChannelTokenInvalidException;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
@@ -46,8 +42,7 @@ public class GuestServiceImplTests {
     Crypter crypter;
     @MockBean
     GuestRepository guestRepository;
-    @MockBean
-    ChannelRepository channelRepository;
+
     @InjectMocks
     GuestServiceImpl service;
 
@@ -58,51 +53,6 @@ public class GuestServiceImplTests {
 
     @Autowired
     TestRandom testRandom;
-
-    @Test
-    @DisplayName("ChannelStatus isAccepting should also be true")
-    public void getChannelNameByJoinChannelToken_should_return_ChannelStatus()
-        throws Exception {
-
-        val joinChannelToken = testRandom.string.alphanumeric();
-        val joinChannelTokenHashed = testRandom.string.alphanumeric();
-        val channel = channelFactory
-            .secretKeyEnc(testRandom.string.alphanumeric().getBytes()).make();
-        val channelName = testRandom.string.alphanumeric();
-
-        when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
-        when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed))
-            .thenReturn(Optional.of(channel));
-        when(crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId()))
-            .thenReturn(channelName);
-
-        final ChannelStatus channelStatus =
-            service.getChannelNameByJoinChannelToken(joinChannelToken);
-
-        assertThat(channelStatus.channelName()).isEqualTo(channelName);
-        assertThat(channelStatus.isAccepting()).isTrue();
-    }
-
-    @Test
-    public void getChannelNameByJoinChannelToken_should_return_ChannelStatus_isAccepting_false_if_secretKeyEnc_null()
-        throws Exception {
-        val joinChannelToken = testRandom.string.alphanumeric();
-        val joinChannelTokenHashed = testRandom.string.alphanumeric();
-        val channel = channelFactory.make(); // secretKeyEnc is null
-        val channelName = testRandom.string.alphanumeric();
-
-        when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
-        when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed))
-            .thenReturn(Optional.of(channel));
-        when(crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId()))
-            .thenReturn(channelName);
-
-        final ChannelStatus channelStatus =
-            service.getChannelNameByJoinChannelToken(joinChannelToken);
-
-        assertThat(channelStatus.channelName()).isEqualTo(channelName);
-        assertThat(channelStatus.isAccepting()).isFalse(); // This is the difference
-    }
 
     @Test
     public void getByGuestId_should_return_guest_if_found() throws Exception {
@@ -141,11 +91,9 @@ public class GuestServiceImplTests {
         val channel = channelFactory
             .secretKeyEnc(testRandom.string.alphanumeric().getBytes()).make();
         when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
-        when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed))
-            .thenReturn(Optional.of(channel));
 
         Optional<String> result = service.createGuestAsVisitor(joinChannelToken,
-            visitorId, codename, passphrase);
+            visitorId, codename, passphrase, channel);
 
         verify(guestRepository, times(1)).save(any(Guest.class));
         assertThat(result.get()).isNotEmpty();
@@ -161,11 +109,9 @@ public class GuestServiceImplTests {
         val passphrase = testRandom.string.alphanumeric();
         val channel = channelFactory.make(); // secretKeyEnc is null
         when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
-        when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed))
-            .thenReturn(Optional.of(channel));
 
         Optional<String> result = service.createGuestAsVisitor(joinChannelToken,
-            visitorId, codename, passphrase);
+            visitorId, codename, passphrase, channel);
 
         verify(guestRepository, times(0)).save(any(Guest.class));
         assertThat(result.isEmpty()).isTrue();
@@ -186,21 +132,6 @@ public class GuestServiceImplTests {
             visitorIdHashed, isAuthenticated);
     }
 
-
-    @Test
-    public void getChannelByJoinChannelToken_should_throw_exception_if_channel_not_found()
-        throws Exception {
-        val joinChannelToken = testRandom.string.alphanumeric();
-        val joinChannelTokenHashed = testRandom.string.alphanumeric();
-
-        when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
-        when(channelRepository.findByJoinChannelTokenHashed(joinChannelTokenHashed))
-            .thenReturn(Optional.empty());
-
-        assertThrows(JoinChannelTokenInvalidException.class, () -> {
-            service.getChannelByJoinChannelToken(joinChannelToken);
-        });
-    }
 
     @Test
     public void getVisitorsStatus_should_return_all_visitors_status_belongs_to_the_channel()

@@ -18,7 +18,6 @@ import com.example.suzumechat.service.channel.exception.ChannelNotFoundByHostIdE
 import com.example.suzumechat.service.channel.exception.ChannelNotFoundByTokenException;
 import com.example.suzumechat.service.channel.exception.HostChannelTokensMismatchException;
 import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
-import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.utility.Crypter;
 import com.example.suzumechat.utility.Hash;
 import com.example.suzumechat.utility.Random;
@@ -29,8 +28,6 @@ public class ChannelServiceImpl implements ChannelService {
 
     @Autowired
     private ChannelRepository repository;
-    @Autowired
-    private GuestRepository guestRepository;
 
     @Autowired
     private Hash hash;
@@ -153,19 +150,17 @@ public class ChannelServiceImpl implements ChannelService {
         return channelName;
     }
 
-    // TEST:
     @Override
     public Channel getByJoinChannelToken(final String joinChannelToken)
         throws Exception {
         val joinChannelTokenHashed = hash.digest(joinChannelToken);
-        val channelOpt =
+        final Optional<Channel> channelOpt =
             repository.findByJoinChannelTokenHashed(joinChannelTokenHashed);
         val channel = channelOpt.orElseThrow(ChannelNotFoundByTokenException::new);
 
         return channel;
     }
 
-    // TEST:
     @Override
     public String getHostChannelTokenByJoinChannelToken(
         final String joinChannelToken) throws Exception {
@@ -175,7 +170,6 @@ public class ChannelServiceImpl implements ChannelService {
         return hostChannelToken;
     }
 
-    // TEST: DELETE: not used?
     @Override
     public Channel getByHostChannelToken(final String hostChannelToken)
         throws Exception {
@@ -187,7 +181,6 @@ public class ChannelServiceImpl implements ChannelService {
         return channel;
     }
 
-    // TEST:
     @Override
     public String getJoinChannelTokenByHostChannelToken(
         final String hostChannelToken) throws Exception {

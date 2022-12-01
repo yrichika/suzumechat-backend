@@ -264,6 +264,91 @@ public class ChannelServiceImplTests {
         assertThat(result).isEqualTo(channelName);
     }
 
+    @Test
+    public void getByJoinChannelToken_should_return_channel_by_joinChannelToken() throws Exception {
+        val joinChannelToken = testRandom.string.alphanumeric();
+        val joinChannelTokenHashed = testRandom.string.alphanumeric();
+        val channel = channelFactory.make();
+
+        when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
+        when(repository.findByJoinChannelTokenHashed(joinChannelTokenHashed)).thenReturn(Optional.of(channel));
+        val result = service.getByJoinChannelToken(joinChannelToken);
+        assertThat(result).isEqualTo(channel);
+    }
+
+
+    @Test
+    public void getByJoinChannelToken_should_throw_exception_if_channel_not_found()
+        throws Exception {
+        val joinChannelToken = testRandom.string.alphanumeric();
+        val joinChannelTokenHashed = testRandom.string.alphanumeric();
+
+        when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
+        when(repository.findByJoinChannelTokenHashed(joinChannelTokenHashed))
+            .thenReturn(Optional.empty());
+
+        assertThrows(ChannelNotFoundByTokenException.class, () -> {
+            service.getByJoinChannelToken(joinChannelToken);
+        });
+    }
+
+    @Test
+    public void getHostChannelTokenByJoinChannelToken_should_return_hostChannelToken() throws Exception {
+        val joinChannelToken = testRandom.string.alphanumeric();
+        val joinChannelTokenHashed = testRandom.string.alphanumeric();
+        val channel = channelFactory.make();
+        val hostChannelToken = testRandom.string.alphanumeric();
+
+        when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
+        when(repository.findByJoinChannelTokenHashed(joinChannelTokenHashed)).thenReturn(Optional.of(channel));
+        when(crypter.decrypt(channel.getHostChannelTokenEnc(), channel.getChannelId())).thenReturn(hostChannelToken);
+
+        val result = service.getHostChannelTokenByJoinChannelToken(joinChannelToken);
+
+        assertThat(result).isEqualTo(hostChannelToken);
+    }
+
+    @Test
+    public void getByHostChannelToken_should_return_channel_by_hostChannelToken() throws Exception {
+        val hostChannelToken = testRandom.string.alphanumeric();
+        val hostChannelTokenHashed = testRandom.string.alphanumeric();
+        val channel = channelFactory.make();
+
+        when(hash.digest(hostChannelToken)).thenReturn(hostChannelTokenHashed);
+        when(repository.findByHostChannelTokenHashed(hostChannelTokenHashed)).thenReturn(Optional.of(channel));
+
+        val result = service.getByHostChannelToken(hostChannelToken);
+        assertThat(result).isEqualTo(channel);
+    }
+
+    @Test
+    public void getByHostChannelToken_should_throw_exception_if_not_found() throws Exception {
+        val hostChannelToken = testRandom.string.alphanumeric();
+        val hostChannelTokenHashed = testRandom.string.alphanumeric();
+        val channel = channelFactory.make();
+
+        when(hash.digest(hostChannelToken)).thenReturn(hostChannelTokenHashed);
+        when(repository.findByHostChannelTokenHashed(hostChannelTokenHashed)).thenReturn(Optional.empty());
+
+        assertThrows(ChannelNotFoundByTokenException.class, () -> {
+            service.getByHostChannelToken(hostChannelToken);
+        });
+    }
+
+    @Test
+    public void getJoinChannelTokenByHostChannelToken_should_return_joinChannelToken() throws Exception {
+        val hostChannelToken = testRandom.string.alphanumeric();
+        val hostChannelTokenHashed = testRandom.string.alphanumeric();
+        val channel = channelFactory.make();
+        val joinChannelToken = testRandom.string.alphanumeric();
+
+        when(hash.digest(hostChannelToken)).thenReturn(hostChannelTokenHashed);
+        when(repository.findByHostChannelTokenHashed(hostChannelTokenHashed)).thenReturn(Optional.of(channel));
+        when(crypter.decrypt(channel.getJoinChannelTokenEnc(), channel.getChannelId())).thenReturn(joinChannelToken);
+
+        val result = service.getJoinChannelTokenByHostChannelToken(hostChannelToken);
+        assertThat(result).isEqualTo(joinChannelToken);
+    }
 
     @Test
     public void getItemsOrderThan_should_return_list_of_channel_before_specified_time() {

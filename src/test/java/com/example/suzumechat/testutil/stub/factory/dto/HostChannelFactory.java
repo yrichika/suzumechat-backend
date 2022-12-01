@@ -1,14 +1,11 @@
 package com.example.suzumechat.testutil.stub.factory.dto;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.example.suzumechat.service.channel.dto.CreatedChannel;
 import com.example.suzumechat.service.channel.dto.HostChannel;
 import com.example.suzumechat.testutil.TestHelper;
 import com.example.suzumechat.testutil.random.TestRandom;
-import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
-
-import lombok.*;
+import lombok.Setter;
+import lombok.val;
 import lombok.experimental.Accessors;
 
 @Accessors(fluent = true, chain = true)

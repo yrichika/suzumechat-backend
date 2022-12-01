@@ -7,14 +7,11 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.Channel;
-import com.example.suzumechat.service.channel.ChannelRepository;
 import com.example.suzumechat.service.channel.dto.message.VisitorsStatus;
 import com.example.suzumechat.service.channel.exception.VisitorNotFoundException;
 import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.service.guest.GuestRepository;
-import com.example.suzumechat.service.guest.dto.ChannelStatus;
 import com.example.suzumechat.service.guest.exception.GuestNotFoundException;
-import com.example.suzumechat.service.guest.exception.JoinChannelTokenInvalidException;
 import com.example.suzumechat.utility.Crypter;
 import com.example.suzumechat.utility.Hash;
 import lombok.val;
@@ -24,28 +21,12 @@ public class GuestServiceImpl implements GuestService {
 
     @Autowired
     private GuestRepository repository;
-    @Autowired
-    private ChannelRepository channelRepository;
+
     @Autowired
     private Hash hash;
     @Autowired
     private Crypter crypter;
 
-
-    @Override
-    public ChannelStatus getChannelNameByJoinChannelToken(String joinChannelToken)
-        throws Exception {
-        final Channel channel = getChannelByJoinChannelToken(joinChannelToken);
-
-        val channelName =
-            crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId());
-
-        if (channel.getSecretKeyEnc() == null) {
-            return new ChannelStatus(channelName, false);
-        }
-
-        return new ChannelStatus(channelName, true);
-    }
 
     @Override
     public Guest getByGuestId(final String guestId) throws Exception {
@@ -58,10 +39,9 @@ public class GuestServiceImpl implements GuestService {
 
     @Override
     public Optional<String> createGuestAsVisitor(final String joinChannelToken,
-        final String visitorId, final String codename, final String passphrase)
+        final String visitorId, final String codename, final String passphrase, Channel channel)
         throws Exception {
 
-        final Channel channel = getChannelByJoinChannelToken(joinChannelToken);
         if (channel.secretKeyEmpty()) {
             return Optional.empty();
         }
@@ -91,16 +71,6 @@ public class GuestServiceImpl implements GuestService {
             isAuthenticated);
     }
 
-    // FIXME: move to another appropriate class
-    public Channel getChannelByJoinChannelToken(final String joinChannelToken)
-        throws Exception {
-        val joinChannelTokenHashed = hash.digest(joinChannelToken);
-        final Optional<Channel> channelOpt = channelRepository
-            .findByJoinChannelTokenHashed(joinChannelTokenHashed);
-        val channel = channelOpt.orElseThrow(JoinChannelTokenInvalidException::new);
-
-        return channel;
-    }
 
     // DELETE: not used
     @Override

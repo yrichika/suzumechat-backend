@@ -1,8 +1,6 @@
 package com.example.suzumechat.utility;
 
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import org.junit.jupiter.api.BeforeAll;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,6 @@ import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
-import static org.assertj.core.api.Assertions.*;
 
 @SpringJUnitConfig
 @Import(TestConfig.class)
@@ -35,43 +32,43 @@ public class JsonHelperTests {
 
     @Test
     public void hasAllFieldsOf_should_return_true_if_json_has_all_fields_of_the_class()
-            throws Exception {
+        throws Exception {
 
         final ChatMessageCapsule chatMessageCapsule =
-                new ChatMessageCapsule(random.string.alphanumeric());
+            new ChatMessageCapsule(random.string.alphanumeric());
         val chatMessageCapsuleJson = mapper.writeValueAsString(chatMessageCapsule);
         val chatMessageCapsuleResult = helper.hasAllFieldsOf(chatMessageCapsuleJson,
-                ChatMessageCapsule.class);
+            ChatMessageCapsule.class);
         assertThat(chatMessageCapsuleResult).isTrue();
 
         final VisitorsAuthStatus visitorsAuthStatus =
-                new VisitorsAuthStatus(random.string.alphanumeric(), false);
+            new VisitorsAuthStatus(random.string.alphanumeric(), false);
         val visitorsAuthStatusJson = mapper.writeValueAsString(visitorsAuthStatus);
         val visitorsAuthStatusResult = helper.hasAllFieldsOf(visitorsAuthStatusJson,
-                VisitorsAuthStatus.class);
+            VisitorsAuthStatus.class);
         assertThat(visitorsAuthStatusResult).isTrue();
 
         final JoinRequest joinRequest = new JoinRequest(random.string.alphanumeric(),
-                random.string.alphanumeric(), random.string.alphanumeric());
+            random.string.alphanumeric(), random.string.alphanumeric());
         val joinRequestJson = mapper.writeValueAsString(joinRequest);
         val joinRequestResult =
-                helper.hasAllFieldsOf(joinRequestJson, JoinRequest.class);
+            helper.hasAllFieldsOf(joinRequestJson, JoinRequest.class);
         assertThat(joinRequestResult).isTrue();
     }
 
     @Test
     public void hasAllFieldsOf_should_return_false_if_json_does_not_have_any_field_of_the_class()
-            throws Exception {
+        throws Exception {
         final ChatMessageCapsule chatMessageCapsule =
-                new ChatMessageCapsule(random.string.alphanumeric());
+            new ChatMessageCapsule(random.string.alphanumeric());
         val chatMessageCapsuleJson = mapper.writeValueAsString(chatMessageCapsule);
 
         val comparedWithVisitorsAuthStatus = helper
-                .hasAllFieldsOf(chatMessageCapsuleJson, VisitorsAuthStatus.class);
+            .hasAllFieldsOf(chatMessageCapsuleJson, VisitorsAuthStatus.class);
         assertThat(comparedWithVisitorsAuthStatus).isFalse();
 
         val comparedWithJoinRequest =
-                helper.hasAllFieldsOf(chatMessageCapsuleJson, JoinRequest.class);
+            helper.hasAllFieldsOf(chatMessageCapsuleJson, JoinRequest.class);
         assertThat(comparedWithJoinRequest).isFalse();
 
     }

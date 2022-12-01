@@ -4,13 +4,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.testutil.TestHelper;
 import com.example.suzumechat.testutil.random.TestRandom;
-
-import lombok.Getter;
 import lombok.Setter;
 import lombok.val;
 import lombok.experimental.Accessors;
@@ -40,25 +37,25 @@ public class ChannelFactory {
     public Channel make() {
 
         val channelId = TestHelper.getOrDefault(this.channelId,
-                random.string.alphanumeric());
+            random.string.alphanumeric());
         val hostIdHashed = TestHelper.getOrDefault(this.hostIdHashed,
-                random.string.alphanumeric());
+            random.string.alphanumeric());
         val channelTokenId = TestHelper.getOrDefault(this.channelTokenId,
-                random.string.alphanumeric());
+            random.string.alphanumeric());
         val channelNameEnc = TestHelper.getOrDefault(this.channelNameEnc,
-                random.string.alphanumeric().getBytes());
+            random.string.alphanumeric().getBytes());
         val hostChannelTokenHashed = TestHelper.getOrDefault(
-                this.hostChannelTokenHashed, random.string.alphanumeric());
+            this.hostChannelTokenHashed, random.string.alphanumeric());
         val hostChannelTokenEnc = TestHelper.getOrDefault(this.hostChannelTokenEnc,
-                random.string.alphanumeric().getBytes());
+            random.string.alphanumeric().getBytes());
         val joinChannelTokenHashed = TestHelper.getOrDefault(
-                this.joinChannelTokenHashed, random.string.alphanumeric());
+            this.joinChannelTokenHashed, random.string.alphanumeric());
         val joinChannelTokenEnc = TestHelper.getOrDefault(this.joinChannelTokenEnc,
-                random.string.alphanumeric().getBytes());
+            random.string.alphanumeric().getBytes());
         val guestChannelTokenHashed = TestHelper.getOrDefault(
-                this.guestChannelTokenHashed, random.string.alphanumeric());
+            this.guestChannelTokenHashed, random.string.alphanumeric());
         val guestChannelTokenEnc = TestHelper.getOrDefault(this.guestChannelTokenEnc,
-                random.string.alphanumeric().getBytes());
+            random.string.alphanumeric().getBytes());
         // WARNING! null should be default. otherwise this nullable value can never
         // be null
         val secretKeyEnc = TestHelper.getOrDefault(this.secretKeyEnc, null);
@@ -69,10 +66,10 @@ public class ChannelFactory {
         val channel = new Channel(null, // primary key should always be null for
                                         // testing, for
                                         // TestEntityManager `persist` method
-                channelId, hostIdHashed, channelTokenId, channelNameEnc,
-                hostChannelTokenHashed, hostChannelTokenEnc, joinChannelTokenHashed,
-                joinChannelTokenEnc, guestChannelTokenHashed, guestChannelTokenEnc,
-                secretKeyEnc, guests, updatedAt, createdAt);
+            channelId, hostIdHashed, channelTokenId, channelNameEnc,
+            hostChannelTokenHashed, hostChannelTokenEnc, joinChannelTokenHashed,
+            joinChannelTokenEnc, guestChannelTokenHashed, guestChannelTokenEnc,
+            secretKeyEnc, guests, updatedAt, createdAt);
 
         reset();
         return channel;
