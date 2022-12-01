@@ -24,7 +24,7 @@ import lombok.val;
 public class WebSocketMessageController {
 
     @Autowired
-    private HostMessageHandler service;
+    private HostMessageHandler messageHandler;
     @Autowired
     private SimpMessagingTemplate template;
     @Autowired
@@ -52,7 +52,7 @@ public class WebSocketMessageController {
 
         if (jsonHelper.hasAllFieldsOf(messageJson, ChatMessageCapsule.class)) {
             val guestChannelTokenOpt =
-                service.getGuestChannelToken(hostId, hostChannelToken);
+                messageHandler.getGuestChannelToken(hostId, hostChannelToken);
 
             if (guestChannelTokenOpt.isPresent()) {
                 broadcastToChatChannel(hostChannelToken, guestChannelTokenOpt.get(),
@@ -66,7 +66,7 @@ public class WebSocketMessageController {
             val visitorsAuthStatus =
                 mapper.readValue(messageJson, VisitorsAuthStatus.class);
             final Optional<ApprovalResult> approvalResultOpt =
-                service.handleApproval(hostId, hostChannelToken,
+                messageHandler.handleApproval(hostId, hostChannelToken,
                     visitorsAuthStatus.visitorId(),
                     visitorsAuthStatus.isAuthenticated());
             if (approvalResultOpt.isPresent()) {

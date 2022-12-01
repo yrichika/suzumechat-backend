@@ -16,19 +16,19 @@ import com.example.suzumechat.utility.form.ValidationOrder;
 public class ChannelController {
 
     @Autowired
-    private ChannelUseCase service;
+    private ChannelUseCase useCase;
     @Autowired
     private HttpSession session;
 
     @PostMapping("/createChannel")
     public HostChannel create(
-            @Validated(ValidationOrder.class) @RequestBody final CreatingChannel form)
-            throws Exception {
+        @Validated(ValidationOrder.class) @RequestBody final CreatingChannel form)
+        throws Exception {
 
         // TODO: If a hostId already exists in session, redirect to the host page
         // Prevent creating another channel
 
-        final CreatedChannel channel = service.create(form.getChannelName());
+        final CreatedChannel channel = useCase.create(form.getChannelName());
 
         session.setAttribute("hostId", channel.hostId());
         session.setAttribute("secretKeyHost", channel.hostChannel().secretKey());

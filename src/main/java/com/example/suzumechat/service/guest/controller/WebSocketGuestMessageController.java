@@ -20,7 +20,7 @@ import lombok.val;
 public class WebSocketGuestMessageController {
 
     @Autowired
-    private GuestMessageHandler service;
+    private GuestMessageHandler messageHandler;
     @Autowired
     private SimpMessagingTemplate template;
     @Autowired
@@ -46,7 +46,7 @@ public class WebSocketGuestMessageController {
 
         if (jsonHelper.hasAllFieldsOf(messageJson, ChatMessageCapsule.class)) {
             val hostChannelTokenOpt =
-                service.getHostChannelToken(guestId, guestChannelToken);
+                messageHandler.getHostChannelToken(guestId, guestChannelToken);
             if (hostChannelTokenOpt.isPresent()) {
                 broadcastToChatChannel(guestChannelToken, hostChannelTokenOpt.get(),
                     messageJson);

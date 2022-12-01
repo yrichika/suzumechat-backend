@@ -20,7 +20,7 @@ import lombok.val;
 @RestController
 public class GuestController {
     @Autowired
-    private GuestChannelUseCase service;
+    private GuestChannelUseCase useCase;
     @Autowired
     private HttpSession session;
 
@@ -31,7 +31,7 @@ public class GuestController {
         @RequestParam("guestId") @NotBlank @Size(max = 64) final String guestId)
         throws Exception {
 
-        if (!service.guestExistsInChannel(guestId, guestChannelToken)) {
+        if (!useCase.guestExistsInChannel(guestId, guestChannelToken)) {
             throw new GuestNotBelongingToChannelException();
         }
         session.setAttribute("guestId", guestId);
@@ -48,7 +48,7 @@ public class GuestController {
             throw new GuestIdMissingInSessionException();
         }
 
-        if (!service.guestExistsInChannel(guestId, guestChannelToken)) {
+        if (!useCase.guestExistsInChannel(guestId, guestChannelToken)) {
             throw new GuestNotBelongingToChannelException();
         }
         session.invalidate();
@@ -62,7 +62,7 @@ public class GuestController {
             max = 64) String guestChannelToken)
         throws Exception {
         final GuestChannel guestChannel =
-            service.getGuestChannelByGuestChannelToken(guestChannelToken);
+            useCase.getGuestChannelByGuestChannelToken(guestChannelToken);
         return guestChannel;
     }
 
@@ -74,7 +74,7 @@ public class GuestController {
         @RequestParam("guestId") @NotBlank @Size(max = 64) final String guestId)
         throws Exception {
         final GuestDto guestDto =
-            service.getGuestDtoByGuestId(guestId, guestChannelToken);
+            useCase.getGuestDtoByGuestId(guestId, guestChannelToken);
         session.setAttribute("guestId", guestId);
         return guestDto;
     }

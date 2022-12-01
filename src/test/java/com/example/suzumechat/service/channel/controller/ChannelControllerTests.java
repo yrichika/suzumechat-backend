@@ -29,7 +29,7 @@ import lombok.val;
 public class ChannelControllerTests {
 
     @MockBean
-    private ChannelUseCase service;
+    private ChannelUseCase useCase;
     @MockBean
     private ModelMapper modelMapper;
 
@@ -45,25 +45,25 @@ public class ChannelControllerTests {
 
     @Test
     public void create_should_set_session_data_and_return_chat_channel()
-            throws Exception {
+        throws Exception {
         val url = "/createChannel";
 
         val form = formFactory.make();
         String json = objectMapper.writeValueAsString(form);
 
         val createdChannel = createdChannelFactory.make();
-        when(service.create(form.getChannelName())).thenReturn(createdChannel);
+        when(useCase.create(form.getChannelName())).thenReturn(createdChannel);
         val expectedHostChannel =
-                objectMapper.writeValueAsString(createdChannel.hostChannel());
+            objectMapper.writeValueAsString(createdChannel.hostChannel());
 
         val request = post(url).contentType(MediaType.APPLICATION_JSON).content(json)
-                .with(SecurityMockMvcRequestPostProcessors.csrf());
+            .with(SecurityMockMvcRequestPostProcessors.csrf());
 
         mockMvc.perform(request).andExpect(status().isOk())
-                .andExpect(request().sessionAttribute("hostId",
-                        createdChannel.hostId()))
-                .andExpect(request().sessionAttribute("secretKeyHost",
-                        createdChannel.hostChannel().secretKey()))
-                .andExpect(content().json(expectedHostChannel));
+            .andExpect(request().sessionAttribute("hostId",
+                createdChannel.hostId()))
+            .andExpect(request().sessionAttribute("secretKeyHost",
+                createdChannel.hostChannel().secretKey()))
+            .andExpect(content().json(expectedHostChannel));
     }
 }

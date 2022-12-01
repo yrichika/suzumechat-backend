@@ -31,7 +31,7 @@ public class GuestChannelUseCaseImplTests {
     private Crypter crypter;
 
     @InjectMocks
-    private GuestChannelUseCaseImpl service;
+    private GuestChannelUseCaseImpl useCase;
 
     @Autowired
     private TestRandom testRandom;
@@ -51,7 +51,7 @@ public class GuestChannelUseCaseImplTests {
             .thenReturn(channelName);
 
         final GuestChannel result =
-            service.getGuestChannelByGuestChannelToken(guestChannelToken);
+            useCase.getGuestChannelByGuestChannelToken(guestChannelToken);
         assertThat(result.channelName()).isEqualTo(channelName);
     }
 
@@ -76,7 +76,7 @@ public class GuestChannelUseCaseImplTests {
         when(crypter.decrypt(channel.getSecretKeyEnc(), channel.getChannelId()))
             .thenReturn(secretKey);
 
-        val result = service.getGuestDtoByGuestId(guestId, guestChannelToken);
+        val result = useCase.getGuestDtoByGuestId(guestId, guestChannelToken);
 
         assertThat(result.channelName()).isEqualTo(channelName);
         assertThat(result.codename()).isEqualTo(codename);
@@ -97,7 +97,7 @@ public class GuestChannelUseCaseImplTests {
             .thenReturn(channel);
         when(guestService.getByGuestId(guestId)).thenReturn(guest);
 
-        val result = service.guestExistsInChannel(guestId, guestChannelToken);
+        val result = useCase.guestExistsInChannel(guestId, guestChannelToken);
 
         assertThat(result).isTrue();
     }

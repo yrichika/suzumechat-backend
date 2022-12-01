@@ -28,7 +28,7 @@ public class VisitorMessageHandlerImplTests {
     private GuestService guestService;
 
     @InjectMocks
-    private VisitorMessageHandlerImpl service;
+    private VisitorMessageHandlerImpl messageHandler;
 
 
     @Autowired
@@ -51,7 +51,7 @@ public class VisitorMessageHandlerImplTests {
             .thenReturn(hostChannelToken);
 
         final Optional<PendedJoinRequestResult> result =
-            service.createGuestAsVisitor(joinChannelToken, visitorId, codename,
+            messageHandler.createGuestAsVisitor(joinChannelToken, visitorId, codename,
                 passphrase);
 
         assertThat(result.get().hostChannelToken()).isEqualTo(hostChannelToken);
@@ -75,7 +75,7 @@ public class VisitorMessageHandlerImplTests {
             .thenThrow(new Exception());
 
         final Optional<PendedJoinRequestResult> result =
-            service.createGuestAsVisitor(joinChannelToken, visitorId, codename,
+            messageHandler.createGuestAsVisitor(joinChannelToken, visitorId, codename,
                 passphrase);
         assertThat(result.isEmpty()).isTrue();
     }

@@ -39,7 +39,7 @@ public class HostMessageHandlerImplTests {
     private Crypter crypter;
 
     @InjectMocks
-    private HostMessageHandlerImpl service;
+    private HostMessageHandlerImpl messageHandler;
 
     @Autowired
     private TestRandom testRandom;
@@ -59,7 +59,7 @@ public class HostMessageHandlerImplTests {
         when(channelService.getGuestChannelToken(hostId, hostChannelToken))
             .thenReturn(expected);
 
-        val result = service.getGuestChannelToken(hostId, hostChannelToken);
+        val result = messageHandler.getGuestChannelToken(hostId, hostChannelToken);
         assertThat(result.get()).isEqualTo(expected);
     }
 
@@ -73,7 +73,7 @@ public class HostMessageHandlerImplTests {
         when(channelService.getGuestChannelToken(hostId, hostChannelToken))
             .thenThrow(new Exception());
 
-        val result = service.getGuestChannelToken(hostId, hostChannelToken);
+        val result = messageHandler.getGuestChannelToken(hostId, hostChannelToken);
         assertThat(result.isEmpty()).isTrue();
     }
 
@@ -87,7 +87,7 @@ public class HostMessageHandlerImplTests {
             prepareForHandleApprovalTest(secretKey, isAuthenticated, false);
 
         final Optional<ApprovalResult> result =
-            service.handleApproval(testDto.hostId, testDto.hostChannelToken,
+            messageHandler.handleApproval(testDto.hostId, testDto.hostChannelToken,
                 testDto.visitorId, isAuthenticated);
 
         assertThat(result.get().joinChannelToken())
@@ -114,7 +114,7 @@ public class HostMessageHandlerImplTests {
         final HandleApprovalTestDto testDto = prepareForHandleApprovalTest(
             secretKeyEmptyMeansChannelClosed, false, false);
 
-        final Optional<ApprovalResult> result = service.handleApproval(
+        final Optional<ApprovalResult> result = messageHandler.handleApproval(
             testDto.hostId, testDto.hostChannelToken, testDto.visitorId, false);
 
         assertThat(result.get().joinChannelToken())
@@ -140,7 +140,7 @@ public class HostMessageHandlerImplTests {
             prepareForHandleApprovalTest(secretKeyEnc, isAuthenticated, false);
 
         final Optional<ApprovalResult> result =
-            service.handleApproval(testDto.hostId, testDto.hostChannelToken,
+            messageHandler.handleApproval(testDto.hostId, testDto.hostChannelToken,
                 testDto.visitorId, isAuthenticated);
 
         assertThat(result.get().joinChannelToken())
@@ -166,7 +166,7 @@ public class HostMessageHandlerImplTests {
             prepareForHandleApprovalTest(null, isAuthenticated, true);
 
         final Optional<ApprovalResult> result =
-            service.handleApproval(testDto.hostId, testDto.hostChannelToken,
+            messageHandler.handleApproval(testDto.hostId, testDto.hostChannelToken,
                 testDto.visitorId, isAuthenticated);
 
         assertThat(result.isEmpty()).isTrue();

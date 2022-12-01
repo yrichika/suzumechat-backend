@@ -23,7 +23,7 @@ import lombok.val;
 @SpringJUnitConfig
 @Import(TestConfig.class)
 @MockitoSettings
-public class VisitorUseCaseTests {
+public class VisitorUseCaseImplTests {
 
     @MockBean
     Hash hash;

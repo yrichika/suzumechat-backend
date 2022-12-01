@@ -30,7 +30,7 @@ public class GuestMessageHandlerImplTests {
     @MockBean
     private Crypter crypter;
     @InjectMocks
-    private GuestMessageHandlerImpl service;
+    private GuestMessageHandlerImpl messageHandler;
 
     @Autowired
     private ChannelFactory channelFactory;
@@ -54,7 +54,7 @@ public class GuestMessageHandlerImplTests {
         when(crypter.decrypt(channel.getHostChannelTokenEnc(),
             channel.getChannelId())).thenReturn(hostChannelToken);
 
-        val result = service.getHostChannelToken(guestId, guestChannelToken);
+        val result = messageHandler.getHostChannelToken(guestId, guestChannelToken);
 
         assertThat(result.get()).isEqualTo(hostChannelToken);
     }
@@ -68,7 +68,7 @@ public class GuestMessageHandlerImplTests {
         when(channelService.getByGuestChannelToken(guestChannelToken))
             .thenThrow(Exception.class);
 
-        val result = service.getHostChannelToken(guestId, guestChannelToken);
+        val result = messageHandler.getHostChannelToken(guestId, guestChannelToken);
 
         assertThat(result.isEmpty()).isTrue();
     }
@@ -86,7 +86,7 @@ public class GuestMessageHandlerImplTests {
             .thenReturn(channel);
         when(guestService.getByGuestId(guestId)).thenReturn(guest);
 
-        val result = service.getHostChannelToken(guestId, guestChannelToken);
+        val result = messageHandler.getHostChannelToken(guestId, guestChannelToken);
 
         assertThat(result.isEmpty()).isTrue();
     }

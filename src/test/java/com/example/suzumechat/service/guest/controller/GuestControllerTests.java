@@ -28,7 +28,7 @@ import lombok.val;
 @MockitoSettings
 public class GuestControllerTests {
     @MockBean
-    private GuestChannelUseCase service;
+    private GuestChannelUseCase useCase;
     @Mock
     private HttpSession session;
 
@@ -50,7 +50,7 @@ public class GuestControllerTests {
         val guestChannelToken = testRandom.string.alphanumeric();
         val url = "/guest/setSession/" + guestChannelToken;
 
-        when(service.guestExistsInChannel(guestId, guestChannelToken))
+        when(useCase.guestExistsInChannel(guestId, guestChannelToken))
             .thenReturn(true);
 
         val request = get(url).param("guestId", guestId);
@@ -64,7 +64,7 @@ public class GuestControllerTests {
         val guestChannelToken = testRandom.string.alphanumeric();
         val url = "/guest/setSession/" + guestChannelToken;
 
-        when(service.guestExistsInChannel(guestId, guestChannelToken))
+        when(useCase.guestExistsInChannel(guestId, guestChannelToken))
             .thenReturn(false);
 
         val request = get(url).param("guestId", guestId);
@@ -78,7 +78,7 @@ public class GuestControllerTests {
         val guestChannelToken = testRandom.string.alphanumeric();
         val url = "/guest/invalidateSession/" + guestChannelToken;
 
-        when(service.guestExistsInChannel(guestId, guestChannelToken))
+        when(useCase.guestExistsInChannel(guestId, guestChannelToken))
             .thenReturn(true);
 
         val request = get(url).sessionAttr("guestId", guestId);
@@ -93,7 +93,7 @@ public class GuestControllerTests {
         val guestChannelToken = testRandom.string.alphanumeric();
         val url = "/guest/invalidateSession/" + guestChannelToken;
 
-        when(service.guestExistsInChannel(guestId, guestChannelToken))
+        when(useCase.guestExistsInChannel(guestId, guestChannelToken))
             .thenReturn(true);
 
         val request = get(url);
@@ -107,7 +107,7 @@ public class GuestControllerTests {
         val guestChannelToken = testRandom.string.alphanumeric();
         val url = "/guest/invalidateSession/" + guestChannelToken;
 
-        when(service.guestExistsInChannel(guestId, guestChannelToken))
+        when(useCase.guestExistsInChannel(guestId, guestChannelToken))
             .thenReturn(false); // NOTICE: difference
 
         val request = get(url).sessionAttr("guestId", guestId);
@@ -121,7 +121,7 @@ public class GuestControllerTests {
         val url = "/guest/guestChannel/" + guestChannelToken;
         val guestChannel = guestChannelFactory.make();
 
-        when(service.getGuestChannelByGuestChannelToken(guestChannelToken))
+        when(useCase.getGuestChannelByGuestChannelToken(guestChannelToken))
             .thenReturn(guestChannel);
 
         val expected = objectMapper.writeValueAsString(guestChannel);
@@ -138,7 +138,7 @@ public class GuestControllerTests {
         val guestChannelToken = testRandom.string.alphanumeric();
         val url = "/guest/guestDto/" + guestChannelToken;
         val guestDto = guestDtoFactory.make();
-        when(service.getGuestDtoByGuestId(guestId, guestChannelToken))
+        when(useCase.getGuestDtoByGuestId(guestId, guestChannelToken))
             .thenReturn(guestDto);
 
         val expected = objectMapper.writeValueAsString(guestDto);

@@ -15,22 +15,22 @@ import lombok.val;
 public class HostController {
 
     @Autowired
-    private HostUseCase service;
+    private HostUseCase useCase;
 
     @Autowired
     private HttpSession session;
 
     @PostMapping("/host/endChannel/{hostChannelToken:.+}")
     public ResponseEntity<String> endChannel(
-            @PathVariable("hostChannelToken") final String hostChannelToken)
-            throws Exception {
+        @PathVariable("hostChannelToken") final String hostChannelToken)
+        throws Exception {
 
         val hostId = (String) session.getAttribute("hostId");
         if (hostId == null) {
             throw new HostIdMissingInSessionException();
         }
 
-        service.endChannel(hostId, hostChannelToken);
+        useCase.endChannel(hostId, hostChannelToken);
 
         session.invalidate();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

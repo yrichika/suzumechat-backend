@@ -19,7 +19,7 @@ import lombok.val;
 public class WebSocketVisitorMessageController {
 
     @Autowired
-    private VisitorMessageHandler service;
+    private VisitorMessageHandler messageHandler;
 
     @Autowired
     private SimpMessagingTemplate template;
@@ -45,7 +45,7 @@ public class WebSocketVisitorMessageController {
 
             val joinRequest = mapper.readValue(messageJson, JoinRequest.class);
 
-            val pendedRequestOpt = service.createGuestAsVisitor(joinChannelToken,
+            val pendedRequestOpt = messageHandler.createGuestAsVisitor(joinChannelToken,
                 joinRequest.visitorId(), joinRequest.codename(),
                 joinRequest.passphrase());
             if (pendedRequestOpt.isPresent()) {

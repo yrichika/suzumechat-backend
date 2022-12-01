@@ -23,7 +23,6 @@ import com.example.suzumechat.service.channel.exception.ChannelNotFoundByHostIdE
 import com.example.suzumechat.service.channel.exception.ChannelNotFoundByTokenException;
 import com.example.suzumechat.service.channel.exception.HostChannelTokensMismatchException;
 import com.example.suzumechat.service.channel.exception.HostUnauthorizedException;
-import com.example.suzumechat.service.guest.GuestRepository;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
@@ -45,8 +44,6 @@ public class ChannelServiceImplTests {
     Random random;
     @MockBean
     ChannelRepository repository;
-    @MockBean
-    GuestRepository guestRepository;
 
     @InjectMocks
     ChannelServiceImpl service;

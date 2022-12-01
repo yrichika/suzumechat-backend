@@ -41,7 +41,7 @@ public class GuestServiceImplTests {
     @MockBean
     Crypter crypter;
     @MockBean
-    GuestRepository guestRepository;
+    GuestRepository repository;
 
     @InjectMocks
     GuestServiceImpl service;
@@ -60,7 +60,7 @@ public class GuestServiceImplTests {
         val guestIdHashed = testRandom.string.alphanumeric();
         val guest = guestFactory.make();
         when(hash.digest(guestId)).thenReturn(guestIdHashed);
-        when(guestRepository.findByGuestIdHashed(guestIdHashed))
+        when(repository.findByGuestIdHashed(guestIdHashed))
             .thenReturn(Optional.of(guest));
 
         val result = service.getByGuestId(guestId);
@@ -73,7 +73,7 @@ public class GuestServiceImplTests {
         val guestIdHashed = testRandom.string.alphanumeric();
 
         when(hash.digest(guestId)).thenReturn(guestIdHashed);
-        when(guestRepository.findByGuestIdHashed(guestIdHashed))
+        when(repository.findByGuestIdHashed(guestIdHashed))
             .thenReturn(Optional.empty());
         assertThrows(GuestNotFoundException.class, () -> {
             service.getByGuestId(guestId);
@@ -95,7 +95,7 @@ public class GuestServiceImplTests {
         Optional<String> result = service.createGuestAsVisitor(joinChannelToken,
             visitorId, codename, passphrase, channel);
 
-        verify(guestRepository, times(1)).save(any(Guest.class));
+        verify(repository, times(1)).save(any(Guest.class));
         assertThat(result.get()).isNotEmpty();
     }
 
@@ -113,7 +113,7 @@ public class GuestServiceImplTests {
         Optional<String> result = service.createGuestAsVisitor(joinChannelToken,
             visitorId, codename, passphrase, channel);
 
-        verify(guestRepository, times(0)).save(any(Guest.class));
+        verify(repository, times(0)).save(any(Guest.class));
         assertThat(result.isEmpty()).isTrue();
     }
 
@@ -128,7 +128,7 @@ public class GuestServiceImplTests {
 
         service.updateStatus(visitorId, isAuthenticated);
 
-        verify(guestRepository, times(1)).updateIsAuthenticatedByVisitorIdHashed(
+        verify(repository, times(1)).updateIsAuthenticatedByVisitorIdHashed(
             visitorIdHashed, isAuthenticated);
     }
 
@@ -165,7 +165,7 @@ public class GuestServiceImplTests {
     private List<String> setUpGetStatusVisitorMock(final Channel channel,
         final List<Guest> guests) throws Exception {
 
-        when(guestRepository.findAllByChannelIdOrderByIdDesc(channel.getChannelId()))
+        when(repository.findAllByChannelIdOrderByIdDesc(channel.getChannelId()))
                 .thenReturn(guests);
 
         final List<String> valuesToAssertSimply = new ArrayList<>();
@@ -192,7 +192,7 @@ public class GuestServiceImplTests {
 
         Guest guest = spy(new Guest());
         when(hash.digest(visitorId)).thenReturn(visitorIdHashed);
-        when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
+        when(repository.findByVisitorIdHashed(visitorIdHashed))
             .thenReturn(Optional.of(guest));
 
         val guestResult = service.approveVisitor(visitorId, isAuthenticated);
@@ -205,7 +205,7 @@ public class GuestServiceImplTests {
         // verify(guest, times(1)).setGuestIdEnc(any(byte[].class));
         verify(guest, times(1)).setGuestIdEnc(null);
         verify(guest, times(1)).setIsAuthenticated(isAuthenticated);
-        verify(guestRepository, times(1)).save(any(Guest.class));
+        verify(repository, times(1)).save(any(Guest.class));
 
         assertThat(guestResult.getIsAuthenticated()).isTrue();
     }
@@ -221,7 +221,7 @@ public class GuestServiceImplTests {
 
         Guest guest = spy(new Guest());
         when(hash.digest(visitorId)).thenReturn(visitorIdHashed);
-        when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
+        when(repository.findByVisitorIdHashed(visitorIdHashed))
             .thenReturn(Optional.of(guest));
 
         val guestResult = service.approveVisitor(visitorId, isAuthenticated);
@@ -229,7 +229,7 @@ public class GuestServiceImplTests {
         verify(guest, never()).setGuestIdHashed(null);
         verify(guest, never()).setGuestIdEnc(null);
         verify(guest, times(1)).setIsAuthenticated(isAuthenticated);
-        verify(guestRepository, times(1)).save(any(Guest.class));
+        verify(repository, times(1)).save(any(Guest.class));
 
         assertThat(guestResult.getIsAuthenticated()).isFalse();
     }
@@ -244,7 +244,7 @@ public class GuestServiceImplTests {
         val isAuthenticated = testRandom.bool.nextBoolean();
 
         when(hash.digest(visitorId)).thenReturn(visitorIdHashed);
-        when(guestRepository.findByVisitorIdHashed(visitorIdHashed))
+        when(repository.findByVisitorIdHashed(visitorIdHashed))
             .thenReturn(Optional.empty());
 
         assertThrows(VisitorNotFoundException.class, () -> {

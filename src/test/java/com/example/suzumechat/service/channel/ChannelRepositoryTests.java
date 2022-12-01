@@ -1,5 +1,11 @@
 package com.example.suzumechat.service.channel;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,21 +13,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-
-import com.example.suzumechat.service.channel.ChannelRepository;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
-
-import static org.assertj.core.api.Assertions.*;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Objects;
-import java.util.Optional;
-
 import lombok.val;
 
 @SpringJUnitConfig
@@ -56,7 +50,7 @@ public class ChannelRepositoryTests {
         val result = repository.findByChannelId(testChannel.getChannelId());
 
         assertThat(result.get().getHostIdHashed())
-                .isEqualTo(testChannel.getHostIdHashed());
+            .isEqualTo(testChannel.getHostIdHashed());
     }
 
     @Test
@@ -71,7 +65,7 @@ public class ChannelRepositoryTests {
         val result = repository.findByHostIdHashed(testChannel.getHostIdHashed());
 
         assertThat(result.get().getChannelId())
-                .isEqualTo(testChannel.getChannelId());
+            .isEqualTo(testChannel.getChannelId());
     }
 
     @Test
