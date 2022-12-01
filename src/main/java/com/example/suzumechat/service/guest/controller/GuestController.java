@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.suzumechat.service.guest.application.GuestChannelService;
+import com.example.suzumechat.service.guest.application.GuestChannelUseCase;
 import com.example.suzumechat.service.guest.dto.GuestChannel;
 import com.example.suzumechat.service.guest.dto.GuestDto;
 import com.example.suzumechat.service.guest.exception.GuestIdMissingInSessionException;
@@ -20,16 +20,16 @@ import lombok.val;
 @RestController
 public class GuestController {
     @Autowired
-    private GuestChannelService service;
+    private GuestChannelUseCase service;
     @Autowired
     private HttpSession session;
 
     @GetMapping("guest/setSession/{guestChannelToken:.+}")
     public ResponseEntity<String> setSession(
-            @PathVariable("guestChannelToken") @NotBlank @Size(
-                    max = 64) String guestChannelToken,
-            @RequestParam("guestId") @NotBlank @Size(max = 64) final String guestId)
-            throws Exception {
+        @PathVariable("guestChannelToken") @NotBlank @Size(
+            max = 64) String guestChannelToken,
+        @RequestParam("guestId") @NotBlank @Size(max = 64) final String guestId)
+        throws Exception {
 
         if (!service.guestExistsInChannel(guestId, guestChannelToken)) {
             throw new GuestNotBelongingToChannelException();
@@ -40,9 +40,9 @@ public class GuestController {
 
     @GetMapping("guest/invalidateSession/{guestChannelToken:.+}")
     public ResponseEntity<String> invalidateSession(
-            @PathVariable("guestChannelToken") @NotBlank @Size(
-                    max = 64) String guestChannelToken)
-            throws Exception {
+        @PathVariable("guestChannelToken") @NotBlank @Size(
+            max = 64) String guestChannelToken)
+        throws Exception {
         val guestId = (String) session.getAttribute("guestId");
         if (guestId == null) {
             throw new GuestIdMissingInSessionException();
@@ -58,23 +58,23 @@ public class GuestController {
     // DELETE:
     @GetMapping("/guest/guestChannel/{guestChannelToken:.+}")
     public GuestChannel guestChannel(
-            @PathVariable("guestChannelToken") @NotBlank @Size(
-                    max = 64) String guestChannelToken)
-            throws Exception {
+        @PathVariable("guestChannelToken") @NotBlank @Size(
+            max = 64) String guestChannelToken)
+        throws Exception {
         final GuestChannel guestChannel =
-                service.getGuestChannelByGuestChannelToken(guestChannelToken);
+            service.getGuestChannelByGuestChannelToken(guestChannelToken);
         return guestChannel;
     }
 
     // DELETE:
     @GetMapping("/guest/guestDto/{guestChannelToken:.+}")
     public GuestDto guestDto(
-            @PathVariable("guestChannelToken") @NotBlank @Size(
-                    max = 64) String guestChannelToken,
-            @RequestParam("guestId") @NotBlank @Size(max = 64) final String guestId)
-            throws Exception {
+        @PathVariable("guestChannelToken") @NotBlank @Size(
+            max = 64) String guestChannelToken,
+        @RequestParam("guestId") @NotBlank @Size(max = 64) final String guestId)
+        throws Exception {
         final GuestDto guestDto =
-                service.getGuestDtoByGuestId(guestId, guestChannelToken);
+            service.getGuestDtoByGuestId(guestId, guestChannelToken);
         session.setAttribute("guestId", guestId);
         return guestDto;
     }

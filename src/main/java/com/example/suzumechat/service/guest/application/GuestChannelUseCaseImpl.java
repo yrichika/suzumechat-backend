@@ -10,7 +10,7 @@ import com.example.suzumechat.utility.Crypter;
 import lombok.val;
 
 @Service
-public class GuestChannelServiceImpl implements GuestChannelService {
+public class GuestChannelUseCaseImpl implements GuestChannelUseCase {
 
     @Autowired
     private ChannelService channelService;
@@ -21,9 +21,9 @@ public class GuestChannelServiceImpl implements GuestChannelService {
 
     // DELETE:
     public GuestChannel getGuestChannelByGuestChannelToken(
-            final String guestChannelToken) throws Exception {
+        final String guestChannelToken) throws Exception {
         val channelName =
-                channelService.getChannelNameByGuestChannelToken(guestChannelToken);
+            channelService.getChannelNameByGuestChannelToken(guestChannelToken);
 
         return new GuestChannel(channelName);
     }
@@ -31,21 +31,21 @@ public class GuestChannelServiceImpl implements GuestChannelService {
     // DELETE:
     @Override
     public GuestDto getGuestDtoByGuestId(final String guestId,
-            final String guestChannelToken) throws Exception {
+        final String guestChannelToken) throws Exception {
         val channel = channelService.getByGuestChannelToken(guestChannelToken);
         val guest = guestService.getByGuestId(guestId);
         val channelName =
-                crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId());
+            crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId());
         val codename =
-                crypter.decrypt(guest.getCodenameEnc(), channel.getChannelId());
+            crypter.decrypt(guest.getCodenameEnc(), channel.getChannelId());
         val secretKey =
-                crypter.decrypt(channel.getSecretKeyEnc(), channel.getChannelId());
+            crypter.decrypt(channel.getSecretKeyEnc(), channel.getChannelId());
         return new GuestDto(channelName, codename, secretKey);
     }
 
     @Override
     public boolean guestExistsInChannel(final String guestId,
-            final String guestChannelToken) throws Exception {
+        final String guestChannelToken) throws Exception {
         val channel = channelService.getByGuestChannelToken(guestChannelToken);
         val guest = guestService.getByGuestId(guestId);
         return channel.getChannelId().equals(guest.getChannelId());

@@ -11,8 +11,8 @@ import com.example.suzumechat.service.guest.service.GuestService;
 import lombok.val;
 
 @Service
-public class VisitorMessageHandlerServiceImpl
-    implements VisitorMessageHandlerService {
+public class VisitorMessageHandlerImpl
+    implements VisitorMessageHandler {
 
     @Autowired
     private ChannelService channelService;

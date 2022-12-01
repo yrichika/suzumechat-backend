@@ -11,7 +11,7 @@ import com.example.suzumechat.utility.Crypter;
 import lombok.val;
 
 @Service
-public class HostMessageHandlerServiceImpl implements HostMessageHandlerService {
+public class HostMessageHandlerImpl implements HostMessageHandler {
 
     @Autowired
     private ChannelService channelService;

@@ -21,14 +21,14 @@ import lombok.val;
 @SpringJUnitConfig
 @Import(TestConfig.class)
 @MockitoSettings
-public class VisitorMessageHandlerServiceImplTests {
+public class VisitorMessageHandlerImplTests {
     @MockBean
     private ChannelService channelService;
     @MockBean
     private GuestService guestService;
 
     @InjectMocks
-    private VisitorMessageHandlerServiceImpl service;
+    private VisitorMessageHandlerImpl service;
 
 
     @Autowired

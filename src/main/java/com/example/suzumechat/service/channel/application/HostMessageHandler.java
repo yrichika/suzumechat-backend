@@ -3,7 +3,7 @@ package com.example.suzumechat.service.channel.application;
 import java.util.Optional;
 import com.example.suzumechat.service.channel.dto.ApprovalResult;
 
-public interface HostMessageHandlerService {
+public interface HostMessageHandler {
 
     public Optional<String> getGuestChannelToken(final String hostId,
         final String hostChannelToken);

@@ -1,5 +1,7 @@
 package com.example.suzumechat.service.guest.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -16,13 +18,11 @@ import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.entity.GuestFactory;
 import com.example.suzumechat.utility.Crypter;
 import lombok.val;
-import static org.mockito.Mockito.*;
-import static org.assertj.core.api.Assertions.*;
 
 @SpringJUnitConfig
 @Import(TestConfig.class)
 @MockitoSettings
-public class GuestChannelServiceImplTests {
+public class GuestChannelUseCaseImplTests {
     @MockBean
     private ChannelService channelService;
     @MockBean
@@ -31,7 +31,7 @@ public class GuestChannelServiceImplTests {
     private Crypter crypter;
 
     @InjectMocks
-    private GuestChannelServiceImpl service;
+    private GuestChannelUseCaseImpl service;
 
     @Autowired
     private TestRandom testRandom;
@@ -43,15 +43,15 @@ public class GuestChannelServiceImplTests {
     // DELETE:
     @Test
     public void getGuestChannelByGuestChannelToken_should_return_GuestChannel()
-            throws Exception {
+        throws Exception {
         val guestChannelToken = testRandom.string.alphanumeric();
         val channelName = testRandom.string.alphanumeric();
 
         when(channelService.getChannelNameByGuestChannelToken(guestChannelToken))
-                .thenReturn(channelName);
+            .thenReturn(channelName);
 
         final GuestChannel result =
-                service.getGuestChannelByGuestChannelToken(guestChannelToken);
+            service.getGuestChannelByGuestChannelToken(guestChannelToken);
         assertThat(result.channelName()).isEqualTo(channelName);
     }
 
@@ -67,14 +67,14 @@ public class GuestChannelServiceImplTests {
         val secretKey = testRandom.string.alphanumeric();
 
         when(channelService.getByGuestChannelToken(guestChannelToken))
-                .thenReturn(channel);
+            .thenReturn(channel);
         when(guestService.getByGuestId(guestId)).thenReturn(guest);
         when(crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId()))
-                .thenReturn(channelName);
+            .thenReturn(channelName);
         when(crypter.decrypt(guest.getCodenameEnc(), channel.getChannelId()))
-                .thenReturn(codename);
+            .thenReturn(codename);
         when(crypter.decrypt(channel.getSecretKeyEnc(), channel.getChannelId()))
-                .thenReturn(secretKey);
+            .thenReturn(secretKey);
 
         val result = service.getGuestDtoByGuestId(guestId, guestChannelToken);
 
@@ -85,7 +85,7 @@ public class GuestChannelServiceImplTests {
 
     @Test
     public void guestExistsInChannel_should_return_true_if_guest_exists()
-            throws Exception {
+        throws Exception {
 
         val guestChannelToken = testRandom.string.alphanumeric();
         val guestId = testRandom.string.alphanumeric();
@@ -94,7 +94,7 @@ public class GuestChannelServiceImplTests {
         val guest = guestFactory.channelId(sameChannelId).make();
 
         when(channelService.getByGuestChannelToken(guestChannelToken))
-                .thenReturn(channel);
+            .thenReturn(channel);
         when(guestService.getByGuestId(guestId)).thenReturn(guest);
 
         val result = service.guestExistsInChannel(guestId, guestChannelToken);

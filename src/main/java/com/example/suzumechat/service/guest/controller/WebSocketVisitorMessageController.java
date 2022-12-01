@@ -6,20 +6,20 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.val;
-import com.example.suzumechat.service.guest.application.VisitorMessageHandlerService;
+import com.example.suzumechat.service.guest.application.VisitorMessageHandler;
 import com.example.suzumechat.service.guest.dto.message.JoinRequest;
 import com.example.suzumechat.service.guest.dto.message.ManagedJoinRequest;
 import com.example.suzumechat.service.guest.dto.message.error.JoinRequestError;
 import com.example.suzumechat.utility.JsonHelper;
 import com.example.suzumechat.utility.dto.message.ErrorMessage;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.val;
 
 @RestController
 public class WebSocketVisitorMessageController {
 
     @Autowired
-    private VisitorMessageHandlerService service;
+    private VisitorMessageHandler service;
 
     @Autowired
     private SimpMessagingTemplate template;
@@ -38,22 +38,22 @@ public class WebSocketVisitorMessageController {
      */
     @MessageMapping("/visitor/{joinChannelToken}") // `/send/visitor/{joinChannelToken}`
     public void receiveAndBroadcast(
-            @DestinationVariable("joinChannelToken") final String joinChannelToken,
-            @Payload final String messageJson) throws Exception {
+        @DestinationVariable("joinChannelToken") final String joinChannelToken,
+        @Payload final String messageJson) throws Exception {
 
         if (jsonHelper.hasAllFieldsOf(messageJson, JoinRequest.class)) {
 
             val joinRequest = mapper.readValue(messageJson, JoinRequest.class);
 
             val pendedRequestOpt = service.createGuestAsVisitor(joinChannelToken,
-                    joinRequest.visitorId(), joinRequest.codename(),
-                    joinRequest.passphrase());
+                joinRequest.visitorId(), joinRequest.codename(),
+                joinRequest.passphrase());
             if (pendedRequestOpt.isPresent()) {
                 sendToHost(pendedRequestOpt.get().hostChannelToken(),
-                        pendedRequestOpt.get().managedJoinRequest());
+                    pendedRequestOpt.get().managedJoinRequest());
             } else {
                 returningToVisitor(joinChannelToken, joinRequest.visitorId(),
-                        new JoinRequestError());
+                    new JoinRequestError());
             }
 
 
@@ -61,15 +61,15 @@ public class WebSocketVisitorMessageController {
     }
 
     private void returningToVisitor(String joinChannelToken, String visitorId,
-            ErrorMessage errorMessage) {
+        ErrorMessage errorMessage) {
         // REFACTOR: TEST:
         template.convertAndSend(
-                "/receive/visitor/" + joinChannelToken + "/" + visitorId,
-                errorMessage);
+            "/receive/visitor/" + joinChannelToken + "/" + visitorId,
+            errorMessage);
     }
 
     private void sendToHost(String hostChannelToken,
-            ManagedJoinRequest authenticationStatus) {
+        ManagedJoinRequest authenticationStatus) {
         val hostReceivingUrl = String.join("/", "/receive/host", hostChannelToken);
 
         template.convertAndSend(hostReceivingUrl, authenticationStatus);

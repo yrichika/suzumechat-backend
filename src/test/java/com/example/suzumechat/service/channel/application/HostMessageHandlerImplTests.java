@@ -30,7 +30,7 @@ import lombok.experimental.Accessors;
 @SpringJUnitConfig
 @Import(TestConfig.class)
 @MockitoSettings
-public class HostMessageHandlerServiceImplTests {
+public class HostMessageHandlerImplTests {
     @MockBean
     private ChannelService channelService;
     @MockBean
@@ -39,7 +39,7 @@ public class HostMessageHandlerServiceImplTests {
     private Crypter crypter;
 
     @InjectMocks
-    private HostMessageHandlerServiceImpl service;
+    private HostMessageHandlerImpl service;
 
     @Autowired
     private TestRandom testRandom;

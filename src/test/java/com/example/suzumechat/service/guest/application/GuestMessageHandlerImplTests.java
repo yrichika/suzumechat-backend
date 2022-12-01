@@ -1,7 +1,7 @@
 package com.example.suzumechat.service.guest.application;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -17,15 +17,11 @@ import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.entity.GuestFactory;
 import com.example.suzumechat.utility.Crypter;
 import lombok.val;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
-import static org.assertj.core.api.Assertions.*;
 
 @SpringJUnitConfig
 @Import(TestConfig.class)
 @MockitoSettings
-public class GuestMessageHandlerServiceImplTests {
+public class GuestMessageHandlerImplTests {
 
     @MockBean
     private ChannelService channelService;
@@ -34,7 +30,7 @@ public class GuestMessageHandlerServiceImplTests {
     @MockBean
     private Crypter crypter;
     @InjectMocks
-    private GuestMessageHandlerServiceImpl service;
+    private GuestMessageHandlerImpl service;
 
     @Autowired
     private ChannelFactory channelFactory;
@@ -45,7 +41,7 @@ public class GuestMessageHandlerServiceImplTests {
 
     @Test
     public void getHostChannelToken_should_get_optional_of_hostChannelToken()
-            throws Exception {
+        throws Exception {
         val guestId = testRandom.string.alphanumeric();
         val guestChannelToken = testRandom.string.alphanumeric();
         val channel = channelFactory.make();
@@ -53,10 +49,10 @@ public class GuestMessageHandlerServiceImplTests {
         val hostChannelToken = testRandom.string.alphanumeric();
 
         when(channelService.getByGuestChannelToken(guestChannelToken))
-                .thenReturn(channel);
+            .thenReturn(channel);
         when(guestService.getByGuestId(guestId)).thenReturn(guest);
         when(crypter.decrypt(channel.getHostChannelTokenEnc(),
-                channel.getChannelId())).thenReturn(hostChannelToken);
+            channel.getChannelId())).thenReturn(hostChannelToken);
 
         val result = service.getHostChannelToken(guestId, guestChannelToken);
 
@@ -65,12 +61,12 @@ public class GuestMessageHandlerServiceImplTests {
 
     @Test
     public void getHostChannelToken_should_return_optional_empty_if_exception_thrown()
-            throws Exception {
+        throws Exception {
         val guestId = testRandom.string.alphanumeric();
         val guestChannelToken = testRandom.string.alphanumeric();
 
         when(channelService.getByGuestChannelToken(guestChannelToken))
-                .thenThrow(Exception.class);
+            .thenThrow(Exception.class);
 
         val result = service.getHostChannelToken(guestId, guestChannelToken);
 
@@ -79,7 +75,7 @@ public class GuestMessageHandlerServiceImplTests {
 
     @Test
     public void getHostChannelToken_should_return_optional_empty_if_guest_does_not_belong_to_the_channel()
-            throws Exception {
+        throws Exception {
         val guestId = testRandom.string.alphanumeric();
         val guestChannelToken = testRandom.string.alphanumeric();
         val channel = channelFactory.make();
@@ -87,7 +83,7 @@ public class GuestMessageHandlerServiceImplTests {
         val guest = guestFactory.make();
 
         when(channelService.getByGuestChannelToken(guestChannelToken))
-                .thenReturn(channel);
+            .thenReturn(channel);
         when(guestService.getByGuestId(guestId)).thenReturn(guest);
 
         val result = service.getHostChannelToken(guestId, guestChannelToken);
