@@ -40,7 +40,7 @@ public class ChannelServiceImpl implements ChannelService {
     // 目的に合って動くかはまだ不明
     @Transactional
     @Override
-    public CreatedChannel create(final String channelName) throws Exception {
+    public CreatedChannel create(final String channelName, final String publicKey) throws Exception {
         val hostId = UUID.randomUUID().toString();
         val hostIdHashed = hash.digest(hostId);
 
@@ -76,6 +76,7 @@ public class ChannelServiceImpl implements ChannelService {
         channel.setJoinChannelTokenEnc(joinChannelTokenEnc);
         channel.setGuestChannelTokenHashed(guestChannelTokenHashed);
         channel.setGuestChannelTokenEnc(guestChannelTokenEnc);
+        channel.setPublicKey(publicKey);
         channel.setSecretKeyEnc(secretKeyEnc);
 
         repository.save(channel);

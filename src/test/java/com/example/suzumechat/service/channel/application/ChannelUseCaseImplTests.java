@@ -34,11 +34,12 @@ public class ChannelUseCaseImplTests {
     public void test_create_should_return_CreatedChannel() throws Exception {
 
         val channelName = testRandom.string.alphanumeric();
+        val publicKey = testRandom.string.alphanumeric();
         val createdChannel = createdChannelFactory.make();
 
-        when(service.create(channelName)).thenReturn(createdChannel);
+        when(service.create(channelName, publicKey)).thenReturn(createdChannel);
 
-        val result = useCase.create(channelName);
+        val result = useCase.create(channelName, publicKey);
 
         assertThat(result).isEqualTo(createdChannel);
     }

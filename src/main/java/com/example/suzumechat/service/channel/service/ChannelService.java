@@ -5,7 +5,7 @@ import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
 
 public interface ChannelService {
-    public CreatedChannel create(final String channelName) throws Exception;
+    public CreatedChannel create(final String channelName, final String publicKey) throws Exception;
 
     // FIXME: change method name to another appropriate one
     public Channel getByHostChannelToken(final String hostId,

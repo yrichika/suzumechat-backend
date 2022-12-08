@@ -14,9 +14,9 @@ CREATE TABLE IF NOT EXISTS channel (
     guest_channel_token_hashed VARCHAR(255) UNIQUE NOT NULL,
     guest_channel_token_enc BYTEA NOT NULL,
 
+    public_key VARCHAR(255) NOT NULL,
+
     secret_key_enc BYTEA,
-    -- TODO:
-    -- host_public_key TEXT NOT NULL
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP

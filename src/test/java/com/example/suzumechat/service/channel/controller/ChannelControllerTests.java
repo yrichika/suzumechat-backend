@@ -52,7 +52,7 @@ public class ChannelControllerTests {
         String json = objectMapper.writeValueAsString(form);
 
         val createdChannel = createdChannelFactory.make();
-        when(useCase.create(form.getChannelName())).thenReturn(createdChannel);
+        when(useCase.create(form.getChannelName(), form.getPublicKey())).thenReturn(createdChannel);
         val expectedHostChannel =
             objectMapper.writeValueAsString(createdChannel.hostChannel());
 

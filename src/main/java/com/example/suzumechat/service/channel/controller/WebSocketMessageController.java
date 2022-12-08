@@ -50,6 +50,7 @@ public class WebSocketMessageController {
             throw new HostIdMissingInSessionException();
         }
 
+        // REFACTOR: strategy pattern applicable here?
         if (jsonHelper.hasAllFieldsOf(messageJson, ChatMessageCapsule.class)) {
             val guestChannelTokenOpt =
                 messageHandler.getGuestChannelToken(hostId, hostChannelToken);

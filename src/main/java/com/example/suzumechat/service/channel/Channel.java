@@ -15,6 +15,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
@@ -67,11 +68,12 @@ public class Channel implements Serializable {
     @Type(type = "org.hibernate.type.BinaryType")
     private byte[] guestChannelTokenEnc; // clientChannelTokenEnc
 
+    @NotNull
+    @Column(nullable = false)
+    private String publicKey;
+
     @Column(nullable = true)
     private byte[] secretKeyEnc;
-
-    // TODO: add
-    // private String hostPublicKey;
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "channelId", referencedColumnName = "channelId",

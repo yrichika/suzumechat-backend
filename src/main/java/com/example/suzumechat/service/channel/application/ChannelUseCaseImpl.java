@@ -11,8 +11,8 @@ public class ChannelUseCaseImpl implements ChannelUseCase {
     private ChannelService service;
 
     @Override
-    public CreatedChannel create(String channelName) throws Exception {
-        final CreatedChannel channel = service.create(channelName);
+    public CreatedChannel create(final String channelName, final String publicKey) throws Exception {
+        final CreatedChannel channel = service.create(channelName, publicKey);
         return channel;
     }
 }

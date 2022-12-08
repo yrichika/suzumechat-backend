@@ -27,8 +27,7 @@ public class ChannelController {
 
         // TODO: If a hostId already exists in session, redirect to the host page
         // Prevent creating another channel
-
-        final CreatedChannel channel = useCase.create(form.getChannelName());
+        final CreatedChannel channel = useCase.create(form.getChannelName(), form.getPublicKey());
 
         session.setAttribute("hostId", channel.hostId());
         session.setAttribute("secretKeyHost", channel.hostChannel().secretKey());

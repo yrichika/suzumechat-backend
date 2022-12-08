@@ -62,11 +62,11 @@ public class ChannelServiceImplTests {
         val channelName = testRandom.string.alphanumeric();
         val testRandomValue = testRandom.string.alphanumeric();
         val testRandomValueSecretKey = testRandom.string.alphanumeric();
-
+        val publicKey = testRandom.string.alphanumeric();
         when(random.alphanumeric()).thenReturn(testRandomValue);
         when(random.alphanumeric(32)).thenReturn(testRandomValueSecretKey);
 
-        CreatedChannel result = service.create(channelName);
+        CreatedChannel result = service.create(channelName, publicKey);
 
         verify(repository, times(1)).save(any(Channel.class));
 

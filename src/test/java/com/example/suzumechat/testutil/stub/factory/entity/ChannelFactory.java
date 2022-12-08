@@ -29,6 +29,7 @@ public class ChannelFactory {
     private byte[] joinChannelTokenEnc = null;
     private String guestChannelTokenHashed = null;
     private byte[] guestChannelTokenEnc = null;
+    private String publicKey = null;
     private byte[] secretKeyEnc = null;
     private Set<Guest> guests = Collections.emptySet();
     private Date updatedAt = null;
@@ -56,6 +57,7 @@ public class ChannelFactory {
             this.guestChannelTokenHashed, random.string.alphanumeric());
         val guestChannelTokenEnc = TestHelper.getOrDefault(this.guestChannelTokenEnc,
             random.string.alphanumeric().getBytes());
+        val publicKey = TestHelper.getOrDefault(this.publicKey, random.string.alphanumeric());
         // WARNING! null should be default. otherwise this nullable value can never
         // be null
         val secretKeyEnc = TestHelper.getOrDefault(this.secretKeyEnc, null);
@@ -69,7 +71,7 @@ public class ChannelFactory {
             channelId, hostIdHashed, channelTokenId, channelNameEnc,
             hostChannelTokenHashed, hostChannelTokenEnc, joinChannelTokenHashed,
             joinChannelTokenEnc, guestChannelTokenHashed, guestChannelTokenEnc,
-            secretKeyEnc, guests, updatedAt, createdAt);
+            publicKey, secretKeyEnc, guests, updatedAt, createdAt);
 
         reset();
         return channel;
@@ -86,6 +88,7 @@ public class ChannelFactory {
         joinChannelTokenEnc = null;
         guestChannelTokenHashed = null;
         guestChannelTokenEnc = null;
+        publicKey = null;
         secretKeyEnc = null;
         guests = Collections.emptySet();
         updatedAt = null;
