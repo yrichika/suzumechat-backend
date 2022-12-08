@@ -1,5 +1,6 @@
 package com.example.suzumechat.service.guest.application;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.Channel;
@@ -18,7 +19,7 @@ public class VisitorUseCaseImpl implements VisitorUseCase {
     private Crypter crypter;
 
     @Override
-    public ChannelStatus getChannelNameByJoinChannelToken(String joinChannelToken)
+    public ChannelStatus getChannelStatusByJoinChannelToken(String joinChannelToken)
         throws Exception {
         final Channel channel = service.getByJoinChannelToken(joinChannelToken);
 
@@ -26,9 +27,9 @@ public class VisitorUseCaseImpl implements VisitorUseCase {
             crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId());
 
         if (channel.getSecretKeyEnc() == null) {
-            return new ChannelStatus(channelName, false);
+            return new ChannelStatus(channelName, Optional.empty(), false);
         }
 
-        return new ChannelStatus(channelName, true);
+        return new ChannelStatus(channelName, Optional.of(channel.getPublicKey()), true);
     }
 }

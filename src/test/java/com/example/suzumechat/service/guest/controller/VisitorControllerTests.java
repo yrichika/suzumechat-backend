@@ -44,7 +44,7 @@ public class VisitorControllerTests {
         val joinChannelToken = testRandom.string.alphanumeric();
         val url = "/visitor/channelName/" + joinChannelToken;
         val channelStatus = channelStatusFactory.make();
-        when(useCase.getChannelNameByJoinChannelToken(joinChannelToken))
+        when(useCase.getChannelStatusByJoinChannelToken(joinChannelToken))
             .thenReturn(channelStatus);
 
         val expected = objectMapper.writeValueAsString(channelStatus);

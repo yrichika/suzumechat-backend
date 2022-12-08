@@ -20,7 +20,7 @@ public class CreatingChannelFactory {
 
     public CreatingChannel make() {
         val channelName = TestHelper.getOrDefault(this.channelName, random.string.alphanumeric());
-        val publicKey = TestHelper.getOrDefault(this.publicKey, random.string.alphanumeric());
+        val publicKey = TestHelper.getOrDefault(this.publicKey, random.string.alphanumeric(35));
         val form = new CreatingChannel();
         form.setChannelName(channelName);
         form.setPublicKey(publicKey);

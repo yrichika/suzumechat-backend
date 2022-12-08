@@ -23,7 +23,7 @@ public class VisitorController {
         @PathVariable("joinChannelToken") String joinChannelToken)
         throws Exception {
         final ChannelStatus channelStatus =
-            useCase.getChannelNameByJoinChannelToken(joinChannelToken);
+            useCase.getChannelStatusByJoinChannelToken(joinChannelToken);
         return channelStatus;
     }
 }

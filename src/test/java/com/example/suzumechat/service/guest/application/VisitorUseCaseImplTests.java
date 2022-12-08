@@ -2,6 +2,7 @@ package com.example.suzumechat.service.guest.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -49,8 +50,11 @@ public class VisitorUseCaseImplTests {
         throws Exception {
 
         val joinChannelToken = testRandom.string.alphanumeric();
+        val publicKey = testRandom.string.alphanumeric();
         val channel = channelFactory
-            .secretKeyEnc(testRandom.string.alphanumeric().getBytes()).make();
+            .secretKeyEnc(testRandom.string.alphanumeric().getBytes())
+            .publicKey(publicKey)
+            .make();
         val channelName = testRandom.string.alphanumeric();
 
         when(service.getByJoinChannelToken(joinChannelToken)).thenReturn(channel);
@@ -58,9 +62,10 @@ public class VisitorUseCaseImplTests {
             .thenReturn(channelName);
 
         final ChannelStatus channelStatus =
-            useCase.getChannelNameByJoinChannelToken(joinChannelToken);
+            useCase.getChannelStatusByJoinChannelToken(joinChannelToken);
 
         assertThat(channelStatus.channelName()).isEqualTo(channelName);
+        assertThat(channelStatus.hostPublicKey().get()).isEqualTo(publicKey);
         assertThat(channelStatus.isAccepting()).isTrue();
     }
 
@@ -76,9 +81,10 @@ public class VisitorUseCaseImplTests {
             .thenReturn(channelName);
 
         final ChannelStatus channelStatus =
-            useCase.getChannelNameByJoinChannelToken(joinChannelToken);
+            useCase.getChannelStatusByJoinChannelToken(joinChannelToken);
 
         assertThat(channelStatus.channelName()).isEqualTo(channelName);
+        assertThat(channelStatus.hostPublicKey()).isEqualTo(Optional.empty());
         assertThat(channelStatus.isAccepting()).isFalse(); // This is the difference
     }
 }
