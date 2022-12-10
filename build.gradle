@@ -42,6 +42,8 @@ dependencies {
 	// this project needs httpclient to use spring cloud libraries
 	implementation 'org.apache.httpcomponents:httpclient'
 
+	// TODO: import actuator
+
 	implementation 'com.google.crypto.tink:tink:1.6.1'
 	implementation 'com.google.crypto.tink:tink-awskms:1.6.1'
 	compileOnly 'org.projectlombok:lombok'

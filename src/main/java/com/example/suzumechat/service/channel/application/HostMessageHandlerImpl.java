@@ -48,12 +48,12 @@ public class HostMessageHandlerImpl implements HostMessageHandler {
 
             if (channel.isClosed()) {
                 val approvalResult = new ApprovalResult(joinChannelToken,
-                    new AuthenticationStatus(true, null, "", "", "", "", ""));
+                    new AuthenticationStatus(true, null, "", "", "", ""));
                 return Optional.of(approvalResult);
             }
             if (isAuthenticated == false) {
                 val approvalResult = new ApprovalResult(joinChannelToken,
-                    new AuthenticationStatus(false, isAuthenticated, "", "", "",
+                    new AuthenticationStatus(false, isAuthenticated, "", "",
                         "", ""));
                 return Optional.of(approvalResult);
             }
@@ -64,13 +64,11 @@ public class HostMessageHandlerImpl implements HostMessageHandler {
                 crypter.decrypt(guest.getGuestIdEnc(), guest.getChannelId());
             val channelName = crypter.decrypt(channel.getChannelNameEnc(),
                 channel.getChannelId());
-            val codename =
-                crypter.decrypt(guest.getCodenameEnc(), guest.getChannelId());
             val secretKey = crypter.decrypt(channel.getSecretKeyEnc(),
                 channel.getChannelId());
             val approvalResult = new ApprovalResult(joinChannelToken,
                 new AuthenticationStatus(false, isAuthenticated, guestId,
-                    guestChannelToken, channelName, codename, secretKey));
+                    guestChannelToken, channelName, secretKey));
             return Optional.of(approvalResult);
         } catch (Exception exception) {
             // TODO: log

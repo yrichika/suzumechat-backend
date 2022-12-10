@@ -1,13 +1,10 @@
 package com.example.suzumechat.service.guest.service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.Channel;
-import com.example.suzumechat.service.channel.dto.message.VisitorsStatus;
 import com.example.suzumechat.service.channel.exception.VisitorNotFoundException;
 import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.service.guest.GuestRepository;
@@ -39,7 +36,7 @@ public class GuestServiceImpl implements GuestService {
 
     @Override
     public Optional<String> createGuestAsVisitor(final String joinChannelToken,
-        final String visitorId, final String codename, final String passphrase, Channel channel)
+        final String visitorId, Channel channel)
         throws Exception {
 
         if (channel.secretKeyEmpty()) {
@@ -48,16 +45,12 @@ public class GuestServiceImpl implements GuestService {
 
         val visitorIdHashed = hash.digest(visitorId);
         val visitorIdEnc = crypter.encrypt(visitorId, channel.getChannelId());
-        val codenameEnc = crypter.encrypt(codename, channel.getChannelId());
-        val passphraseEnc = crypter.encrypt(passphrase, channel.getChannelId());
 
         Guest visitor = new Guest();
         visitor.setChannelId(channel.getChannelId());
         visitor.setVisitorIdEnc(visitorIdEnc);
         visitor.setVisitorIdHashed(visitorIdHashed);
-        visitor.setCodenameEnc(codenameEnc);
         visitor.setIsAuthenticated(null);
-        visitor.setPassphraseEnc(passphraseEnc);
 
         repository.save(visitor);
 
@@ -69,35 +62,6 @@ public class GuestServiceImpl implements GuestService {
         val visitorIdHashed = hash.digest(visitorId);
         repository.updateIsAuthenticatedByVisitorIdHashed(visitorIdHashed,
             isAuthenticated);
-    }
-
-
-    // DELETE: not used
-    @Override
-    public List<VisitorsStatus> getVisitorsStatus(final String channelId)
-        throws Exception {
-        final List<Guest> guests =
-            repository.findAllByChannelIdOrderByIdDesc(channelId);
-
-        return toVisitorsStatus(guests, channelId);
-    }
-
-    // DELETE:
-    private List<VisitorsStatus> toVisitorsStatus(final List<Guest> guests,
-        final String channelId) throws Exception {
-        return guests.stream().map(guest -> {
-            try {
-                val visitorId = crypter.decrypt(guest.getVisitorIdEnc(), channelId);
-                val codename = crypter.decrypt(guest.getCodenameEnc(), channelId);
-                val passphrase =
-                    crypter.decrypt(guest.getPassphraseEnc(), channelId);
-                val isAuthenticated = guest.getIsAuthenticated();
-                return new VisitorsStatus(visitorId, codename, passphrase,
-                    isAuthenticated);
-            } catch (Exception exception) {
-                throw new RuntimeException(exception);
-            }
-        }).collect(Collectors.toList());
     }
 
     @Override

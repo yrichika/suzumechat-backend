@@ -131,20 +131,4 @@ public class GuestControllerTests {
             .andExpect(content().json(expected));
     }
 
-    // DELETE:
-    @Test
-    public void guestDto_should_return_guestDto_by_guestId() throws Exception {
-        val guestId = testRandom.string.alphanumeric();
-        val guestChannelToken = testRandom.string.alphanumeric();
-        val url = "/guest/guestDto/" + guestChannelToken;
-        val guestDto = guestDtoFactory.make();
-        when(useCase.getGuestDtoByGuestId(guestId, guestChannelToken))
-            .thenReturn(guestDto);
-
-        val expected = objectMapper.writeValueAsString(guestDto);
-        val request = get(url).param("guestId", guestId);
-        mockMvc.perform(request).andExpect(status().isOk())
-            .andExpect(request().sessionAttribute("guestId", guestId))
-            .andExpect(content().json(expected));
-    }
 }

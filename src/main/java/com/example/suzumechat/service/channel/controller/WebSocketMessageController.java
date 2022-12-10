@@ -81,6 +81,8 @@ public class WebSocketMessageController {
             } else {
                 returningToHost(hostChannelToken, new ApprovalError());
             }
+        } else {
+            // TODO: send ErrorMessage to host
         }
     }
 

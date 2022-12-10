@@ -100,8 +100,6 @@ public class HostMessageHandlerImplTests {
             .isEqualTo(testDto.guestChannelToken);
         assertThat(result.get().authenticationStatus().channelName())
             .isEqualTo(testDto.channelName);
-        assertThat(result.get().authenticationStatus().codename())
-            .isEqualTo(testDto.codename);
         assertThat(result.get().authenticationStatus().secretKey())
             .isEqualTo(testDto.secretKey);
     }
@@ -125,7 +123,6 @@ public class HostMessageHandlerImplTests {
         assertThat(result.get().authenticationStatus().guestChannelToken())
             .isEqualTo("");
         assertThat(result.get().authenticationStatus().channelName()).isEqualTo("");
-        assertThat(result.get().authenticationStatus().codename()).isEqualTo("");
         assertThat(result.get().authenticationStatus().secretKey()).isEqualTo("");
 
     }
@@ -153,7 +150,6 @@ public class HostMessageHandlerImplTests {
         assertThat(result.get().authenticationStatus().guestChannelToken())
             .isEqualTo("");
         assertThat(result.get().authenticationStatus().channelName()).isEqualTo("");
-        assertThat(result.get().authenticationStatus().codename()).isEqualTo("");
         assertThat(result.get().authenticationStatus().secretKey()).isEqualTo("");
     }
 
@@ -206,7 +202,6 @@ public class HostMessageHandlerImplTests {
             channel.getChannelId())).thenReturn(guestChannelToken);
         when(crypter.decrypt(guest.getGuestIdEnc(), guest.getChannelId())).thenReturn(guestId);
         when(crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId())).thenReturn(channelName);
-        when(crypter.decrypt(guest.getCodenameEnc(), guest.getChannelId())).thenReturn(codename);
         when(crypter.decrypt(channel.getSecretKeyEnc(), channel.getChannelId())).thenReturn(secretKey);
 
         return new HandleApprovalTestDto(hostId, visitorId, guestId, hostChannelToken,

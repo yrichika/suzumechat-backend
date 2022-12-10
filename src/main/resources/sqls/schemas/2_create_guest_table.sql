@@ -3,10 +3,6 @@ CREATE TABLE IF NOT EXISTS guest (
     guest_id_hashed VARCHAR(255) UNIQUE,
     guest_id_enc BYTEA,
 
-    -- DELETE: not necessary
-    codename_enc BYTEA,
-    -- DELETE: not necessary
-    passphrase_enc BYTEA,
 
     is_authenticated BOOLEAN,
 

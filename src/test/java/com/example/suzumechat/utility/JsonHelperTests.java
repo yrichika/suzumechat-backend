@@ -48,8 +48,10 @@ public class JsonHelperTests {
             VisitorsAuthStatus.class);
         assertThat(visitorsAuthStatusResult).isTrue();
 
-        final JoinRequest joinRequest = new JoinRequest(random.string.alphanumeric(),
-            random.string.alphanumeric(), random.string.alphanumeric());
+        final JoinRequest joinRequest = new JoinRequest(
+            random.string.alphanumeric(),
+            random.string.alphanumeric(),
+            random.string.alphanumeric());
         val joinRequestJson = mapper.writeValueAsString(joinRequest);
         val joinRequestResult =
             helper.hasAllFieldsOf(joinRequestJson, JoinRequest.class);

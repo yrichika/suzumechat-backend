@@ -8,7 +8,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.suzumechat.service.guest.application.VisitorMessageHandler;
 import com.example.suzumechat.service.guest.dto.message.JoinRequest;
-import com.example.suzumechat.service.guest.dto.message.ManagedJoinRequest;
 import com.example.suzumechat.service.guest.dto.message.error.JoinRequestError;
 import com.example.suzumechat.utility.JsonHelper;
 import com.example.suzumechat.utility.dto.message.ErrorMessage;
@@ -45,18 +44,16 @@ public class WebSocketVisitorMessageController {
 
             val joinRequest = mapper.readValue(messageJson, JoinRequest.class);
 
-            val pendedRequestOpt = messageHandler.createGuestAsVisitor(joinChannelToken,
-                joinRequest.visitorId(), joinRequest.codename(),
-                joinRequest.passphrase());
-            if (pendedRequestOpt.isPresent()) {
-                sendToHost(pendedRequestOpt.get().hostChannelToken(),
-                    pendedRequestOpt.get().managedJoinRequest());
+            val hostChannelTokenOpt = messageHandler.createGuestAsVisitor(joinChannelToken,
+                joinRequest.visitorId(), joinRequest.visitorPublicKey(), joinRequest.whoIAmEnc());
+            if (hostChannelTokenOpt.isPresent()) {
+                sendToHost(hostChannelTokenOpt.get(), joinRequest);
             } else {
                 returningToVisitor(joinChannelToken, joinRequest.visitorId(),
                     new JoinRequestError());
             }
-
-
+        } else {
+            // TODO: send ErrorMessage to visitor
         }
     }
 
@@ -68,10 +65,9 @@ public class WebSocketVisitorMessageController {
             errorMessage);
     }
 
-    private void sendToHost(String hostChannelToken,
-        ManagedJoinRequest authenticationStatus) {
+    private void sendToHost(String hostChannelToken, JoinRequest joinRequest) {
         val hostReceivingUrl = String.join("/", "/receive/host", hostChannelToken);
 
-        template.convertAndSend(hostReceivingUrl, authenticationStatus);
+        template.convertAndSend(hostReceivingUrl, joinRequest);
     }
 }

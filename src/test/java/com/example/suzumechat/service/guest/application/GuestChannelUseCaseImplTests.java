@@ -55,34 +55,6 @@ public class GuestChannelUseCaseImplTests {
         assertThat(result.channelName()).isEqualTo(channelName);
     }
 
-    // DELETE:
-    @Test
-    public void getGuestDtoByGuestId_should_return_GuestDto() throws Exception {
-        val guestChannelToken = testRandom.string.alphanumeric();
-        val guestId = testRandom.string.alphanumeric();
-        val channel = channelFactory.make();
-        val guest = guestFactory.make();
-        val channelName = testRandom.string.alphanumeric();
-        val codename = testRandom.string.alphanumeric();
-        val secretKey = testRandom.string.alphanumeric();
-
-        when(channelService.getByGuestChannelToken(guestChannelToken))
-            .thenReturn(channel);
-        when(guestService.getByGuestId(guestId)).thenReturn(guest);
-        when(crypter.decrypt(channel.getChannelNameEnc(), channel.getChannelId()))
-            .thenReturn(channelName);
-        when(crypter.decrypt(guest.getCodenameEnc(), channel.getChannelId()))
-            .thenReturn(codename);
-        when(crypter.decrypt(channel.getSecretKeyEnc(), channel.getChannelId()))
-            .thenReturn(secretKey);
-
-        val result = useCase.getGuestDtoByGuestId(guestId, guestChannelToken);
-
-        assertThat(result.channelName()).isEqualTo(channelName);
-        assertThat(result.codename()).isEqualTo(codename);
-        assertThat(result.secretKey()).isEqualTo(secretKey);
-    }
-
     @Test
     public void guestExistsInChannel_should_return_true_if_guest_exists()
         throws Exception {

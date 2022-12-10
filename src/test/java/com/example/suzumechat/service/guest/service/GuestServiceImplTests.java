@@ -8,8 +8,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,8 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import com.example.suzumechat.service.channel.Channel;
-import com.example.suzumechat.service.channel.dto.message.VisitorsStatus;
 import com.example.suzumechat.service.channel.exception.VisitorNotFoundException;
 import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.service.guest.GuestRepository;
@@ -86,14 +82,12 @@ public class GuestServiceImplTests {
         val joinChannelToken = testRandom.string.alphanumeric();
         val joinChannelTokenHashed = testRandom.string.alphanumeric();
         val visitorId = testRandom.string.alphanumeric();
-        val codename = testRandom.string.alphanumeric();
-        val passphrase = testRandom.string.alphanumeric();
         val channel = channelFactory
             .secretKeyEnc(testRandom.string.alphanumeric().getBytes()).make();
         when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
 
         Optional<String> result = service.createGuestAsVisitor(joinChannelToken,
-            visitorId, codename, passphrase, channel);
+            visitorId, channel);
 
         verify(repository, times(1)).save(any(Guest.class));
         assertThat(result.get()).isNotEmpty();
@@ -111,7 +105,7 @@ public class GuestServiceImplTests {
         when(hash.digest(joinChannelToken)).thenReturn(joinChannelTokenHashed);
 
         Optional<String> result = service.createGuestAsVisitor(joinChannelToken,
-            visitorId, codename, passphrase, channel);
+            visitorId, channel);
 
         verify(repository, times(0)).save(any(Guest.class));
         assertThat(result.isEmpty()).isTrue();
@@ -130,56 +124,6 @@ public class GuestServiceImplTests {
 
         verify(repository, times(1)).updateIsAuthenticatedByVisitorIdHashed(
             visitorIdHashed, isAuthenticated);
-    }
-
-
-    @Test
-    public void getVisitorsStatus_should_return_all_visitors_status_belongs_to_the_channel()
-        throws Exception {
-        val channel = channelFactory.make();
-        final List<Guest> guests = new ArrayList<>();
-        int howMany = testRandom.integer.between(1, 5);
-        for (int i = 0; i < howMany; i++) {
-            val guest = guestFactory.make();
-            guests.add(guest);
-        }
-
-        final List<String> valuesToAssertSimply =
-            setUpGetStatusVisitorMock(channel, guests);
-
-        final List<VisitorsStatus> result =
-            service.getVisitorsStatus(channel.getChannelId());
-
-        for (int i = 0; i < guests.size(); i++) {
-            assertThat(result.get(i).visitorId())
-                .isEqualTo(valuesToAssertSimply.get(i));
-            assertThat(result.get(i).visitorId())
-                .isEqualTo(valuesToAssertSimply.get(i));
-            assertThat(result.get(i).visitorId())
-                .isEqualTo(valuesToAssertSimply.get(i));
-            assertThat(result.get(i).isAuthenticated())
-                .isEqualTo(guests.get(i).getIsAuthenticated());
-        }
-    }
-
-    private List<String> setUpGetStatusVisitorMock(final Channel channel,
-        final List<Guest> guests) throws Exception {
-
-        when(repository.findAllByChannelIdOrderByIdDesc(channel.getChannelId()))
-                .thenReturn(guests);
-
-        final List<String> valuesToAssertSimply = new ArrayList<>();
-        for (Guest guest : guests) {
-            val valueToAssertSimply = testRandom.string.alphanumeric();
-            when(crypter.decrypt(guest.getVisitorIdEnc(), channel.getChannelId()))
-                    .thenReturn(valueToAssertSimply);
-            when(crypter.decrypt(guest.getCodenameEnc(), channel.getChannelId()))
-                    .thenReturn(valueToAssertSimply);
-            when(crypter.decrypt(guest.getPassphraseEnc(), channel.getChannelId()))
-                    .thenReturn(valueToAssertSimply);
-            valuesToAssertSimply.add(valueToAssertSimply);
-        }
-        return valuesToAssertSimply;
     }
 
     @Test

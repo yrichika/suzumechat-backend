@@ -5,8 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.service.channel.service.ChannelService;
-import com.example.suzumechat.service.guest.dto.PendedJoinRequestResult;
-import com.example.suzumechat.service.guest.dto.message.ManagedJoinRequest;
 import com.example.suzumechat.service.guest.service.GuestService;
 import lombok.val;
 
@@ -20,23 +18,20 @@ public class VisitorMessageHandlerImpl
     private GuestService guestService;
 
     @Override
-    public Optional<PendedJoinRequestResult> createGuestAsVisitor(
-        String joinChannelToken, String visitorId, String codename,
-        String passphrase) {
+    public Optional<String> createGuestAsVisitor(
+        final String joinChannelToken,
+        final String visitorId,
+        final String visitorPublicKey,
+        final String whoIAmEnc) {
 
         try {
             final Channel channel = channelService.getByJoinChannelToken(joinChannelToken);
-            guestService.createGuestAsVisitor(joinChannelToken, visitorId, codename,
-                passphrase, channel);
+            guestService.createGuestAsVisitor(joinChannelToken, visitorId, channel);
 
             val hostChannelToken = channelService
                 .getHostChannelTokenByJoinChannelToken(joinChannelToken);
 
-            val managedJoinRequest = new ManagedJoinRequest(visitorId, codename,
-                passphrase, Optional.empty());
-            val result = new PendedJoinRequestResult(hostChannelToken,
-                managedJoinRequest);
-            return Optional.of(result);
+            return Optional.of(hostChannelToken);
         } catch (Exception exception) {
             // TODO: log
             return Optional.empty();

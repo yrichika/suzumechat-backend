@@ -20,29 +20,26 @@ public class AuthenticationStatusFactory {
     private String guestId = null;
     private String guestChannelToken = null;
     private String channelName = null;
-    private String codename = null;
     private String secretKey = null;
 
     public AuthenticationStatus make() {
 
         val isClosed =
-                TestHelper.getOrDefault(this.isClosed, random.bool.nextBoolean());
+            TestHelper.getOrDefault(this.isClosed, random.bool.nextBoolean());
         val isAuthenticated = TestHelper.getOrDefault(this.isAuthenticated,
-                random.bool.nextBoolean());
+            random.bool.nextBoolean());
         val guestId =
-                TestHelper.getOrDefault(this.guestId, random.string.alphanumeric());
+            TestHelper.getOrDefault(this.guestId, random.string.alphanumeric());
         val guestChannelToken = TestHelper.getOrDefault(this.guestChannelToken,
-                random.string.alphanumeric());
+            random.string.alphanumeric());
         val channelName = TestHelper.getOrDefault(this.channelName,
-                random.string.alphanumeric());
-        val codename =
-                TestHelper.getOrDefault(this.codename, random.string.alphanumeric());
+            random.string.alphanumeric());
         val secretKey = TestHelper.getOrDefault(this.secretKey,
-                random.string.alphanumeric());
+            random.string.alphanumeric());
 
         val authenticationStatus =
-                new AuthenticationStatus(isClosed, isAuthenticated, guestId,
-                        guestChannelToken, channelName, codename, secretKey);
+            new AuthenticationStatus(isClosed, isAuthenticated, guestId,
+                guestChannelToken, channelName, secretKey);
         reset();
         return authenticationStatus;
     }
@@ -53,7 +50,6 @@ public class AuthenticationStatusFactory {
         guestId = null;
         guestChannelToken = null;
         channelName = null;
-        codename = null;
         secretKey = null;
     }
 }

@@ -1,14 +1,13 @@
 package com.example.suzumechat.testutil.stub.factory.entity;
 
 import java.util.Date;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.testutil.TestHelper;
 import com.example.suzumechat.testutil.random.TestRandom;
-
-import lombok.*;
+import lombok.Setter;
+import lombok.val;
 import lombok.experimental.Accessors;
 
 @Accessors(fluent = true, chain = true)
@@ -23,8 +22,6 @@ public class GuestFactory {
 
     private String guestIdHashed = null;
     private byte[] guestIdEnc = null;
-    private byte[] codenameEnc = null;
-    private byte[] passphraseEnc = null;
     private Boolean isAuthenticated = null;
     private String visitorIdHashed = null;
     private byte[] visitorIdEnc = null;
@@ -35,18 +32,14 @@ public class GuestFactory {
 
     public Guest make() {
         val guestIdHashed =
-                TestHelper.getOrDefault(this.guestIdHashed, random.string.alphanumeric());
+            TestHelper.getOrDefault(this.guestIdHashed, random.string.alphanumeric());
         val guestIdEnc =
-                TestHelper.getOrDefault(this.guestIdEnc, random.string.alphanumeric().getBytes());
-        val codenameEnc =
-                TestHelper.getOrDefault(this.codenameEnc, random.string.alphanumeric().getBytes());
-        val passphraseEnc = TestHelper.getOrDefault(this.passphraseEnc,
-                random.string.alphanumeric().getBytes());
+            TestHelper.getOrDefault(this.guestIdEnc, random.string.alphanumeric().getBytes());
         val isAuthenticated = TestHelper.getOrDefault(this.isAuthenticated, null);
         val visitorIdHashed =
-                TestHelper.getOrDefault(this.visitorIdHashed, random.string.alphanumeric());
+            TestHelper.getOrDefault(this.visitorIdHashed, random.string.alphanumeric());
         val visitorIdEnc =
-                TestHelper.getOrDefault(this.visitorIdEnc, random.string.alphanumeric().getBytes());
+            TestHelper.getOrDefault(this.visitorIdEnc, random.string.alphanumeric().getBytes());
 
         String channelId = TestHelper.getOrDefault(this.channelId, random.string.alphanumeric());
         Channel channel = channelFactory.channelId(channelId).make();
@@ -59,9 +52,9 @@ public class GuestFactory {
         val createdAt = TestHelper.getOrDefault(this.createdAt, new Date());
 
 
-        val guest = new Guest(null, guestIdHashed, guestIdEnc, codenameEnc, passphraseEnc,
-                isAuthenticated, visitorIdHashed, visitorIdEnc, channelId, channel, updatedAt,
-                createdAt);
+        val guest = new Guest(null, guestIdHashed, guestIdEnc, isAuthenticated, visitorIdHashed, visitorIdEnc,
+            channelId, channel, updatedAt,
+            createdAt);
         reset();
         return guest;
     }
@@ -69,8 +62,6 @@ public class GuestFactory {
     private void reset() {
         guestIdHashed = null;
         guestIdEnc = null;
-        codenameEnc = null;
-        passphraseEnc = null;
         isAuthenticated = null;
         visitorIdHashed = null;
         visitorIdEnc = null;

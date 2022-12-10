@@ -42,15 +42,6 @@ public class Guest implements Serializable {
     @Type(type = "org.hibernate.type.BinaryType")
     private byte[] guestIdEnc; // AuthenticatedClientIdEnc
 
-    // DELETE: not necessary
-    @Lob
-    @Type(type = "org.hibernate.type.BinaryType")
-    private byte[] codenameEnc; // ClientLoginRequests.codenameEnc
-
-    // DELETE: not necessary
-    @Lob
-    @Type(type = "org.hibernate.type.BinaryType")
-    private byte[] passphraseEnc; // ClientLoginRequests.passphraseEnc
 
     // true: authenticated
     // false: rejected
