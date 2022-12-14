@@ -12,7 +12,6 @@ import com.example.suzumechat.service.channel.dto.message.error.ChatError;
 import com.example.suzumechat.service.guest.application.GuestMessageHandler;
 import com.example.suzumechat.service.guest.exception.GuestIdMissingInSessionException;
 import com.example.suzumechat.utility.JsonHelper;
-import com.example.suzumechat.utility.dto.message.Terminate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
 
@@ -51,8 +50,6 @@ public class WebSocketGuestMessageController {
                 broadcastToChatChannel(guestChannelToken, hostChannelTokenOpt.get(),
                     messageJson);
             }
-        } else if (jsonHelper.hasAllFieldsOf(messageJson, Terminate.class)) {
-            toGuest(guestChannelToken, messageJson);
         } else {
             returningToGuest(guestChannelToken);
         }

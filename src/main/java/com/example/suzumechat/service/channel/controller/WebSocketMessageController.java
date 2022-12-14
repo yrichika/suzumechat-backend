@@ -17,6 +17,7 @@ import com.example.suzumechat.service.channel.dto.message.error.ChatError;
 import com.example.suzumechat.service.channel.exception.HostIdMissingInSessionException;
 import com.example.suzumechat.utility.JsonHelper;
 import com.example.suzumechat.utility.dto.message.ErrorMessage;
+import com.example.suzumechat.utility.dto.message.Terminate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
 
@@ -81,22 +82,40 @@ public class WebSocketMessageController {
             } else {
                 returningToHost(hostChannelToken, new ApprovalError());
             }
+        } else if (jsonHelper.hasAllFieldsOf(messageJson, Terminate.class)) {
+            // REFACTOR: almost the same as when received ChatMessageCapsule
+            val guestChannelTokenOpt =
+                messageHandler.getGuestChannelToken(hostId, hostChannelToken);
+
+            if (guestChannelTokenOpt.isPresent()) {
+                toGuest(guestChannelTokenOpt.get(), messageJson);
+            } else {
+                returningToHost(hostChannelToken, new ChatError());
+            }
         } else {
             // TODO: send ErrorMessage to host
         }
     }
 
-    private void broadcastToChatChannel(String hostChannelToken,
-        String guestChannelToken, String messageJson) {
+    private void broadcastToChatChannel(
+        final String hostChannelToken,
+        final String guestChannelToken,
+        final String messageJson) {
         template.convertAndSend("/receive/host/" + hostChannelToken, messageJson);
         template.convertAndSend("/receive/guest/" + guestChannelToken, messageJson);
     }
 
-    private void sendToVisitor(ApprovalResult result, String visitorId,
+    private void sendToVisitor(
+        ApprovalResult result,
+        String visitorId,
         String json) {
         val visitorReceivingUrl = String.join("/", "/receive", "visitor",
             result.joinChannelToken(), visitorId);
         template.convertAndSend(visitorReceivingUrl, json);
+    }
+
+    private void toGuest(final String guestChannelToken, final String terminateJson) {
+        template.convertAndSend("/receive/guest/" + guestChannelToken, terminateJson);
     }
 
     private void returningToHost(String hostChannelToken,

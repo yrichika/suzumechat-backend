@@ -37,8 +37,8 @@ public class GuestController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @GetMapping("guest/invalidateSession/{guestChannelToken:.+}")
-    public ResponseEntity<String> invalidateSession(
+    @GetMapping("guest/endChat/{guestChannelToken:.+}")
+    public ResponseEntity<String> endChat(
         @PathVariable("guestChannelToken") @NotBlank @Size(
             max = 64) String guestChannelToken)
         throws Exception {
@@ -51,7 +51,7 @@ public class GuestController {
             throw new GuestNotBelongingToChannelException();
         }
         session.invalidate();
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     // DELETE:
