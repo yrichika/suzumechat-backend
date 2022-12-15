@@ -10,7 +10,7 @@ public class HostUseCaseImpl implements HostUseCase {
     private ChannelService channelService;
 
     @Override
-    public void endChannel(String hostId, String hostChannelToke) throws Exception {
+    public void closeJoinRequest(String hostId, String hostChannelToke) throws Exception {
         channelService.trashSecretKeyByHostChannelToken(hostId, hostChannelToke);
     }
 }

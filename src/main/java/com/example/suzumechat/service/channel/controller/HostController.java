@@ -30,11 +30,9 @@ public class HostController {
             throw new HostIdMissingInSessionException();
         }
 
-        useCase.endChannel(hostId, hostChannelToken);
+        useCase.closeJoinRequest(hostId, hostChannelToken);
 
         session.invalidate();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
-    // TODO: close visitor requests: delete secret key
 }

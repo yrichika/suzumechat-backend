@@ -28,13 +28,13 @@ public class HostUseCaseImplTests {
     private TestRandom testRandom;
 
     @Test
-    public void test_endChannel_should_call_trash_() throws Exception {
+    public void test_closeJoinRequest_should_call_trashSecretKeyByHostChannelToken() throws Exception {
         val hostId = testRandom.string.alphanumeric();
         val hostChannelToken = testRandom.string.alphanumeric();
 
-        useCase.endChannel(hostId, hostChannelToken);
+        useCase.closeJoinRequest(hostId, hostChannelToken);
 
         verify(channelService, times(1)).trashSecretKeyByHostChannelToken(hostId,
-                hostChannelToken);
+            hostChannelToken);
     }
 }

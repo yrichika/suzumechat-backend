@@ -55,7 +55,7 @@ public class HostControllerTests {
         mockMvc.perform(request).andExpect(status().isNoContent())
             .andExpect(request().sessionAttributeDoesNotExist("hostId"));
 
-        verify(useCase, times(1)).endChannel(hostId, hostChannelToken);
+        verify(useCase, times(1)).closeJoinRequest(hostId, hostChannelToken);
     }
 
     @Test
@@ -69,5 +69,4 @@ public class HostControllerTests {
 
         mockMvc.perform(request).andExpect(status().isUnauthorized());
     }
-
 }
