@@ -1,5 +1,7 @@
 package com.example.suzumechat.service.guest.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,5 +91,17 @@ public class GuestServiceImpl implements GuestService {
         repository.save(guest);
 
         return guest;
+    }
+
+    @Override
+    public List<String> getPendedVisitorIdsByChannel(Channel channel) throws Exception {
+        val visitors = repository.getPendedVisitorsByChannelId(channel.getChannelId());
+        val visitorIds = new ArrayList<String>();
+        for (Guest visitor : visitors) {
+            val visitorId = crypter.decrypt(visitor.getVisitorIdEnc(), channel.getChannelId());
+            visitorIds.add(visitorId);
+        }
+
+        return visitorIds;
     }
 }

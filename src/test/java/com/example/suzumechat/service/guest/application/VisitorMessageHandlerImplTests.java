@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.example.suzumechat.service.channel.service.ChannelService;
 import com.example.suzumechat.service.guest.service.GuestService;
+import com.example.suzumechat.service.valueobject.EmptyChannelToken;
+import com.example.suzumechat.service.valueobject.type.VisitorHandlingStringType;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
@@ -43,16 +45,39 @@ public class VisitorMessageHandlerImplTests {
         val visitorPublicKey = testRandom.string.alphanumeric();
         val whoIAmEnc = testRandom.string.alphanumeric();
         val hostChannelToken = testRandom.string.alphanumeric();
-        val channel = channelFactory.make();
+        val channel = channelFactory
+            .secretKeyEnc(testRandom.string.alphanumeric().getBytes())
+            .make();
 
         when(channelService.getByJoinChannelToken(joinChannelToken)).thenReturn(channel);
         when(channelService.getHostChannelTokenByJoinChannelToken(joinChannelToken))
             .thenReturn(hostChannelToken);
 
-        final Optional<String> result =
+        final Optional<VisitorHandlingStringType> result =
             messageHandler.createGuestAsVisitor(joinChannelToken, visitorId, visitorPublicKey, whoIAmEnc);
 
-        assertThat(result.get()).isEqualTo(hostChannelToken);
+        assertThat(result.get().value()).isEqualTo(hostChannelToken);
+    }
+
+    @Test
+    public void createGuestAsVisitor_should_return_EmptyToken_if_join_request_closed()
+        throws Exception {
+        val joinChannelToken = testRandom.string.alphanumeric();
+        val visitorId = testRandom.string.alphanumeric();
+        val visitorPublicKey = testRandom.string.alphanumeric();
+        val whoIAmEnc = testRandom.string.alphanumeric();
+        val hostChannelToken = testRandom.string.alphanumeric();
+        // secret key is null == join request closed
+        val channel = channelFactory.secretKeyEnc(null).make();
+
+        when(channelService.getByJoinChannelToken(joinChannelToken)).thenReturn(channel);
+        when(channelService.getHostChannelTokenByJoinChannelToken(joinChannelToken))
+            .thenReturn(hostChannelToken);
+
+        final Optional<VisitorHandlingStringType> result =
+            messageHandler.createGuestAsVisitor(joinChannelToken, visitorId, visitorPublicKey, whoIAmEnc);
+
+        assertThat(result.get()).isInstanceOf(EmptyChannelToken.class);
     }
 
     @Test
@@ -66,7 +91,7 @@ public class VisitorMessageHandlerImplTests {
         when(channelService.getHostChannelTokenByJoinChannelToken(joinChannelToken))
             .thenThrow(new Exception());
 
-        final Optional<String> result =
+        final Optional<VisitorHandlingStringType> result =
             messageHandler.createGuestAsVisitor(joinChannelToken, visitorId, visitorPublicKey, whoIAmEnc);
         assertThat(result.isEmpty()).isTrue();
     }

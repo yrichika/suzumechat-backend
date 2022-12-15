@@ -10,11 +10,14 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.suzumechat.service.channel.application.HostMessageHandler;
 import com.example.suzumechat.service.channel.dto.ApprovalResult;
+import com.example.suzumechat.service.channel.dto.JoinRequestClosedNotification;
 import com.example.suzumechat.service.channel.dto.message.ChatMessageCapsule;
+import com.example.suzumechat.service.channel.dto.message.CloseJoinRequest;
 import com.example.suzumechat.service.channel.dto.message.VisitorsAuthStatus;
 import com.example.suzumechat.service.channel.dto.message.error.ApprovalError;
 import com.example.suzumechat.service.channel.dto.message.error.ChatError;
 import com.example.suzumechat.service.channel.exception.HostIdMissingInSessionException;
+import com.example.suzumechat.service.guest.dto.message.JoinRequestClosed;
 import com.example.suzumechat.utility.JsonHelper;
 import com.example.suzumechat.utility.dto.message.ErrorMessage;
 import com.example.suzumechat.utility.dto.message.Terminate;
@@ -52,6 +55,7 @@ public class WebSocketMessageController {
         }
 
         // REFACTOR: strategy pattern applicable here?
+        // move all to UseCases
         if (jsonHelper.hasAllFieldsOf(messageJson, ChatMessageCapsule.class)) {
             val guestChannelTokenOpt =
                 messageHandler.getGuestChannelToken(hostId, hostChannelToken);
@@ -76,11 +80,27 @@ public class WebSocketMessageController {
                 val returnMessage = mapper
                     .writeValueAsString(approvalResult.authenticationStatus());
 
-                sendToVisitor(approvalResult, visitorsAuthStatus.visitorId(),
+                sendToVisitor(
+                    approvalResult.joinChannelToken(),
+                    visitorsAuthStatus.visitorId(),
                     returnMessage);
 
             } else {
                 returningToHost(hostChannelToken, new ApprovalError());
+            }
+        } else if (jsonHelper.hasAllFieldsOf(messageJson, CloseJoinRequest.class)) {
+
+            final JoinRequestClosedNotification joinRequestAlreadyClosed =
+                messageHandler.closeJoinRequest(hostId, hostChannelToken);
+            if (!joinRequestAlreadyClosed.visitorIds().isEmpty()) {
+                for (String visitorId : joinRequestAlreadyClosed.visitorIds()) {
+                    val joinRequestClosedMessage = mapper.writeValueAsString(
+                        new JoinRequestClosed(true));
+                    sendToVisitor(
+                        joinRequestAlreadyClosed.joinChannelToken(),
+                        visitorId,
+                        joinRequestClosedMessage);
+                }
             }
         } else if (jsonHelper.hasAllFieldsOf(messageJson, Terminate.class)) {
             // REFACTOR: almost the same as when received ChatMessageCapsule
@@ -106,11 +126,11 @@ public class WebSocketMessageController {
     }
 
     private void sendToVisitor(
-        ApprovalResult result,
+        String joinChannelToken,
         String visitorId,
         String json) {
         val visitorReceivingUrl = String.join("/", "/receive", "visitor",
-            result.joinChannelToken(), visitorId);
+            joinChannelToken, visitorId);
         template.convertAndSend(visitorReceivingUrl, json);
     }
 

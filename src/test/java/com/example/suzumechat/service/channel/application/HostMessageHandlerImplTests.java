@@ -2,7 +2,10 @@ package com.example.suzumechat.service.channel.application;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import java.util.ArrayList;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,6 +16,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.service.channel.dto.ApprovalResult;
+import com.example.suzumechat.service.channel.dto.JoinRequestClosedNotification;
 import com.example.suzumechat.service.channel.service.ChannelService;
 import com.example.suzumechat.service.guest.Guest;
 import com.example.suzumechat.service.guest.service.GuestService;
@@ -208,6 +212,30 @@ public class HostMessageHandlerImplTests {
             joinChannelToken, guestChannelToken, channelName, codename, secretKey);
     }
 
+    @Test
+    public void closeJoinRequest_should_delete_secret_key_and_return_not_yet_authorized_visitor_ids() throws Exception {
+        val hostId = testRandom.string.alphanumeric();
+        val hostChannelToken = testRandom.string.alphanumeric();
+        val channel = channelFactory.make();
+
+        val joinChannelToken = testRandom.string.alphanumeric();
+        val visitorIds = new ArrayList<String>();
+        val howMany = testRandom.integer.between(1, 5);
+        for (int i = 0; i < howMany; i++) {
+            visitorIds.add(testRandom.string.alphanumeric());
+        }
+
+        when(channelService.getByHostChannelToken(hostId, hostChannelToken)).thenReturn(channel);
+        when(guestService.getPendedVisitorIdsByChannel(channel)).thenReturn(visitorIds);
+        when(crypter.decrypt(channel.getJoinChannelTokenEnc(), channel.getChannelId()))
+            .thenReturn(joinChannelToken);
+
+        final JoinRequestClosedNotification result = messageHandler.closeJoinRequest(hostId, hostChannelToken);
+
+        verify(channelService, times(1)).trashSecretKeyByHostChannelToken(hostId, hostChannelToken);
+        assertThat(result.joinChannelToken()).isEqualTo(joinChannelToken);
+        assertThat(result.visitorIds()).isEqualTo(visitorIds);
+    }
 
     @Accessors(fluent = true)
     @Getter

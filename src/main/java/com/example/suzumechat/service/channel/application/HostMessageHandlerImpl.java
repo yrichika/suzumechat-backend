@@ -4,6 +4,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.dto.ApprovalResult;
+import com.example.suzumechat.service.channel.dto.JoinRequestClosedNotification;
 import com.example.suzumechat.service.channel.service.ChannelService;
 import com.example.suzumechat.service.guest.dto.message.AuthenticationStatus;
 import com.example.suzumechat.service.guest.service.GuestService;
@@ -21,7 +22,8 @@ public class HostMessageHandlerImpl implements HostMessageHandler {
     private Crypter crypter;
 
     @Override
-    public Optional<String> getGuestChannelToken(final String hostId,
+    public Optional<String> getGuestChannelToken(
+        final String hostId,
         final String hostChannelToken) {
         try {
             val guestChannelToken =
@@ -34,8 +36,10 @@ public class HostMessageHandlerImpl implements HostMessageHandler {
     }
 
     @Override
-    public Optional<ApprovalResult> handleApproval(final String hostId,
-        final String hostChannelToken, final String visitorId,
+    public Optional<ApprovalResult> handleApproval(
+        final String hostId,
+        final String hostChannelToken,
+        final String visitorId,
         final boolean isAuthenticated) {
         try {
             val guest = guestService.approveVisitor(visitorId, isAuthenticated);
@@ -45,7 +49,8 @@ public class HostMessageHandlerImpl implements HostMessageHandler {
             val joinChannelToken = crypter.decrypt(channel.getJoinChannelTokenEnc(),
                 channel.getChannelId());
 
-
+            // FIXME: closeしていれば、hostが返すこともできないので、
+            // AuthenticationStatusにisClosedを持つことの意味がない
             if (channel.isClosed()) {
                 val approvalResult = new ApprovalResult(joinChannelToken,
                     new AuthenticationStatus(true, null, "", "", "", ""));
@@ -74,5 +79,21 @@ public class HostMessageHandlerImpl implements HostMessageHandler {
             // TODO: log
             return Optional.empty();
         }
+    }
+
+    @Override
+    public JoinRequestClosedNotification closeJoinRequest(
+        final String hostId,
+        final String hostChannelToken) throws Exception {
+
+        channelService.trashSecretKeyByHostChannelToken(hostId, hostChannelToken);
+
+        val channel = channelService.getByHostChannelToken(hostId, hostChannelToken);
+        val visitorIds = guestService.getPendedVisitorIdsByChannel(channel);
+        val joinChannelToken = crypter.decrypt(channel.getJoinChannelTokenEnc(), channel.getChannelId());
+
+        return new JoinRequestClosedNotification(
+            joinChannelToken,
+            visitorIds);
     }
 }

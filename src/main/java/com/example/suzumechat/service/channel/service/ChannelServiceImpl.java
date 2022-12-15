@@ -87,7 +87,8 @@ public class ChannelServiceImpl implements ChannelService {
     }
 
     @Override
-    public Channel getByHostChannelToken(final String hostId,
+    public Channel getByHostChannelToken(
+        final String hostId,
         final String hostChannelToken) throws Exception {
         val hostIdHashed = hash.digest(hostId);
         final Optional<Channel> channelOpt =
@@ -169,26 +170,6 @@ public class ChannelServiceImpl implements ChannelService {
         val hostChannelToken = crypter.decrypt(channel.getHostChannelTokenEnc(),
             channel.getChannelId());
         return hostChannelToken;
-    }
-
-    @Override
-    public Channel getByHostChannelToken(final String hostChannelToken)
-        throws Exception {
-        val hostChannelTokenHashed = hash.digest(hostChannelToken);
-        val channelOpt =
-            repository.findByHostChannelTokenHashed(hostChannelTokenHashed);
-        val channel = channelOpt.orElseThrow(ChannelNotFoundByTokenException::new);
-
-        return channel;
-    }
-
-    @Override
-    public String getJoinChannelTokenByHostChannelToken(
-        final String hostChannelToken) throws Exception {
-        val channel = getByHostChannelToken(hostChannelToken);
-        val joinChannelToken = crypter.decrypt(channel.getJoinChannelTokenEnc(),
-            channel.getChannelId());
-        return joinChannelToken;
     }
 
     @Override

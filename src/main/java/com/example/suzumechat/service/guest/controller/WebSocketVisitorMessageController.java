@@ -8,9 +8,10 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.suzumechat.service.guest.application.VisitorMessageHandler;
 import com.example.suzumechat.service.guest.dto.message.JoinRequest;
+import com.example.suzumechat.service.guest.dto.message.JoinRequestClosed;
 import com.example.suzumechat.service.guest.dto.message.error.JoinRequestError;
+import com.example.suzumechat.service.valueobject.ChannelToken;
 import com.example.suzumechat.utility.JsonHelper;
-import com.example.suzumechat.utility.dto.message.ErrorMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
 
@@ -39,17 +40,29 @@ public class WebSocketVisitorMessageController {
     public void receiveAndBroadcast(
         @DestinationVariable("joinChannelToken") final String joinChannelToken,
         @Payload final String messageJson) throws Exception {
-
+        // REFACTOR:
         if (jsonHelper.hasAllFieldsOf(messageJson, JoinRequest.class)) {
 
             val joinRequest = mapper.readValue(messageJson, JoinRequest.class);
 
-            val hostChannelTokenOpt = messageHandler.createGuestAsVisitor(joinChannelToken,
-                joinRequest.visitorId(), joinRequest.visitorPublicKey(), joinRequest.whoIAmEnc());
+            val hostChannelTokenOpt = messageHandler.createGuestAsVisitor(
+                joinChannelToken,
+                joinRequest.visitorId(),
+                joinRequest.visitorPublicKey(),
+                joinRequest.whoIAmEnc());
             if (hostChannelTokenOpt.isPresent()) {
-                sendToHost(hostChannelTokenOpt.get(), joinRequest);
+                if (hostChannelTokenOpt.get() instanceof ChannelToken) {
+                    sendToHost(hostChannelTokenOpt.get().value(), joinRequest);
+                } else {
+                    returningToVisitor(
+                        joinChannelToken,
+                        joinRequest.visitorId(),
+                        new JoinRequestClosed(true));
+                }
             } else {
-                returningToVisitor(joinChannelToken, joinRequest.visitorId(),
+                returningToVisitor(
+                    joinChannelToken,
+                    joinRequest.visitorId(),
                     new JoinRequestError());
             }
         } else {
@@ -58,7 +71,7 @@ public class WebSocketVisitorMessageController {
     }
 
     private void returningToVisitor(String joinChannelToken, String visitorId,
-        ErrorMessage errorMessage) {
+        Object errorMessage) {
         // REFACTOR: TEST:
         template.convertAndSend(
             "/receive/visitor/" + joinChannelToken + "/" + visitorId,

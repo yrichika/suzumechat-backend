@@ -3,7 +3,7 @@ package com.example.suzumechat.service.guest.dto.message;
 import javax.annotation.Nullable;
 
 public record AuthenticationStatus(
-    boolean isClosed,
+    boolean isClosed, // DELETE:
     @Nullable Boolean isAuthenticated,
     String guestId,
     String guestChannelToken,

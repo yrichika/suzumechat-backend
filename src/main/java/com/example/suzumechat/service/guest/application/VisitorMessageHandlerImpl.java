@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.service.channel.service.ChannelService;
 import com.example.suzumechat.service.guest.service.GuestService;
+import com.example.suzumechat.service.valueobject.ChannelToken;
+import com.example.suzumechat.service.valueobject.EmptyChannelToken;
+import com.example.suzumechat.service.valueobject.type.VisitorHandlingStringType;
 import lombok.val;
 
 @Service
@@ -18,7 +21,7 @@ public class VisitorMessageHandlerImpl
     private GuestService guestService;
 
     @Override
-    public Optional<String> createGuestAsVisitor(
+    public Optional<VisitorHandlingStringType> createGuestAsVisitor(
         final String joinChannelToken,
         final String visitorId,
         final String visitorPublicKey,
@@ -26,11 +29,14 @@ public class VisitorMessageHandlerImpl
 
         try {
             final Channel channel = channelService.getByJoinChannelToken(joinChannelToken);
+            if (channel.isClosed()) {
+                return Optional.of(new EmptyChannelToken());
+            }
             guestService.createGuestAsVisitor(joinChannelToken, visitorId, channel);
 
-            val hostChannelToken = channelService
+            val hostChannelTokenString = channelService
                 .getHostChannelTokenByJoinChannelToken(joinChannelToken);
-
+            final ChannelToken hostChannelToken = new ChannelToken(hostChannelTokenString);
             return Optional.of(hostChannelToken);
         } catch (Exception exception) {
             // TODO: log

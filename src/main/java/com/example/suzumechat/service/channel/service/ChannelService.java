@@ -26,12 +26,6 @@ public interface ChannelService {
     public String getHostChannelTokenByJoinChannelToken(
         final String joinChannelToken) throws Exception;
 
-    public Channel getByHostChannelToken(final String hostChannelToken)
-        throws Exception;
-
-    public String getJoinChannelTokenByHostChannelToken(
-        final String hostChannelToken) throws Exception;
-
     public List<Channel> getItemsOrderThan(final Integer hour);
 
     public void trashSecretKeyByHostChannelToken(final String hostId,

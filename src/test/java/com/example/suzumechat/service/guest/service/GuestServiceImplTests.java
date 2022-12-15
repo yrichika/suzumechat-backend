@@ -8,6 +8,10 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -193,6 +197,32 @@ public class GuestServiceImplTests {
 
         assertThrows(VisitorNotFoundException.class, () -> {
             service.approveVisitor(visitorId, isAuthenticated);
+        });
+    }
+
+    @Test
+    public void getVisitorIdsByChannel_should_return_pended_visitors_ids() throws Exception {
+        val channel = channelFactory.make();
+        val howManyVisitors = testRandom.integer.between(1, 5);
+        final Map<String, Guest> visitorMap = new HashMap<String, Guest>();
+        for (Integer i = 0; i < howManyVisitors; i++) {
+            visitorMap.put(i.toString(), guestFactory.make());
+        }
+        final List<Guest> visitorList = new ArrayList<Guest>(visitorMap.values());
+
+        when(repository.getPendedVisitorsByChannelId(channel.getChannelId()))
+            .thenReturn(visitorList);
+        for (Map.Entry<String, Guest> visitorEntry : visitorMap.entrySet()) {
+            when(crypter.decrypt(
+                visitorEntry.getValue().getVisitorIdEnc(),
+                channel.getChannelId()))
+                    .thenReturn(visitorEntry.getKey());
+        }
+
+        val result = service.getPendedVisitorIdsByChannel(channel);
+
+        visitorMap.forEach((visitorId, visitor) -> {
+            assertThat(result.contains(visitorId)).isTrue();
         });
     }
 }
