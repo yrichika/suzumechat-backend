@@ -38,7 +38,7 @@ out/
 /.nb-gradle/
 
 ### VS Code ###
-.vscode/
+# .vscode/
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,windows,java,gradle
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,windows,java,gradle
