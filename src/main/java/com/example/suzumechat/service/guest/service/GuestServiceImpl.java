@@ -104,4 +104,9 @@ public class GuestServiceImpl implements GuestService {
 
         return visitorIds;
     }
+
+    @Override
+    public int deleteByChannelIds(final List<String> channelIds) {
+        return repository.deleteByChannelIds(channelIds);
+    }
 }

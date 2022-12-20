@@ -18,7 +18,9 @@ public interface GuestRepository extends JpaRepository<Guest, Integer> {
 
     public Optional<Guest> findByVisitorIdHashed(String visitorIdHashed);
 
-    public void deleteByChannelIdIn(List<String> channelIds);
+    @Modifying
+    @Query("DELETE FROM Guest guest WHERE guest.channelId IN :channelIds")
+    public int deleteByChannelIds(@Param("channelIds") List<String> channelIds);
 
     @Modifying
     @Query("update Guest guest set guest.isAuthenticated = :isAuthenticated where guest.visitorIdHashed = :visitorIdHashed")

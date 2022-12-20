@@ -98,27 +98,35 @@ public class ChannelRepositoryTests {
 
 
     @Test
-    public void deleteByChannelIdIn_should_delete_channels_by_given_channel_ids() {
+    public void deleteByChannelIds_should_delete_channels_by_given_channel_ids() {
 
+        val howMany = random.integer.nextInt(5);
         val channelIds = new ArrayList<String>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < howMany; i++) {
             val channel = factory.make();
             db.persist(channel);
             channelIds.add(channel.getChannelId());
         }
+        val notDeletingChannel = factory.channelId(random.string.alphanumeric(10)).make();
+        db.persist(notDeletingChannel);
 
         // check if all channels exists
         channelIds.forEach(channelId -> {
             val before = repository.findByChannelId(channelId);
             assertThat(before.isPresent()).isTrue();
         });
+        val makingReallySureItExists = repository.findByChannelId(notDeletingChannel.getChannelId());
+        assertThat(makingReallySureItExists.isPresent()).isTrue();
 
-        repository.deleteByChannelIdIn(channelIds);
+        val deletedItemNum = repository.deleteByChannelIds(channelIds);
 
+        assertThat(deletedItemNum).isEqualTo(howMany);
         // assert all chennels deleted
         channelIds.forEach(channelId -> {
             val after = repository.findByChannelId(channelId);
             assertThat(after.isEmpty()).isTrue();
         });
+        val shouldNotBeDeleted = repository.findByChannelId(notDeletingChannel.getChannelId());
+        assertThat(shouldNotBeDeleted.isPresent()).isTrue();
     }
 }

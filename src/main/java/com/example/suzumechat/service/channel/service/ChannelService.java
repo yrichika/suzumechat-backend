@@ -30,4 +30,6 @@ public interface ChannelService {
 
     public void trashSecretKeyByHostChannelToken(final String hostId,
         final String hostChannelToken) throws Exception;
+
+    public int deleteByChannelIds(final List<String> channelIds);
 }

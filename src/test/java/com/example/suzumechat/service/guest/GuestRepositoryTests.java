@@ -1,12 +1,15 @@
 package com.example.suzumechat.service.guest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
@@ -71,6 +74,47 @@ public class GuestRepositoryTests {
         val channelId = random.string.alphanumeric();
         val result = repository.findAllByChannelIdOrderByIdDesc(channelId);
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    public void deleteByChannelIds_should_delete_all_records_by_channel_ids() {
+        val howMany = random.integer.nextInt(5);
+        val channels = new ArrayList<Channel>();
+        val guests = new ArrayList<Guest>();
+        for (int i = 0; i < howMany; i++) {
+            val channel = channelFactory.make();
+            db.persist(channel);
+            channels.add(channel);
+        }
+        for (Channel channel : channels) {
+            val guest = guestFactory.channelId(channel.getChannelId()).channel(channel).make();
+            guests.add(guest);
+            db.persist(guest);
+        }
+        // to compare, creating another guest
+        val notDeletingChannel = channelFactory.channelId(random.string.alphanumeric(10)).make();
+        val notDeletingGuest =
+            guestFactory.channelId(notDeletingChannel.getChannelId()).channel(notDeletingChannel).make();
+        db.persist(notDeletingChannel);
+        db.persist(notDeletingGuest);
+        final List<String> channelIds = channels.stream().map(channel -> channel.getChannelId()).toList();
+
+        guests.forEach(guest -> {
+            val guestSaved = repository.findByGuestIdHashed(guest.getGuestIdHashed());
+            assertThat(guestSaved.isPresent()).isTrue();
+        });
+        val makingReallySureItExists = repository.findByGuestIdHashed(notDeletingGuest.getGuestIdHashed());
+        assertThat(makingReallySureItExists.isPresent()).isTrue();
+
+        val deletedItemsNum = repository.deleteByChannelIds(channelIds);
+
+        assertThat(deletedItemsNum).isEqualTo(howMany);
+        guests.forEach(guest -> {
+            val guestSaved = repository.findByGuestIdHashed(guest.getGuestIdHashed());
+            assertThat(guestSaved.isEmpty()).isTrue();
+        });
+        val shouldNotBeDeleted = repository.findByGuestIdHashed(notDeletingGuest.getGuestIdHashed());
+        assertThat(shouldNotBeDeleted.isPresent()).isTrue();
     }
 
     @Test

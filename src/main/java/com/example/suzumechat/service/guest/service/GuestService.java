@@ -18,4 +18,6 @@ public interface GuestService {
         throws Exception;
 
     public List<String> getPendedVisitorIdsByChannel(Channel channel) throws Exception;
+
+    public int deleteByChannelIds(final List<String> channelIds);
 }

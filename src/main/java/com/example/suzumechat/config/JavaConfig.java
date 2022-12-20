@@ -9,10 +9,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 @Configuration
 @EnableCaching
+@EnableScheduling
 public class JavaConfig {
     @Bean
     public ModelMapper modelMapper() {

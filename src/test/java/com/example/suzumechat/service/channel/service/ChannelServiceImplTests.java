@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -343,5 +344,14 @@ public class ChannelServiceImplTests {
         // secretKeyEnc should be nulled
         val expectedChannel = channel.toBuilder().secretKeyEnc(null).build();
         verify(repository, times(1)).save(expectedChannel);
+    }
+
+    @Test
+    public void deleteByChannelIds_should_call_repository_deleteByChannelIds() {
+        val channelIds = Arrays.asList(testRandom.string.alphanumeric());
+
+        service.deleteByChannelIds(channelIds);
+
+        verify(repository, times(1)).deleteByChannelIds(channelIds);
     }
 }

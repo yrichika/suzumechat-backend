@@ -9,7 +9,6 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.service.channel.ChannelRepository;
 import com.example.suzumechat.service.channel.dto.CreatedChannel;
@@ -36,9 +35,6 @@ public class ChannelServiceImpl implements ChannelService {
     @Autowired
     private Random random;
 
-    // ChannelTokensとChannelsのcreateを合体させている
-    // 目的に合って動くかはまだ不明
-    @Transactional
     @Override
     public CreatedChannel create(final String channelName, final String publicKey) throws Exception {
         val hostId = UUID.randomUUID().toString();
@@ -172,6 +168,7 @@ public class ChannelServiceImpl implements ChannelService {
         return hostChannelToken;
     }
 
+    // TEST:
     @Override
     public List<Channel> getItemsOrderThan(final Integer hours) {
         val hoursAgo = LocalDateTime.now().minusHours(hours);
@@ -180,7 +177,6 @@ public class ChannelServiceImpl implements ChannelService {
         return repository.findAllByCreatedAtBefore(date);
     }
 
-    @Transactional
     @Override
     public void trashSecretKeyByHostChannelToken(final String hostId,
         final String hostChannelToken) throws Exception {
@@ -188,5 +184,10 @@ public class ChannelServiceImpl implements ChannelService {
 
         channel.setSecretKeyEnc(null);
         repository.save(channel);
+    }
+
+    @Override
+    public int deleteByChannelIds(final List<String> channelIds) {
+        return repository.deleteByChannelIds(channelIds);
     }
 }

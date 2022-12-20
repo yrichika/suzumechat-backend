@@ -9,6 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -224,5 +225,14 @@ public class GuestServiceImplTests {
         visitorMap.forEach((visitorId, visitor) -> {
             assertThat(result.contains(visitorId)).isTrue();
         });
+    }
+
+    @Test
+    public void deleteByChannelIds_should_call_repository_deleteByChannelIds() {
+        val channelIds = Arrays.asList(testRandom.string.alphanumeric());
+
+        service.deleteByChannelIds(channelIds);
+
+        verify(repository, times(1)).deleteByChannelIds(channelIds);
     }
 }
