@@ -3,6 +3,7 @@ package com.example.suzumechat.testconfig;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import com.example.suzumechat.testutil.random.TestRandom;
+import com.example.suzumechat.testutil.stub.factory.dto.ApprovalResultFactory;
 import com.example.suzumechat.testutil.stub.factory.dto.AuthenticationStatusFactory;
 import com.example.suzumechat.testutil.stub.factory.dto.ChannelStatusFactory;
 import com.example.suzumechat.testutil.stub.factory.dto.CreatedChannelFactory;
@@ -10,10 +11,10 @@ import com.example.suzumechat.testutil.stub.factory.dto.GuestChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.dto.GuestDtoFactory;
 import com.example.suzumechat.testutil.stub.factory.dto.HostChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.dto.JoinRequestFactory;
+import com.example.suzumechat.testutil.stub.factory.dto.VisitorAuthStatusFactory;
 import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
 import com.example.suzumechat.testutil.stub.factory.entity.GuestFactory;
 import com.example.suzumechat.testutil.stub.factory.form.CreatingChannelFactory;
-import com.example.suzumechat.testutil.stub.factory.form.VisitorsAuthStatusFactory;
 
 @TestConfiguration
 public class TestConfig {
@@ -59,8 +60,8 @@ public class TestConfig {
     }
 
     @Bean
-    public VisitorsAuthStatusFactory visitorsAuthStatusFactory() {
-        return new VisitorsAuthStatusFactory();
+    public VisitorAuthStatusFactory visitorsAuthStatusFactory() {
+        return new VisitorAuthStatusFactory();
     }
 
     @Bean
@@ -76,6 +77,11 @@ public class TestConfig {
     @Bean
     public GuestDtoFactory guestDtoFactory() {
         return new GuestDtoFactory();
+    }
+
+    @Bean
+    public ApprovalResultFactory approvalResultFactory() {
+        return new ApprovalResultFactory();
     }
 
     // Security customizations for tests

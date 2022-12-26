@@ -18,7 +18,6 @@ import com.example.suzumechat.config.SecurityConfig;
 import com.example.suzumechat.service.channel.application.HostUseCase;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
-import com.example.suzumechat.testutil.stub.factory.form.VisitorsAuthStatusFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
 
@@ -39,8 +38,6 @@ public class HostControllerTests {
     @Autowired
     private TestRandom testRandom;
 
-    @Autowired
-    VisitorsAuthStatusFactory statusFactory;
 
     @Test
     public void endChannel_should_delete_secretKey_and_invalidate_session()

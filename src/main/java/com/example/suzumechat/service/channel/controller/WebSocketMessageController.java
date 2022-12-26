@@ -1,40 +1,59 @@
 package com.example.suzumechat.service.channel.controller;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.suzumechat.service.channel.application.HostMessageHandler;
-import com.example.suzumechat.service.channel.dto.ApprovalResult;
-import com.example.suzumechat.service.channel.dto.JoinRequestClosedNotification;
+import com.example.suzumechat.service.channel.application.messagehandler.ChatMessageUseCase;
+import com.example.suzumechat.service.channel.application.messagehandler.CloseJoinRequestUseCase;
+import com.example.suzumechat.service.channel.application.messagehandler.MessageHandler;
+import com.example.suzumechat.service.channel.application.messagehandler.TerminateUseCase;
+import com.example.suzumechat.service.channel.application.messagehandler.UnhandledUseCase;
+import com.example.suzumechat.service.channel.application.messagehandler.VisitorAuthStatusUseCase;
 import com.example.suzumechat.service.channel.dto.message.ChatMessageCapsule;
 import com.example.suzumechat.service.channel.dto.message.CloseJoinRequest;
-import com.example.suzumechat.service.channel.dto.message.VisitorsAuthStatus;
-import com.example.suzumechat.service.channel.dto.message.error.ApprovalError;
-import com.example.suzumechat.service.channel.dto.message.error.ChatError;
+import com.example.suzumechat.service.channel.dto.message.VisitorAuthStatus;
 import com.example.suzumechat.service.channel.exception.HostIdMissingInSessionException;
-import com.example.suzumechat.service.guest.dto.message.JoinRequestClosed;
 import com.example.suzumechat.utility.JsonHelper;
-import com.example.suzumechat.utility.dto.message.ErrorMessage;
 import com.example.suzumechat.utility.dto.message.Terminate;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
 
 @RestController
 public class WebSocketMessageController {
 
     @Autowired
-    private HostMessageHandler messageHandler;
+    ChatMessageUseCase chatMessageUseCase;
     @Autowired
-    private SimpMessagingTemplate template;
+    CloseJoinRequestUseCase closeJoinRequestUseCase;
     @Autowired
-    private ObjectMapper mapper;
+    TerminateUseCase terminateUseCase;
+    @Autowired
+    VisitorAuthStatusUseCase visitorAuthStatusUseCase;
+
+    @Autowired
+    UnhandledUseCase unhandledUseCase;
+
     @Autowired
     private JsonHelper jsonHelper;
+
+    private Map<Class<?>, MessageHandler> messageHandlers;
+
+    @PostConstruct
+    private void setMessageHandlers() {
+        messageHandlers = new HashMap<Class<?>, MessageHandler>() {
+            {
+                put(ChatMessageCapsule.class, chatMessageUseCase);
+                put(VisitorAuthStatus.class, visitorAuthStatusUseCase);
+                put(CloseJoinRequest.class, closeJoinRequestUseCase);
+                put(Terminate.class, terminateUseCase);
+            }
+        };
+    }
 
     /**
      * 
@@ -54,93 +73,13 @@ public class WebSocketMessageController {
             throw new HostIdMissingInSessionException();
         }
 
-        // REFACTOR: strategy pattern applicable here?
-        // move all to UseCases
-        if (jsonHelper.hasAllFieldsOf(messageJson, ChatMessageCapsule.class)) {
-            val guestChannelTokenOpt =
-                messageHandler.getGuestChannelToken(hostId, hostChannelToken);
-
-            if (guestChannelTokenOpt.isPresent()) {
-                broadcastToChatChannel(hostChannelToken, guestChannelTokenOpt.get(),
-                    messageJson);
-            } else {
-                returningToHost(hostChannelToken, new ChatError());
+        for (Map.Entry<Class<?>, MessageHandler> entry : messageHandlers.entrySet()) {
+            if (jsonHelper.hasAllFieldsOf(messageJson, entry.getKey())) {
+                entry.getValue().handle(hostId, hostChannelToken, messageJson);
+                return;
             }
-        } else if (jsonHelper.hasAllFieldsOf(messageJson,
-            VisitorsAuthStatus.class)) {
-
-            val visitorsAuthStatus =
-                mapper.readValue(messageJson, VisitorsAuthStatus.class);
-            final Optional<ApprovalResult> approvalResultOpt =
-                messageHandler.handleApproval(hostId, hostChannelToken,
-                    visitorsAuthStatus.visitorId(),
-                    visitorsAuthStatus.isAuthenticated());
-            if (approvalResultOpt.isPresent()) {
-                val approvalResult = approvalResultOpt.get();
-                val returnMessage = mapper
-                    .writeValueAsString(approvalResult.authenticationStatus());
-
-                sendToVisitor(
-                    approvalResult.joinChannelToken(),
-                    visitorsAuthStatus.visitorId(),
-                    returnMessage);
-
-            } else {
-                returningToHost(hostChannelToken, new ApprovalError());
-            }
-        } else if (jsonHelper.hasAllFieldsOf(messageJson, CloseJoinRequest.class)) {
-
-            final JoinRequestClosedNotification joinRequestAlreadyClosed =
-                messageHandler.closeJoinRequest(hostId, hostChannelToken);
-            if (!joinRequestAlreadyClosed.visitorIds().isEmpty()) {
-                for (String visitorId : joinRequestAlreadyClosed.visitorIds()) {
-                    val joinRequestClosedMessage = mapper.writeValueAsString(
-                        new JoinRequestClosed(true));
-                    sendToVisitor(
-                        joinRequestAlreadyClosed.joinChannelToken(),
-                        visitorId,
-                        joinRequestClosedMessage);
-                }
-            }
-        } else if (jsonHelper.hasAllFieldsOf(messageJson, Terminate.class)) {
-            // REFACTOR: almost the same as when received ChatMessageCapsule
-            val guestChannelTokenOpt =
-                messageHandler.getGuestChannelToken(hostId, hostChannelToken);
-
-            if (guestChannelTokenOpt.isPresent()) {
-                toGuest(guestChannelTokenOpt.get(), messageJson);
-            } else {
-                returningToHost(hostChannelToken, new ChatError());
-            }
-        } else {
-            // TODO: send ErrorMessage to host
         }
-    }
-
-    private void broadcastToChatChannel(
-        final String hostChannelToken,
-        final String guestChannelToken,
-        final String messageJson) {
-        template.convertAndSend("/receive/host/" + hostChannelToken, messageJson);
-        template.convertAndSend("/receive/guest/" + guestChannelToken, messageJson);
-    }
-
-    private void sendToVisitor(
-        String joinChannelToken,
-        String visitorId,
-        String json) {
-        val visitorReceivingUrl = String.join("/", "/receive", "visitor",
-            joinChannelToken, visitorId);
-        template.convertAndSend(visitorReceivingUrl, json);
-    }
-
-    private void toGuest(final String guestChannelToken, final String terminateJson) {
-        template.convertAndSend("/receive/guest/" + guestChannelToken, terminateJson);
-    }
-
-    private void returningToHost(String hostChannelToken,
-        ErrorMessage errorMessage) {
-        template.convertAndSend("/receive/host/" + hostChannelToken, errorMessage);
+        unhandledUseCase.handle(hostId, hostChannelToken, messageJson);
     }
 }
 

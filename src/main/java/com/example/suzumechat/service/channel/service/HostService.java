@@ -1,10 +1,11 @@
-package com.example.suzumechat.service.channel.application;
+package com.example.suzumechat.service.channel.service;
 
 import java.util.Optional;
 import com.example.suzumechat.service.channel.dto.ApprovalResult;
 import com.example.suzumechat.service.channel.dto.JoinRequestClosedNotification;
 
-public interface HostMessageHandler {
+// REFACTOR: change to another appropriate name
+public interface HostService {
 
     public Optional<String> getGuestChannelToken(final String hostId, final String hostChannelToken);
 

@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.example.suzumechat.service.channel.dto.message.ChatMessageCapsule;
-import com.example.suzumechat.service.channel.dto.message.VisitorsAuthStatus;
+import com.example.suzumechat.service.channel.dto.message.VisitorAuthStatus;
 import com.example.suzumechat.service.guest.dto.message.JoinRequest;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
@@ -41,11 +41,11 @@ public class JsonHelperTests {
             ChatMessageCapsule.class);
         assertThat(chatMessageCapsuleResult).isTrue();
 
-        final VisitorsAuthStatus visitorsAuthStatus =
-            new VisitorsAuthStatus(random.string.alphanumeric(), false);
+        final VisitorAuthStatus visitorsAuthStatus =
+            new VisitorAuthStatus(random.string.alphanumeric(), false);
         val visitorsAuthStatusJson = mapper.writeValueAsString(visitorsAuthStatus);
         val visitorsAuthStatusResult = helper.hasAllFieldsOf(visitorsAuthStatusJson,
-            VisitorsAuthStatus.class);
+            VisitorAuthStatus.class);
         assertThat(visitorsAuthStatusResult).isTrue();
 
         final JoinRequest joinRequest = new JoinRequest(
@@ -66,7 +66,7 @@ public class JsonHelperTests {
         val chatMessageCapsuleJson = mapper.writeValueAsString(chatMessageCapsule);
 
         val comparedWithVisitorsAuthStatus = helper
-            .hasAllFieldsOf(chatMessageCapsuleJson, VisitorsAuthStatus.class);
+            .hasAllFieldsOf(chatMessageCapsuleJson, VisitorAuthStatus.class);
         assertThat(comparedWithVisitorsAuthStatus).isFalse();
 
         val comparedWithJoinRequest =

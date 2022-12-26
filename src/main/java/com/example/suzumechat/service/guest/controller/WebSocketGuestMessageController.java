@@ -63,7 +63,7 @@ public class WebSocketGuestMessageController {
     }
 
     private void returningToGuest(String guestChannelToken) {
-        toGuest(guestChannelToken, new ChatError());
+        toGuest(guestChannelToken, new ChatError("TODO: pass json message"));
     }
 
     private void toGuest(String guestChannelToken, Object payload) {
