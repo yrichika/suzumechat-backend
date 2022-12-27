@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.dto.message.error.TerminationError;
 import com.example.suzumechat.service.channel.service.HostService;
+import com.example.suzumechat.utility.messaging.MessageSender;
 import lombok.val;
 
 @Service

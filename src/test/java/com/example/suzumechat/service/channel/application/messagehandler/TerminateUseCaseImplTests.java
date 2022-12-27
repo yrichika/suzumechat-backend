@@ -17,6 +17,7 @@ import com.example.suzumechat.service.channel.dto.message.error.TerminationError
 import com.example.suzumechat.service.channel.service.HostService;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
+import com.example.suzumechat.utility.messaging.MessageSender;
 import lombok.val;
 
 @SpringJUnitConfig

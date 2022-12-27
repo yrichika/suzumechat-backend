@@ -1,4 +1,4 @@
-package com.example.suzumechat.service.channel.application.messagehandler;
+package com.example.suzumechat.utility.messaging;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -32,38 +32,34 @@ public class MessageSenderImplTests {
     // FIXME: get from config
     final String hostEndpointPrefix = "/receive/host/";
     final String guestEndpointPrefix = "/receive/guest/";
-
+    final String visitorEndpointPrefix = "/receive/visitor/";
 
     @Test
-    public void returningToHost_should_send_error_message_to_host_endpoint() {
+    public void toHost_should_send_json_message_to_host_endpoint() {
         val hostChannelToken = testRandom.string.alphanumeric();
-        val errorMessage = new ErrorMessageStub();
+        val json = randomJson();
         val expectedEndpoint = hostEndpointPrefix + hostChannelToken;
 
-        sender.returningToHost(hostChannelToken, errorMessage);
+        sender.toHost(hostChannelToken, json);
 
-        verify(template, times(1)).convertAndSend(expectedEndpoint, errorMessage);
-    }
-
-    private class ErrorMessageStub implements ErrorMessage {
+        verify(template, times(1)).convertAndSend(expectedEndpoint, json);
     }
 
     @Test
-    public void toVisitor_should_send_json_message_to_visitor() {
+    public void toVisitor_should_send_json_message_to_visitor_endpoint() {
         val joinChannelToken = testRandom.string.alphanumeric();
         val visitorId = testRandom.string.alphanumeric();
 
         val json = randomJson();
-        val expectedEntpoint = String.join("/", "/receive", "visitor",
-            joinChannelToken, visitorId);
+        val expectedEndpoint = visitorEndpointPrefix + joinChannelToken + "/" + visitorId;
 
         sender.toVisitor(joinChannelToken, visitorId, json);
 
-        verify(template, times(1)).convertAndSend(expectedEntpoint, json);
+        verify(template, times(1)).convertAndSend(expectedEndpoint, json);
     }
 
     @Test
-    public void toGuest_should_send_json_to_guest_endpoint() {
+    public void toGuest_should_send_json_message_to_guest_endpoint() {
         val guestChannelToken = testRandom.string.alphanumeric();
         val json = randomJson();
         val expectedEndpoint = guestEndpointPrefix + guestChannelToken;
@@ -79,10 +75,47 @@ public class MessageSenderImplTests {
         val guestChannelToken = testRandom.string.alphanumeric();
         val json = randomJson();
 
-        sender.broadcastToChatChannel(hostChannelToken, guestChannelToken, json);
+        sender.broadcastToChat(hostChannelToken, guestChannelToken, json);
 
         verify(template, times(1)).convertAndSend(hostEndpointPrefix + hostChannelToken, json);
         verify(template, times(1)).convertAndSend(guestEndpointPrefix + guestChannelToken, json);
+    }
+
+    @Test
+    public void returningToHost_should_send_error_message_to_host_endpoint() {
+        val hostChannelToken = testRandom.string.alphanumeric();
+        val errorMessage = new ErrorMessageStub();
+        val expectedEndpoint = hostEndpointPrefix + hostChannelToken;
+
+        sender.returningToHost(hostChannelToken, errorMessage);
+
+        verify(template, times(1)).convertAndSend(expectedEndpoint, errorMessage);
+    }
+
+    @Test
+    public void returningToVisitor_should_send_error_message_to_visitor_endpoint() {
+        val joinChannelToken = testRandom.string.alphanumeric();
+        val visitorId = testRandom.string.alphanumeric();
+        val errorMessage = new ErrorMessageStub();
+        val expectedEndpoint = visitorEndpointPrefix + joinChannelToken + "/" + visitorId;
+
+        sender.returningToVisitor(joinChannelToken, visitorId, errorMessage);
+
+        verify(template, times(1)).convertAndSend(expectedEndpoint, errorMessage);
+    }
+
+    @Test
+    public void returningToGuest_should_send_error_message_to_host_endpoint() {
+        val guestChannelToken = testRandom.string.alphanumeric();
+        val errorMessage = new ErrorMessageStub();
+        val expectedEndpoint = guestEndpointPrefix + guestChannelToken;
+
+        sender.returningToGuest(guestChannelToken, errorMessage);
+
+        verify(template, times(1)).convertAndSend(expectedEndpoint, errorMessage);
+    }
+
+    private class ErrorMessageStub implements ErrorMessage {
     }
 
     private String randomJson() {

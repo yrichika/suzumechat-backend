@@ -20,6 +20,7 @@ import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.dto.ApprovalResultFactory;
 import com.example.suzumechat.testutil.stub.factory.dto.VisitorAuthStatusFactory;
+import com.example.suzumechat.utility.messaging.MessageSender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
 

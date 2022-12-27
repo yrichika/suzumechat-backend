@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.dto.message.error.ChatError;
 import com.example.suzumechat.service.channel.service.HostService;
+import com.example.suzumechat.utility.messaging.MessageSender;
 import lombok.val;
 
 @Service
@@ -24,7 +25,7 @@ public class ChatMessageUseCaseImpl implements ChatMessageUseCase {
             hostService.getGuestChannelToken(hostId, hostChannelToken);
 
         if (guestChannelTokenOpt.isPresent()) {
-            messageSender.broadcastToChatChannel(hostChannelToken, guestChannelTokenOpt.get(),
+            messageSender.broadcastToChat(hostChannelToken, guestChannelTokenOpt.get(),
                 messageJson);
         } else {
             messageSender.returningToHost(hostChannelToken, new ChatError(messageJson));

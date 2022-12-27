@@ -17,6 +17,7 @@ import com.example.suzumechat.service.channel.dto.message.error.ChatError;
 import com.example.suzumechat.service.channel.service.HostService;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
+import com.example.suzumechat.utility.messaging.MessageSender;
 import lombok.val;
 
 @SpringJUnitConfig
@@ -46,7 +47,7 @@ public class ChatMessageUseCaseImplTests {
 
         useCase.handle(hostId, hostChannelToken, json);
 
-        verify(messageSender, times(1)).broadcastToChatChannel(hostChannelToken, guestChannelToken, json);
+        verify(messageSender, times(1)).broadcastToChat(hostChannelToken, guestChannelToken, json);
     }
 
     @Test

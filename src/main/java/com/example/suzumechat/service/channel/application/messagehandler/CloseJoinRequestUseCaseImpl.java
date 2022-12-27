@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.dto.JoinRequestClosedNotification;
 import com.example.suzumechat.service.channel.service.HostService;
 import com.example.suzumechat.service.guest.dto.message.JoinRequestClosed;
+import com.example.suzumechat.utility.messaging.MessageSender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
 

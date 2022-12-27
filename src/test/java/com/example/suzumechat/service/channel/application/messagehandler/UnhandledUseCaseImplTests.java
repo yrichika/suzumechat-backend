@@ -11,9 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import com.example.suzumechat.service.channel.dto.message.error.Unhandled;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
+import com.example.suzumechat.utility.dto.message.Unhandled;
+import com.example.suzumechat.utility.messaging.MessageSender;
 import lombok.val;
 
 @SpringJUnitConfig

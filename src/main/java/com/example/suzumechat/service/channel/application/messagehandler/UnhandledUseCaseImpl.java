@@ -2,7 +2,8 @@ package com.example.suzumechat.service.channel.application.messagehandler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.suzumechat.service.channel.dto.message.error.Unhandled;
+import com.example.suzumechat.utility.dto.message.Unhandled;
+import com.example.suzumechat.utility.messaging.MessageSender;
 
 @Service
 public class UnhandledUseCaseImpl implements UnhandledUseCase {
