@@ -7,6 +7,7 @@ import com.example.suzumechat.service.channel.dto.ApprovalResult;
 import com.example.suzumechat.service.channel.dto.message.VisitorAuthStatus;
 import com.example.suzumechat.service.channel.dto.message.error.ApprovalError;
 import com.example.suzumechat.service.channel.service.HostService;
+import com.example.suzumechat.utility.messaging.MessageSender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
 

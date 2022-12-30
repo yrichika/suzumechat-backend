@@ -51,7 +51,7 @@ public class ChatMessageUseCaseImplTests {
     }
 
     @Test
-    public void handle_should_all_sender_returningToHost_if_guest_channel_token_not_found() throws Exception {
+    public void handle_should_call_sender_returningToHost_if_guest_channel_token_not_found() throws Exception {
         val hostId = testRandom.string.alphanumeric();
         val hostChannelToken = testRandom.string.alphanumeric();
         val json = "{}";

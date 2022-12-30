@@ -1,33 +1,41 @@
 package com.example.suzumechat.service.guest.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.suzumechat.service.guest.application.VisitorMessageHandler;
+import com.example.suzumechat.service.guest.application.messagehandler.visitor.JoinRequestUseCase;
+import com.example.suzumechat.service.guest.application.messagehandler.visitor.VisitorMessageHandler;
+import com.example.suzumechat.service.guest.application.messagehandler.visitor.VisitorUnhandledUseCase;
 import com.example.suzumechat.service.guest.dto.message.JoinRequest;
-import com.example.suzumechat.service.guest.dto.message.JoinRequestClosed;
-import com.example.suzumechat.service.guest.dto.message.error.JoinRequestError;
-import com.example.suzumechat.service.valueobject.ChannelToken;
 import com.example.suzumechat.utility.JsonHelper;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.val;
 
 @RestController
 public class WebSocketVisitorMessageController {
 
     @Autowired
-    private VisitorMessageHandler messageHandler;
+    JoinRequestUseCase joinRequestUseCase;
 
     @Autowired
-    private SimpMessagingTemplate template;
+    VisitorUnhandledUseCase unhandledUseCase;
 
-    @Autowired
-    private ObjectMapper mapper;
     @Autowired
     private JsonHelper jsonHelper;
+
+    private Map<Class<?>, VisitorMessageHandler> messageHandlers;
+
+    @PostConstruct
+    private void setMessageHandlers() {
+        messageHandlers = new HashMap<Class<?>, VisitorMessageHandler>() {
+            {
+                put(JoinRequest.class, joinRequestUseCase);
+            }
+        };
+    }
 
     /**
      * 
@@ -40,47 +48,13 @@ public class WebSocketVisitorMessageController {
     public void receiveAndBroadcast(
         @DestinationVariable("joinChannelToken") final String joinChannelToken,
         @Payload final String messageJson) throws Exception {
-        // REFACTOR:
-        if (jsonHelper.hasAllFieldsOf(messageJson, JoinRequest.class)) {
 
-            val joinRequest = mapper.readValue(messageJson, JoinRequest.class);
-
-            val hostChannelTokenOpt = messageHandler.createGuestAsVisitor(
-                joinChannelToken,
-                joinRequest.visitorId(),
-                joinRequest.visitorPublicKey(),
-                joinRequest.whoIAmEnc());
-            if (hostChannelTokenOpt.isPresent()) {
-                if (hostChannelTokenOpt.get() instanceof ChannelToken) {
-                    sendToHost(hostChannelTokenOpt.get().value(), joinRequest);
-                } else {
-                    returningToVisitor(
-                        joinChannelToken,
-                        joinRequest.visitorId(),
-                        new JoinRequestClosed(true));
-                }
-            } else {
-                returningToVisitor(
-                    joinChannelToken,
-                    joinRequest.visitorId(),
-                    new JoinRequestError());
+        for (Map.Entry<Class<?>, VisitorMessageHandler> entry : messageHandlers.entrySet()) {
+            if (jsonHelper.hasAllFieldsOf(messageJson, entry.getKey())) {
+                entry.getValue().handle(joinChannelToken, messageJson);
+                return;
             }
-        } else {
-            // TODO: send ErrorMessage to visitor
         }
-    }
-
-    private void returningToVisitor(String joinChannelToken, String visitorId,
-        Object errorMessage) {
-        // REFACTOR: TEST:
-        template.convertAndSend(
-            "/receive/visitor/" + joinChannelToken + "/" + visitorId,
-            errorMessage);
-    }
-
-    private void sendToHost(String hostChannelToken, JoinRequest joinRequest) {
-        val hostReceivingUrl = String.join("/", "/receive/host", hostChannelToken);
-
-        template.convertAndSend(hostReceivingUrl, joinRequest);
+        unhandledUseCase.handle(joinChannelToken, messageJson);
     }
 }

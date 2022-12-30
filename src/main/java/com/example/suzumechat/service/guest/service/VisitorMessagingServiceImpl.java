@@ -1,19 +1,18 @@
-package com.example.suzumechat.service.guest.application;
+package com.example.suzumechat.service.guest.service;
 
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.Channel;
 import com.example.suzumechat.service.channel.service.ChannelService;
-import com.example.suzumechat.service.guest.service.GuestService;
 import com.example.suzumechat.service.valueobject.ChannelToken;
 import com.example.suzumechat.service.valueobject.EmptyChannelToken;
 import com.example.suzumechat.service.valueobject.type.VisitorHandlingStringType;
 import lombok.val;
 
 @Service
-public class VisitorMessageHandlerImpl
-    implements VisitorMessageHandler {
+public class VisitorMessagingServiceImpl
+    implements VisitorMessagingService {
 
     @Autowired
     private ChannelService channelService;

@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.example.suzumechat.service.channel.service.ChannelService;
 import com.example.suzumechat.service.guest.service.GuestService;
+import com.example.suzumechat.service.guest.service.VisitorMessagingServiceImpl;
 import com.example.suzumechat.service.valueobject.EmptyChannelToken;
 import com.example.suzumechat.service.valueobject.type.VisitorHandlingStringType;
 import com.example.suzumechat.testconfig.TestConfig;
@@ -22,14 +23,14 @@ import lombok.val;
 @SpringJUnitConfig
 @Import(TestConfig.class)
 @MockitoSettings
-public class VisitorMessageHandlerImplTests {
+public class VisitorMessagingServiceImplTests {
     @MockBean
     private ChannelService channelService;
     @MockBean
     private GuestService guestService;
 
     @InjectMocks
-    private VisitorMessageHandlerImpl messageHandler;
+    private VisitorMessagingServiceImpl messageHandler;
 
 
     @Autowired
