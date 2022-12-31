@@ -6,7 +6,7 @@ import com.example.suzumechat.utility.dto.message.Unhandled;
 import com.example.suzumechat.utility.messaging.MessageSender;
 
 @Service
-public class UnhandledUseCaseImpl implements UnhandledUseCase {
+public class HostUnhandledUseCaseImpl implements HostUnhandledUseCase {
     @Autowired
     MessageSender messageSender;
 

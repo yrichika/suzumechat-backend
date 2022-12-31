@@ -1,5 +1,5 @@
 package com.example.suzumechat.service.channel.application.messagehandler;
 
-public interface UnhandledUseCase extends MessageHandler {
+public interface HostUnhandledUseCase extends HostMessageHandler {
 
 }

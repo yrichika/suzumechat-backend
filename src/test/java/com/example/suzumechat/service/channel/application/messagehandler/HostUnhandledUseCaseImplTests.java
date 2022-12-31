@@ -20,12 +20,12 @@ import lombok.val;
 @SpringJUnitConfig
 @Import(TestConfig.class)
 @MockitoSettings
-public class UnhandledUseCaseImplTests {
+public class HostUnhandledUseCaseImplTests {
     @MockBean
     private MessageSender messageSender;
 
     @InjectMocks
-    private UnhandledUseCaseImpl useCase;
+    private HostUnhandledUseCaseImpl useCase;
 
     @Autowired
     TestRandom testRandom;

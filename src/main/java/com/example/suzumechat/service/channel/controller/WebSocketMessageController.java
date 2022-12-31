@@ -11,9 +11,9 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.suzumechat.service.channel.application.messagehandler.ChatMessageUseCase;
 import com.example.suzumechat.service.channel.application.messagehandler.CloseJoinRequestUseCase;
-import com.example.suzumechat.service.channel.application.messagehandler.MessageHandler;
+import com.example.suzumechat.service.channel.application.messagehandler.HostMessageHandler;
+import com.example.suzumechat.service.channel.application.messagehandler.HostUnhandledUseCase;
 import com.example.suzumechat.service.channel.application.messagehandler.TerminateUseCase;
-import com.example.suzumechat.service.channel.application.messagehandler.UnhandledUseCase;
 import com.example.suzumechat.service.channel.application.messagehandler.VisitorAuthStatusUseCase;
 import com.example.suzumechat.service.channel.dto.message.ChatMessageCapsule;
 import com.example.suzumechat.service.channel.dto.message.CloseJoinRequest;
@@ -36,16 +36,16 @@ public class WebSocketMessageController {
     VisitorAuthStatusUseCase visitorAuthStatusUseCase;
 
     @Autowired
-    UnhandledUseCase unhandledUseCase;
+    HostUnhandledUseCase unhandledUseCase;
 
     @Autowired
     private JsonHelper jsonHelper;
 
-    private Map<Class<?>, MessageHandler> messageHandlers;
+    private Map<Class<?>, HostMessageHandler> messageHandlers;
 
     @PostConstruct
     private void setMessageHandlers() {
-        messageHandlers = new HashMap<Class<?>, MessageHandler>() {
+        messageHandlers = new HashMap<Class<?>, HostMessageHandler>() {
             {
                 put(ChatMessageCapsule.class, chatMessageUseCase);
                 put(VisitorAuthStatus.class, visitorAuthStatusUseCase);
@@ -73,7 +73,7 @@ public class WebSocketMessageController {
             throw new HostIdMissingInSessionException();
         }
 
-        for (Map.Entry<Class<?>, MessageHandler> entry : messageHandlers.entrySet()) {
+        for (Map.Entry<Class<?>, HostMessageHandler> entry : messageHandlers.entrySet()) {
             if (jsonHelper.hasAllFieldsOf(messageJson, entry.getKey())) {
                 entry.getValue().handle(hostId, hostChannelToken, messageJson);
                 return;
