@@ -37,7 +37,7 @@ public class ChatMessageUseCaseImplTests {
     TestRandom testRandom;
 
     @Test
-    public void handle_should_call_sender_broadcastToChatChannel() throws Exception {
+    public void handle_should_call_sender_broadcastToChat() throws Exception {
         val hostId = testRandom.string.alphanumeric();
         val hostChannelToken = testRandom.string.alphanumeric();
         val guestChannelToken = testRandom.string.alphanumeric();

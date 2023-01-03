@@ -1,4 +1,4 @@
-package com.example.suzumechat.service.guest.application;
+package com.example.suzumechat.service.guest.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -10,7 +10,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.example.suzumechat.service.channel.service.ChannelService;
-import com.example.suzumechat.service.guest.service.GuestService;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
@@ -21,7 +20,7 @@ import lombok.val;
 @SpringJUnitConfig
 @Import(TestConfig.class)
 @MockitoSettings
-public class GuestMessageHandlerImplTests {
+public class GuestMessagingServiceImplTests {
 
     @MockBean
     private ChannelService channelService;
@@ -30,7 +29,7 @@ public class GuestMessageHandlerImplTests {
     @MockBean
     private Crypter crypter;
     @InjectMocks
-    private GuestMessageHandlerImpl messageHandler;
+    private GuestMessagingServiceImpl messagingService;
 
     @Autowired
     private ChannelFactory channelFactory;
@@ -54,7 +53,7 @@ public class GuestMessageHandlerImplTests {
         when(crypter.decrypt(channel.getHostChannelTokenEnc(),
             channel.getChannelId())).thenReturn(hostChannelToken);
 
-        val result = messageHandler.getHostChannelToken(guestId, guestChannelToken);
+        val result = messagingService.getHostChannelToken(guestId, guestChannelToken);
 
         assertThat(result.get()).isEqualTo(hostChannelToken);
     }
@@ -68,7 +67,7 @@ public class GuestMessageHandlerImplTests {
         when(channelService.getByGuestChannelToken(guestChannelToken))
             .thenThrow(Exception.class);
 
-        val result = messageHandler.getHostChannelToken(guestId, guestChannelToken);
+        val result = messagingService.getHostChannelToken(guestId, guestChannelToken);
 
         assertThat(result.isEmpty()).isTrue();
     }
@@ -86,7 +85,7 @@ public class GuestMessageHandlerImplTests {
             .thenReturn(channel);
         when(guestService.getByGuestId(guestId)).thenReturn(guest);
 
-        val result = messageHandler.getHostChannelToken(guestId, guestChannelToken);
+        val result = messagingService.getHostChannelToken(guestId, guestChannelToken);
 
         assertThat(result.isEmpty()).isTrue();
     }
