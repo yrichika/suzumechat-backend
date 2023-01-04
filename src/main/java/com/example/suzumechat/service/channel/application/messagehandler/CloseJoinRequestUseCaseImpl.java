@@ -3,7 +3,7 @@ package com.example.suzumechat.service.channel.application.messagehandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.dto.JoinRequestClosedNotification;
-import com.example.suzumechat.service.channel.service.HostService;
+import com.example.suzumechat.service.channel.service.HostMessagingService;
 import com.example.suzumechat.service.guest.dto.message.JoinRequestClosed;
 import com.example.suzumechat.utility.messaging.MessageSender;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +13,7 @@ import lombok.val;
 public class CloseJoinRequestUseCaseImpl implements CloseJoinRequestUseCase {
 
     @Autowired
-    HostService hostService;
+    HostMessagingService hostMessagingService;
     @Autowired
     ObjectMapper mapper;
 
@@ -23,7 +23,7 @@ public class CloseJoinRequestUseCaseImpl implements CloseJoinRequestUseCase {
     @Override
     public void handle(final String hostId, final String hostChannelToken, final String messageJson) throws Exception {
         final JoinRequestClosedNotification joinRequestAlreadyClosed =
-            hostService.closeJoinRequest(hostId, hostChannelToken);
+            hostMessagingService.closeJoinRequest(hostId, hostChannelToken);
 
         if (!joinRequestAlreadyClosed.visitorIds().isEmpty()) {
             for (String visitorId : joinRequestAlreadyClosed.visitorIds()) {

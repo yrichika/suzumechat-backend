@@ -3,7 +3,7 @@ package com.example.suzumechat.service.channel.application.messagehandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.dto.message.error.HostChatError;
-import com.example.suzumechat.service.channel.service.HostService;
+import com.example.suzumechat.service.channel.service.HostMessagingService;
 import com.example.suzumechat.utility.messaging.MessageSender;
 import lombok.val;
 
@@ -11,7 +11,7 @@ import lombok.val;
 public class ChatMessageUseCaseImpl implements ChatMessageUseCase {
 
     @Autowired
-    HostService hostService;
+    HostMessagingService hostMessagingService;
     @Autowired
     MessageSender messageSender;
 
@@ -22,7 +22,7 @@ public class ChatMessageUseCaseImpl implements ChatMessageUseCase {
         final String messageJson) throws Exception {
 
         val guestChannelTokenOpt =
-            hostService.getGuestChannelToken(hostId, hostChannelToken);
+            hostMessagingService.getGuestChannelToken(hostId, hostChannelToken);
 
         if (guestChannelTokenOpt.isPresent()) {
             messageSender.broadcastToChat(hostChannelToken, guestChannelTokenOpt.get(),

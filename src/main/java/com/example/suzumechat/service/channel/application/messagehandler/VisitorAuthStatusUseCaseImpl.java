@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import com.example.suzumechat.service.channel.dto.ApprovalResult;
 import com.example.suzumechat.service.channel.dto.message.VisitorAuthStatus;
 import com.example.suzumechat.service.channel.dto.message.error.ApprovalError;
-import com.example.suzumechat.service.channel.service.HostService;
+import com.example.suzumechat.service.channel.service.HostMessagingService;
 import com.example.suzumechat.utility.messaging.MessageSender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
@@ -15,7 +15,7 @@ import lombok.val;
 public class VisitorAuthStatusUseCaseImpl implements VisitorAuthStatusUseCase {
 
     @Autowired
-    HostService hostService;
+    HostMessagingService hostMessagingService;
     @Autowired
     ObjectMapper mapper;
     @Autowired
@@ -24,7 +24,7 @@ public class VisitorAuthStatusUseCaseImpl implements VisitorAuthStatusUseCase {
     @Override
     public void handle(final String hostId, final String hostChannelToken, final String messageJson) throws Exception {
         val visitorsAuthStatus = mapper.readValue(messageJson, VisitorAuthStatus.class);
-        final Optional<ApprovalResult> approvalResultOpt = hostService.handleApproval(
+        final Optional<ApprovalResult> approvalResultOpt = hostMessagingService.handleApproval(
             hostId,
             hostChannelToken,
             visitorsAuthStatus.visitorId(),

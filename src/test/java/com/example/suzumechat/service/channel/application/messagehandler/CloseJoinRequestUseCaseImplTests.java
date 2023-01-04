@@ -13,7 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.example.suzumechat.service.channel.dto.JoinRequestClosedNotification;
-import com.example.suzumechat.service.channel.service.HostService;
+import com.example.suzumechat.service.channel.service.HostMessagingService;
 import com.example.suzumechat.service.guest.dto.message.JoinRequestClosed;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
@@ -26,7 +26,7 @@ import lombok.val;
 @MockitoSettings
 public class CloseJoinRequestUseCaseImplTests {
     @MockBean
-    private HostService hostService;
+    private HostMessagingService hostMessagingService;
     @MockBean
     private ObjectMapper mapper;
     @MockBean
@@ -51,7 +51,7 @@ public class CloseJoinRequestUseCaseImplTests {
             visitorIds.add(testRandom.string.alphanumeric());
         }
 
-        when(hostService.closeJoinRequest(hostId, hostChannelToken))
+        when(hostMessagingService.closeJoinRequest(hostId, hostChannelToken))
             .thenReturn(new JoinRequestClosedNotification(joinChannelToken, visitorIds));
         when(mapper.writeValueAsString(closedMessage)).thenReturn(json);
 

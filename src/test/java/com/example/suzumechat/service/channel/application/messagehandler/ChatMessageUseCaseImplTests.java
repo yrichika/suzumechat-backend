@@ -14,7 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.example.suzumechat.service.channel.dto.message.error.HostChatError;
-import com.example.suzumechat.service.channel.service.HostService;
+import com.example.suzumechat.service.channel.service.HostMessagingService;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.utility.messaging.MessageSender;
@@ -26,7 +26,7 @@ import lombok.val;
 public class ChatMessageUseCaseImplTests {
 
     @MockBean
-    private HostService hostService;
+    private HostMessagingService hostMessagingService;
     @MockBean
     private MessageSender messageSender;
 
@@ -43,7 +43,8 @@ public class ChatMessageUseCaseImplTests {
         val guestChannelToken = testRandom.string.alphanumeric();
         val json = "{}";
 
-        when(hostService.getGuestChannelToken(hostId, hostChannelToken)).thenReturn(Optional.of(guestChannelToken));
+        when(hostMessagingService.getGuestChannelToken(hostId, hostChannelToken))
+            .thenReturn(Optional.of(guestChannelToken));
 
         useCase.handle(hostId, hostChannelToken, json);
 
@@ -56,7 +57,7 @@ public class ChatMessageUseCaseImplTests {
         val hostChannelToken = testRandom.string.alphanumeric();
         val json = "{}";
 
-        when(hostService.getGuestChannelToken(hostId, hostChannelToken)).thenReturn(Optional.empty());
+        when(hostMessagingService.getGuestChannelToken(hostId, hostChannelToken)).thenReturn(Optional.empty());
 
         useCase.handle(hostId, hostChannelToken, json);
 

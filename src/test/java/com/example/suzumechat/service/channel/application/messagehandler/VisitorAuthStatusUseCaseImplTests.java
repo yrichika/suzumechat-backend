@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.example.suzumechat.service.channel.dto.message.VisitorAuthStatus;
 import com.example.suzumechat.service.channel.dto.message.error.ApprovalError;
-import com.example.suzumechat.service.channel.service.HostService;
+import com.example.suzumechat.service.channel.service.HostMessagingService;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.dto.ApprovalResultFactory;
@@ -30,7 +30,7 @@ import lombok.val;
 public class VisitorAuthStatusUseCaseImplTests {
 
     @MockBean
-    private HostService hostService;
+    private HostMessagingService hostMessagingService;
     @MockBean
     private ObjectMapper mapper;
     @MockBean
@@ -58,7 +58,7 @@ public class VisitorAuthStatusUseCaseImplTests {
 
         when(mapper.readValue(messageJsonStub, VisitorAuthStatus.class))
             .thenReturn(visitorAuthStatus);
-        when(hostService.handleApproval(
+        when(hostMessagingService.handleApproval(
             hostId,
             hostChannelToken,
             visitorAuthStatus.visitorId(),
@@ -84,7 +84,7 @@ public class VisitorAuthStatusUseCaseImplTests {
 
         when(mapper.readValue(messageJsonStub, VisitorAuthStatus.class))
             .thenReturn(visitorAuthStatus);
-        when(hostService.handleApproval(
+        when(hostMessagingService.handleApproval(
             hostId,
             hostChannelToken,
             visitorAuthStatus.visitorId(),

@@ -33,7 +33,7 @@ import lombok.experimental.Accessors;
 @SpringJUnitConfig
 @Import(TestConfig.class)
 @MockitoSettings
-public class HostServiceImplTests {
+public class HostMessagingServiceImplTests {
     @MockBean
     private ChannelService channelService;
     @MockBean
@@ -42,7 +42,7 @@ public class HostServiceImplTests {
     private Crypter crypter;
 
     @InjectMocks
-    private HostServiceImpl hostService;
+    private HostMessagingServiceImpl hostMessagingService;
 
     @Autowired
     private TestRandom testRandom;
@@ -62,7 +62,7 @@ public class HostServiceImplTests {
         when(channelService.getGuestChannelToken(hostId, hostChannelToken))
             .thenReturn(expected);
 
-        val result = hostService.getGuestChannelToken(hostId, hostChannelToken);
+        val result = hostMessagingService.getGuestChannelToken(hostId, hostChannelToken);
         assertThat(result.get()).isEqualTo(expected);
     }
 
@@ -76,7 +76,7 @@ public class HostServiceImplTests {
         when(channelService.getGuestChannelToken(hostId, hostChannelToken))
             .thenThrow(new Exception());
 
-        val result = hostService.getGuestChannelToken(hostId, hostChannelToken);
+        val result = hostMessagingService.getGuestChannelToken(hostId, hostChannelToken);
         assertThat(result.isEmpty()).isTrue();
     }
 
@@ -90,7 +90,7 @@ public class HostServiceImplTests {
             prepareForHandleApprovalTest(secretKey, isAuthenticated, false);
 
         final Optional<ApprovalResult> result =
-            hostService.handleApproval(testDto.hostId, testDto.hostChannelToken,
+            hostMessagingService.handleApproval(testDto.hostId, testDto.hostChannelToken,
                 testDto.visitorId, isAuthenticated);
 
         assertThat(result.get().joinChannelToken())
@@ -115,7 +115,7 @@ public class HostServiceImplTests {
         final HandleApprovalTestDto testDto = prepareForHandleApprovalTest(
             secretKeyEmptyMeansChannelClosed, false, false);
 
-        final Optional<ApprovalResult> result = hostService.handleApproval(
+        final Optional<ApprovalResult> result = hostMessagingService.handleApproval(
             testDto.hostId, testDto.hostChannelToken, testDto.visitorId, false);
 
         assertThat(result.get().joinChannelToken())
@@ -140,7 +140,7 @@ public class HostServiceImplTests {
             prepareForHandleApprovalTest(secretKeyEnc, isAuthenticated, false);
 
         final Optional<ApprovalResult> result =
-            hostService.handleApproval(testDto.hostId, testDto.hostChannelToken,
+            hostMessagingService.handleApproval(testDto.hostId, testDto.hostChannelToken,
                 testDto.visitorId, isAuthenticated);
 
         assertThat(result.get().joinChannelToken())
@@ -165,7 +165,7 @@ public class HostServiceImplTests {
             prepareForHandleApprovalTest(null, isAuthenticated, true);
 
         final Optional<ApprovalResult> result =
-            hostService.handleApproval(testDto.hostId, testDto.hostChannelToken,
+            hostMessagingService.handleApproval(testDto.hostId, testDto.hostChannelToken,
                 testDto.visitorId, isAuthenticated);
 
         assertThat(result.isEmpty()).isTrue();
@@ -229,7 +229,7 @@ public class HostServiceImplTests {
         when(crypter.decrypt(channel.getJoinChannelTokenEnc(), channel.getChannelId()))
             .thenReturn(joinChannelToken);
 
-        final JoinRequestClosedNotification result = hostService.closeJoinRequest(hostId, hostChannelToken);
+        final JoinRequestClosedNotification result = hostMessagingService.closeJoinRequest(hostId, hostChannelToken);
 
         verify(channelService, times(1)).trashSecretKeyByHostChannelToken(hostId, hostChannelToken);
         assertThat(result.joinChannelToken()).isEqualTo(joinChannelToken);

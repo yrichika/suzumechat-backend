@@ -12,7 +12,7 @@ import lombok.val;
 
 
 @Service
-public class HostServiceImpl implements HostService {
+public class HostMessagingServiceImpl implements HostMessagingService {
 
     @Autowired
     private ChannelService channelService;
