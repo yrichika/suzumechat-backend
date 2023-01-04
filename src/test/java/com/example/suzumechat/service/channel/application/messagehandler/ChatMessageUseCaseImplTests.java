@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import com.example.suzumechat.service.channel.dto.message.error.ChatError;
+import com.example.suzumechat.service.channel.dto.message.error.HostChatError;
 import com.example.suzumechat.service.channel.service.HostService;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
@@ -61,6 +61,6 @@ public class ChatMessageUseCaseImplTests {
         useCase.handle(hostId, hostChannelToken, json);
 
         // eq() is necessary when using with any()
-        verify(messageSender, times(1)).returningToHost(eq(hostChannelToken), any(ChatError.class));
+        verify(messageSender, times(1)).returningToHost(eq(hostChannelToken), any(HostChatError.class));
     }
 }

@@ -6,6 +6,6 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor
-public class ChatError implements ErrorMessage {
+public class HostChatError implements ErrorMessage {
     private String jsonMessage;
 }
