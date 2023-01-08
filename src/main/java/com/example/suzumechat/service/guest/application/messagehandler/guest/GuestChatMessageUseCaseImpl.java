@@ -15,7 +15,9 @@ public class GuestChatMessageUseCaseImpl implements GuestChatMessageUseCase {
     @Autowired
     MessageSender messageSender;
 
-    public void handle(String guestId, String guestChannelToken, String messageJson) throws Exception {
+    @Override
+    public void handle(final String guestId, final String guestChannelToken, final String messageJson)
+        throws Exception {
         val hostChannelTokenOpt = messagingService.getHostChannelToken(guestId, guestChannelToken);
         if (hostChannelTokenOpt.isPresent()) {
             messageSender.broadcastToChat(

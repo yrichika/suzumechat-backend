@@ -10,6 +10,7 @@ public class HostUnhandledUseCaseImpl implements HostUnhandledUseCase {
     @Autowired
     MessageSender messageSender;
 
+    @Override
     public void handle(String hostId, String hostChannelToken, String messageJson) throws Exception {
         messageSender.returningToHost(hostChannelToken, new Unhandled(messageJson));
     }
