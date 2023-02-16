@@ -7,7 +7,7 @@ import com.example.suzumechat.service.guest.Guest;
 
 public interface GuestService {
 
-    public Guest getByGuestId(final String guestId) throws Exception;
+    public Guest getByGuestId(String guestId) throws Exception;
 
     public Optional<String> createGuestAsVisitor(String joinChannelToken,
         String visitorId, Channel channel) throws Exception;
@@ -19,5 +19,5 @@ public interface GuestService {
 
     public List<String> getPendedVisitorIdsByChannel(Channel channel) throws Exception;
 
-    public int deleteByChannelIds(final List<String> channelIds);
+    public int deleteByChannelIds(List<String> channelIds);
 }

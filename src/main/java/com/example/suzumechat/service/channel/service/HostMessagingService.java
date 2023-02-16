@@ -7,15 +7,15 @@ import com.example.suzumechat.service.channel.dto.JoinRequestClosedNotification;
 // REFACTOR: rename
 public interface HostMessagingService {
 
-    public Optional<String> getGuestChannelToken(final String hostId, final String hostChannelToken);
+    public Optional<String> getGuestChannelToken(String hostId, String hostChannelToken);
 
     public Optional<ApprovalResult> handleApproval(
-        final String hostId,
-        final String hostChannelToken,
-        final String visitorId,
-        final boolean isAuthenticated);
+        String hostId,
+        String hostChannelToken,
+        String visitorId,
+        boolean isAuthenticated);
 
     public JoinRequestClosedNotification closeJoinRequest(
-        final String hostId,
-        final String hostChannelToken) throws Exception;
+        String hostId,
+        String hostChannelToken) throws Exception;
 }

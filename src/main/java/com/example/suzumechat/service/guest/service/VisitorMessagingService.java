@@ -6,8 +6,8 @@ import com.example.suzumechat.service.valueobject.type.VisitorHandlingStringType
 public interface VisitorMessagingService {
 
     public Optional<VisitorHandlingStringType> createGuestAsVisitor(
-        final String joinChannelToken,
-        final String visitorId,
-        final String visitorPublicKey,
-        final String whoIAmEnc);
+        String joinChannelToken,
+        String visitorId,
+        String visitorPublicKey,
+        String whoIAmEnc);
 }

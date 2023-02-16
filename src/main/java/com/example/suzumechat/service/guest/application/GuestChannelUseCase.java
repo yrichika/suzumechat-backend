@@ -6,10 +6,10 @@ public interface GuestChannelUseCase {
 
     // DELETE:
     public GuestChannel getGuestChannelByGuestChannelToken(
-        final String guestChannelToken) throws Exception;
+        String guestChannelToken) throws Exception;
 
 
-    public boolean guestExistsInChannel(final String guestId,
-        final String guestChannelToken) throws Exception;
+    public boolean guestExistsInChannel(String guestId,
+        String guestChannelToken) throws Exception;
 
 }

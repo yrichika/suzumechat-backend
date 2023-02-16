@@ -60,14 +60,14 @@ public class GuestServiceImpl implements GuestService {
     }
 
     @Override
-    public void updateStatus(String visitorId, Boolean isAuthenticated) {
+    public void updateStatus(final String visitorId, final Boolean isAuthenticated) {
         val visitorIdHashed = hash.digest(visitorId);
         repository.updateIsAuthenticatedByVisitorIdHashed(visitorIdHashed,
             isAuthenticated);
     }
 
     @Override
-    public Guest approveVisitor(String visitorId, boolean isAuthenticated)
+    public Guest approveVisitor(final String visitorId, final boolean isAuthenticated)
         throws Exception {
         val visitorIdHashed = hash.digest(visitorId);
         final Optional<Guest> guestOpt =
@@ -94,7 +94,7 @@ public class GuestServiceImpl implements GuestService {
     }
 
     @Override
-    public List<String> getPendedVisitorIdsByChannel(Channel channel) throws Exception {
+    public List<String> getPendedVisitorIdsByChannel(final Channel channel) throws Exception {
         val visitors = repository.getPendedVisitorsByChannelId(channel.getChannelId());
         val visitorIds = new ArrayList<String>();
         for (Guest visitor : visitors) {
