@@ -49,7 +49,7 @@ public class MessageSenderImpl implements MessageSender {
 
     @Override
     public void returningToHost(final String hostChannelToken, final ErrorMessage errorMessage) {
-        log.warn("Error message from host: " + errorMessage.getType());
+        log.warn("Error message from host: " + errorMessage);
         toHost(hostChannelToken, errorMessage);
     }
 
@@ -58,13 +58,13 @@ public class MessageSenderImpl implements MessageSender {
         final String joinChannelToken,
         final String visitorId,
         final ErrorMessage errorMessage) {
-        log.warn("Error message from visitor: " + errorMessage.getType());
+        log.warn("Error message from visitor: " + errorMessage);
         toVisitor(joinChannelToken, visitorId, errorMessage);
     }
 
     @Override
     public void returningToGuest(final String guestChannelToken, final ErrorMessage errorMessage) {
-        log.warn("Error message from guest: " + errorMessage.getType());
+        log.warn("Error message from guest: " + errorMessage);
         toGuest(guestChannelToken, errorMessage);
     }
 }
