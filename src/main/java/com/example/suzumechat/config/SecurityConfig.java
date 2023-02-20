@@ -1,11 +1,10 @@
 package com.example.suzumechat.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,14 +14,16 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import lombok.val;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
 
-    @Autowired
-    Environment env;
+    @Value("${ws.endpoint}")
+    private String webSocketChatEndPoint;
+
+    @Value("${front.url}")
+    private String frontUrl;
 
     // originally `Password` object
     @Bean
@@ -45,7 +46,6 @@ public class SecurityConfig {
         );
 
         // http.csrf().disable(); // commented code for quick debugging
-        val webSocketChatEndPoint = env.getProperty("ws.endpoint");
         http.csrf()
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             .ignoringAntMatchers(webSocketChatEndPoint + "/**");
@@ -61,7 +61,7 @@ public class SecurityConfig {
 
 
         // Access-Control-Allow-Origin
-        config.addAllowedOrigin(env.getProperty("front.url"));
+        config.addAllowedOrigin(frontUrl);
         // config.addAllowedOrigin(CorsConfiguration.ALL);
         // Access-Control-Allow-Methods
         config.addAllowedMethod(CorsConfiguration.ALL);
