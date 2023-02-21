@@ -36,7 +36,7 @@ public class CloseJoinRequestUseCaseImplTests {
     private CloseJoinRequestUseCaseImpl useCase;
 
     @Autowired
-    TestRandom testRandom;
+    private TestRandom testRandom;
 
     @Test
     public void handle_should_close_join_request_and_send_JoinRequestClosed_message_to_all_visitors() throws Exception {

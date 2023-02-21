@@ -21,13 +21,15 @@ import lombok.val;
 public class WebSocketGuestMessageController {
 
     @Autowired
-    GuestChatMessageUseCase chatMessageUseCase;
+    private GuestChatMessageUseCase chatMessageUseCase;
 
     @Autowired
-    GuestUnhandledUseCase unhandledUseCase;
+    private GuestUnhandledUseCase unhandledUseCase;
 
     @Autowired
     private JsonHelper jsonHelper;
+
+    public final String SESSION_GUEST_ID = "guestId";
 
     private Map<Class<?>, GuestMessageHandler> messageHandlers;
 
@@ -39,8 +41,6 @@ public class WebSocketGuestMessageController {
             }
         };
     }
-
-    final String SESSION_GUEST_ID = "guestId";
 
     @MessageMapping("/guest/{guestChannelToken}") // == `/send/guest/{guestChannelToken}`
     public void receiveAndBroadcast(

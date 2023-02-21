@@ -13,12 +13,12 @@ import lombok.val;
 public class CloseJoinRequestUseCaseImpl implements CloseJoinRequestUseCase {
 
     @Autowired
-    HostMessagingService hostMessagingService;
+    private HostMessagingService hostMessagingService;
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
     @Autowired
-    MessageSender messageSender;
+    private MessageSender messageSender;
 
     @Override
     public void handle(final String hostId, final String hostChannelToken, final String messageJson) throws Exception {

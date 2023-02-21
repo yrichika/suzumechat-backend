@@ -11,9 +11,9 @@ import lombok.val;
 public class ChatMessageUseCaseImpl implements ChatMessageUseCase {
 
     @Autowired
-    HostMessagingService hostMessagingService;
+    private HostMessagingService hostMessagingService;
     @Autowired
-    MessageSender messageSender;
+    private MessageSender messageSender;
 
     @Override
     public void handle(

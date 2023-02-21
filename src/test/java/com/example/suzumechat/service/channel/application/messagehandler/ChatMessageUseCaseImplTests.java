@@ -34,7 +34,7 @@ public class ChatMessageUseCaseImplTests {
     private ChatMessageUseCaseImpl useCase;
 
     @Autowired
-    TestRandom testRandom;
+    private TestRandom testRandom;
 
     @Test
     public void handle_should_call_sender_broadcastToChat() throws Exception {

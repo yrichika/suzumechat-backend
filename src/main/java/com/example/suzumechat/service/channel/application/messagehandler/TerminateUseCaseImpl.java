@@ -10,9 +10,9 @@ import lombok.val;
 @Service
 public class TerminateUseCaseImpl implements TerminateUseCase {
     @Autowired
-    HostMessagingService hostMessagingService;
+    private HostMessagingService hostMessagingService;
     @Autowired
-    MessageSender messageSender;
+    private MessageSender messageSender;
 
     @Override
     public void handle(final String hostId, final String hostChannelToken, final String messageJson) throws Exception {

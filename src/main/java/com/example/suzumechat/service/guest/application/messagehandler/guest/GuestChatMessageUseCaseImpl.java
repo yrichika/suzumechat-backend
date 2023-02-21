@@ -11,9 +11,9 @@ import lombok.val;
 public class GuestChatMessageUseCaseImpl implements GuestChatMessageUseCase {
 
     @Autowired
-    GuestMessagingService messagingService;
+    private GuestMessagingService messagingService;
     @Autowired
-    MessageSender messageSender;
+    private MessageSender messageSender;
 
     @Override
     public void handle(final String guestId, final String guestChannelToken, final String messageJson)

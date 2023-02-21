@@ -32,7 +32,6 @@ public class VisitorMessagingServiceImplTests {
     @InjectMocks
     private VisitorMessagingServiceImpl messageHandler;
 
-
     @Autowired
     private ChannelFactory channelFactory;
     @Autowired

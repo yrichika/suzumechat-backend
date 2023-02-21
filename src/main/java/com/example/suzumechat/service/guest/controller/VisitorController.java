@@ -12,7 +12,7 @@ import com.example.suzumechat.service.guest.dto.ChannelStatus;
 public class VisitorController {
 
     @Autowired
-    VisitorUseCase useCase;
+    private VisitorUseCase useCase;
 
     @Autowired
     private HttpSession session;

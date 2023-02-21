@@ -8,7 +8,7 @@ import com.example.suzumechat.utility.messaging.MessageSender;
 @Service
 public class GuestUnhandledUseCaseImpl implements GuestUnhandledUseCase {
     @Autowired
-    MessageSender messageSender;
+    private MessageSender messageSender;
 
     @Override
     public void handle(final String guestId, final String guestChannelToken, final String messageJson)

@@ -27,7 +27,7 @@ public class MessageSenderImplTests {
     private MessageSenderImpl sender;
 
     @Autowired
-    TestRandom testRandom;
+    private TestRandom testRandom;
 
     // FIXME: get from config
     final String hostEndpointPrefix = "/receive/host/";

@@ -19,7 +19,6 @@ import com.example.suzumechat.service.guest.application.GuestChannelUseCase;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.dto.GuestChannelFactory;
-import com.example.suzumechat.testutil.stub.factory.dto.GuestDtoFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
 
@@ -40,8 +39,6 @@ public class GuestControllerTests {
     private TestRandom testRandom;
     @Autowired
     private GuestChannelFactory guestChannelFactory;
-    @Autowired
-    private GuestDtoFactory guestDtoFactory;
 
     @Test
     public void setSession_should_return_ok_if_guest_exist_in_the_channel()

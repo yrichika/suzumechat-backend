@@ -16,7 +16,6 @@ import com.example.suzumechat.service.guest.dto.ChannelStatus;
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
-import com.example.suzumechat.testutil.stub.factory.entity.GuestFactory;
 import com.example.suzumechat.utility.Crypter;
 import com.example.suzumechat.utility.Hash;
 import lombok.val;
@@ -27,22 +26,20 @@ import lombok.val;
 public class VisitorUseCaseImplTests {
 
     @MockBean
-    Hash hash;
+    private Hash hash;
     @MockBean
-    Crypter crypter;
+    private Crypter crypter;
     @MockBean
-    ChannelService service;
+    private ChannelService service;
 
     @InjectMocks
-    VisitorUseCaseImpl useCase;
+    private VisitorUseCaseImpl useCase;
 
     @Autowired
-    GuestFactory guestFactory;
-    @Autowired
-    ChannelFactory channelFactory;
+    private ChannelFactory channelFactory;
 
     @Autowired
-    TestRandom testRandom;
+    private TestRandom testRandom;
 
     @Test
     @DisplayName("ChannelStatus isAccepting should also be true")

@@ -27,16 +27,16 @@ import lombok.val;
 public class WebSocketMessageController {
 
     @Autowired
-    ChatMessageUseCase chatMessageUseCase;
+    private ChatMessageUseCase chatMessageUseCase;
     @Autowired
-    CloseJoinRequestUseCase closeJoinRequestUseCase;
+    private CloseJoinRequestUseCase closeJoinRequestUseCase;
     @Autowired
-    TerminateUseCase terminateUseCase;
+    private TerminateUseCase terminateUseCase;
     @Autowired
-    VisitorAuthStatusUseCase visitorAuthStatusUseCase;
+    private VisitorAuthStatusUseCase visitorAuthStatusUseCase;
 
     @Autowired
-    HostUnhandledUseCase unhandledUseCase;
+    private HostUnhandledUseCase unhandledUseCase;
 
     @Autowired
     private JsonHelper jsonHelper;

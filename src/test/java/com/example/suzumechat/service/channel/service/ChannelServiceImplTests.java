@@ -27,7 +27,6 @@ import com.example.suzumechat.service.channel.exception.HostUnauthorizedExceptio
 import com.example.suzumechat.testconfig.TestConfig;
 import com.example.suzumechat.testutil.random.TestRandom;
 import com.example.suzumechat.testutil.stub.factory.entity.ChannelFactory;
-import com.example.suzumechat.testutil.stub.factory.entity.GuestFactory;
 import com.example.suzumechat.utility.Crypter;
 import com.example.suzumechat.utility.Hash;
 import com.example.suzumechat.utility.Random;
@@ -38,24 +37,22 @@ import lombok.val;
 @MockitoSettings
 public class ChannelServiceImplTests {
     @MockBean
-    Hash hash;
+    private Hash hash;
     @MockBean
-    Crypter crypter;
+    private Crypter crypter;
     @MockBean
-    Random random;
+    private Random random;
     @MockBean
-    ChannelRepository repository;
+    private ChannelRepository repository;
 
     @InjectMocks
-    ChannelServiceImpl service;
+    private ChannelServiceImpl service;
 
     @Autowired
-    ChannelFactory channelFactory;
-    @Autowired
-    GuestFactory guestFactory;
+    private ChannelFactory channelFactory;
 
     @Autowired
-    TestRandom testRandom;
+    private TestRandom testRandom;
 
     @Test
     public void create_should_create_channel_and_save_to_db() throws Exception {

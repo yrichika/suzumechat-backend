@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class VisitorUnhandledUseCaseImpl implements VisitorUnhandledUseCase {
     @Autowired
-    MessageSender messageSender;
+    private MessageSender messageSender;
 
     /*
      * In order to send visitor messages back, visitor id is necessary.

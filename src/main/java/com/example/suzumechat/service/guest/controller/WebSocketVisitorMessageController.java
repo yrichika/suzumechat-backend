@@ -18,10 +18,10 @@ import com.example.suzumechat.utility.JsonHelper;
 public class WebSocketVisitorMessageController {
 
     @Autowired
-    JoinRequestUseCase joinRequestUseCase;
+    private JoinRequestUseCase joinRequestUseCase;
 
     @Autowired
-    VisitorUnhandledUseCase unhandledUseCase;
+    private VisitorUnhandledUseCase unhandledUseCase;
 
     @Autowired
     private JsonHelper jsonHelper;

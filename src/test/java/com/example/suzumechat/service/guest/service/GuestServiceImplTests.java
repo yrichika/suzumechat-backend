@@ -38,22 +38,22 @@ import lombok.val;
 @MockitoSettings
 public class GuestServiceImplTests {
     @MockBean
-    Hash hash;
+    private Hash hash;
     @MockBean
-    Crypter crypter;
+    private Crypter crypter;
     @MockBean
-    GuestRepository repository;
+    private GuestRepository repository;
 
     @InjectMocks
-    GuestServiceImpl service;
+    private GuestServiceImpl service;
 
     @Autowired
-    GuestFactory guestFactory;
+    private GuestFactory guestFactory;
     @Autowired
-    ChannelFactory channelFactory;
+    private ChannelFactory channelFactory;
 
     @Autowired
-    TestRandom testRandom;
+    private TestRandom testRandom;
 
     @Test
     public void getByGuestId_should_return_guest_if_found() throws Exception {

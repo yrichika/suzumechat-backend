@@ -26,12 +26,12 @@ import lombok.val;
 public class GuestChatMessageUseCaseImplTests {
 
     @MockBean
-    GuestMessagingService messagingService;
+    private GuestMessagingService messagingService;
     @MockBean
-    MessageSender messageSender;
+    private MessageSender messageSender;
 
     @InjectMocks
-    GuestChatMessageUseCaseImpl useCase;
+    private GuestChatMessageUseCaseImpl useCase;
 
     @Autowired
     private TestRandom testRandom;

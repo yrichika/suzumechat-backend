@@ -28,7 +28,7 @@ public class HostUnhandledUseCaseImplTests {
     private HostUnhandledUseCaseImpl useCase;
 
     @Autowired
-    TestRandom testRandom;
+    private TestRandom testRandom;
 
     @Test
     public void handle_should_send_Unhandled_back_to_host() throws Exception {

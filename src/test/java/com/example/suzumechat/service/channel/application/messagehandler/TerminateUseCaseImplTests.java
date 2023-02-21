@@ -34,7 +34,7 @@ public class TerminateUseCaseImplTests {
     private TerminateUseCaseImpl useCase;
 
     @Autowired
-    TestRandom testRandom;
+    private TestRandom testRandom;
 
     @Test
     public void handle_should_send_terminate_message_to_guests() throws Exception {

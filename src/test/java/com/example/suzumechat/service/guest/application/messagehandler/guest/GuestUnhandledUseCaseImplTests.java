@@ -21,10 +21,10 @@ import lombok.val;
 public class GuestUnhandledUseCaseImplTests {
 
     @MockBean
-    MessageSender messageSender;
+    private MessageSender messageSender;
 
     @InjectMocks
-    GuestUnhandledUseCaseImpl useCase;
+    private GuestUnhandledUseCaseImpl useCase;
 
     @Autowired
     private TestRandom testRandom;
