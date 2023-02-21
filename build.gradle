@@ -42,7 +42,7 @@ dependencies {
 	// this project needs httpclient to use spring cloud libraries
 	implementation 'org.apache.httpcomponents:httpclient'
 
-	// TODO: import actuator
+	implementation "org.springframework.boot:spring-boot-starter-actuator"
 
 	implementation 'com.google.crypto.tink:tink:1.6.1'
 	implementation 'com.google.crypto.tink:tink-awskms:1.6.1'
@@ -53,9 +53,8 @@ dependencies {
 	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
 
-	// FIXME: necessary for local M1 Mac development only 急に必要になった。後で削除したい
+	// FIXME: necessary for local M1 Mac development only. if possible, I want to remove it.
 	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.73.Final:osx-aarch_64'
-
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'

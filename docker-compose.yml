@@ -21,6 +21,7 @@ services:
   #   image: suzumechat-backend-local
   #   ports:
   #     - 8010:8080
+  #     - 8011:8081
   #   depends_on:
   #     - suzumechat_local_postgres
   #     - suzumechat_local_redis

@@ -12,5 +12,6 @@ COPY ${JAR_FILE} /home/spring/app.jar
 COPY plain_keyset.json /home/spring/plain_keyset.json
 
 EXPOSE 8080
+EXPOSE 8081
 
 ENTRYPOINT ["java","-jar","/home/spring/app.jar"]
