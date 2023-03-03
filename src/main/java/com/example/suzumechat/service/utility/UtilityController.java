@@ -12,6 +12,7 @@ public class UtilityController {
     //     return ResponseEntity.status(HttpStatus.OK).build();
     // }
 
+    // TEST:
     @GetMapping("/csrfToken")
     public CsrfToken csrfToken(CsrfToken token) {
         return token;
