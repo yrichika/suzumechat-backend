@@ -30,17 +30,11 @@ jobs:
         distribution: 'temurin'
 
     - name: Create encryption key for testing
-      uses: "finnp/create-file-action@master"
       env:
-        FILE_NAME: "plain_keyset.json"
-        FILE_DATA: ${{ secrets.TINK_PLAIN_KEYSET }}
-      # TODO: change it to below: DON'T USE finn/create-file-action
-      # TODO: create secret TINK_ENC_KEYSET
-      # env:
-      #   ENV_FILE_NAME: "enc_keyset.json"
-      #   ENV_FILE_DATA: ${{ secrets.TINK_ENC_KEYSET }}
-      # run: |
-      #   echo "$ENV_FILE_DATA" > "${ENV_FILE_NAME}"
+        ENV_FILE_NAME: "enc_keyset.json"
+        ENV_FILE_DATA: ${{ secrets.TINK_ENC_KEYSET }}
+      run: |
+        echo $ENV_FILE_DATA > $ENV_FILE_NAME
 
     - name: Build with Gradle
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
