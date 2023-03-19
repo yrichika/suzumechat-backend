@@ -3,29 +3,37 @@ package com.example.suzumechat.utility;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
-
 import com.google.crypto.tink.Aead;
 import com.google.crypto.tink.CleartextKeysetHandle;
 import com.google.crypto.tink.JsonKeysetReader;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.aead.AeadConfig;
 import com.google.crypto.tink.integration.awskms.AwsKmsClient;
-
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class Crypter {
 
     private Aead aead;
 
-    private String plainKeysetFilename = "plain_keyset.json"; // TODO: specify file from config file
-    private String encKeysetFilePath = "enc_keyset.json"; // TODO: specify file from config file
-    // TODO: 一旦nullにしてある
-    private String masterKeyUrl = null; // "aws-kms://arn:aws:kms:us-east-1:....";
+    private @Nullable String plainKeysetFilename;
+    private @Nullable String encKeysetFilePath;
+    private @Nullable String masterKeyUrl; // "aws-kms://arn:aws:kms:us-east-1:....";
 
-    public Crypter() throws Exception {
+    public Crypter(
+        @Value("${tink.plain-keyset-file}") String plainKeysetFilename,
+        @Value("${tink.enc-keyset-file}") String encKeysetFilePath,
+        @Nullable @Value("${tink.master-key-uri}") String masterKeyUrl) throws Exception {
+
+        this.plainKeysetFilename = plainKeysetFilename;
+        this.encKeysetFilePath = encKeysetFilePath;
+        this.masterKeyUrl = masterKeyUrl;
+
         AeadConfig.register();
         aead = keysetHandle().getPrimitive(Aead.class);
     }
@@ -40,13 +48,14 @@ public class Crypter {
     }
 
     private KeysetHandle keysetHandle() throws Exception {
-        if (Objects.isNull(masterKeyUrl)) {
+        if (Objects.isNull(masterKeyUrl) || masterKeyUrl.isEmpty()) {
+            log.info("Encrption with the plain keyset.");
             return CleartextKeysetHandle
-                    .read(JsonKeysetReader.withFile(new File(plainKeysetFilename)));
+                .read(JsonKeysetReader.withFile(new File(plainKeysetFilename)));
         }
-
+        log.info("Encrption with the encrypted keyset.");
         return KeysetHandle.read(JsonKeysetReader.withFile(new File(encKeysetFilePath)),
-                new AwsKmsClient().getAead(masterKeyUrl) // FIXME:
+            new AwsKmsClient().getAead(masterKeyUrl) // FIXME:
         );
     }
 }
