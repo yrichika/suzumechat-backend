@@ -1,5 +1,5 @@
-enc_keyset.json
-plain_keyset.json
+*enc_keyset*.json
+*plain_keyset*.json
 HELP.md
 MEMO.md
 RULES.md
