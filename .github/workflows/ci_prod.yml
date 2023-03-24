@@ -16,6 +16,10 @@ on:
 permissions:
   contents: read
 
+env:
+  ENV_TEST_KEYSET_FILE_NAME: "plain_keyset.json"
+  ENV_PROD_KEYSET_FILE_NAME: "enc_keyset.json"
+
 jobs:
   build:
 
@@ -31,17 +35,15 @@ jobs:
 
     - name: Create encryption key for testing
       env:
-        ENV_FILE_NAME: "plain_keyset.json"
-        ENV_FILE_DATA: ${{ secrets.TINK_PLAIN_KEYSET }}
+        ENV_PLAIN_KEYSET_DATA: ${{ secrets.TINK_PLAIN_KEYSET }}
       run: |
-        echo $ENV_FILE_DATA > $ENV_FILE_NAME
+        echo $ENV_PLAIN_KEYSET_DATA > $ENV_TEST_KEYSET_FILE_NAME
 
     - name: Create encryption key for production
       env:
-        ENV_FILE_NAME: "enc_keyset.json"
-        ENV_FILE_DATA: ${{ secrets.TINK_ENC_KEYSET }}
+        ENV_ENC_KEYSET_DATA: ${{ secrets.TINK_ENC_KEYSET }}
       run: |
-        echo $ENV_FILE_DATA > $ENV_FILE_NAME
+        echo $ENV_ENC_KEYSET_DATA > $ENV_PROD_KEYSET_FILE_NAME
 
     - name: Build with Gradle
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
@@ -67,5 +69,5 @@ jobs:
         ECR_REPOSITORY: ${{ secrets.PROD_ECR_REPO_NAME }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --build-arg keyset_file=$ENV_PROD_KEYSET_FILE_NAME .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
