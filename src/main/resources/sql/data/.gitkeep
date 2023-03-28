@@ -1,0 +1,2 @@
+# this directory must be included because it's specified in the application.properties.
+# `spring.sql.init.data-locations=classpath:sql/data/*.sql`
