@@ -18,6 +18,7 @@ WORKDIR /home/spring
 COPY --from=builder /extracted/dependencies/ ./
 COPY --from=builder /extracted/spring-boot-loader/ ./
 COPY --from=builder /extracted/snapshot-dependencies/ ./
+RUN true
 COPY --from=builder /extracted/application/ ./
 
 COPY ${KEYSET_FILE} /home/spring/${KEYSET_FILE}
