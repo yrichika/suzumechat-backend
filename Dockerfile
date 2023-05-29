@@ -18,6 +18,8 @@ WORKDIR /home/spring
 COPY --from=builder /extracted/dependencies/ ./
 COPY --from=builder /extracted/spring-boot-loader/ ./
 COPY --from=builder /extracted/snapshot-dependencies/ ./
+# NOTE: `RUN true` is required to avoid the following error:
+# https://stackoverflow.com/questions/51115856/docker-failed-to-export-image-failed-to-create-image-failed-to-get-layer
 RUN true
 COPY --from=builder /extracted/application/ ./
 
